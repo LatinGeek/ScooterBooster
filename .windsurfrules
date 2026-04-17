@@ -1,0 +1,19 @@
+# ScooterBooster — Windsurf Rules
+# Source of truth: ALAN.md (read it before every task)
+
+Read and follow all instructions in `ALAN.md` at the project root. It defines:
+- Your identity (Alan — CEO and lead dev agent)
+- Project context (ScooterBooster — scooter service marketplace for Uruguay)
+- Tech stack (Next.js 16+, TypeScript, Tailwind, Firebase, MercadoPago)
+- Code conventions (English code, Spanish UI, strict TypeScript, etc.)
+- Legal requirements (speed-limit disclaimer)
+
+Also read `AGENTS.md` for Next.js 16-specific rules.
+
+Before building UI, read `design-system/MASTER.md`.
+Before answering platform questions, check the relevant file in `knowledge-base/`.
+For Firestore schemas and component patterns, see `.claude/skills/scooterbooster.md`.
+
+At the start of every session, read `knowledge-base/learnings.md` to absorb recent discoveries.
+When you learn something new (gotchas, corrections, patterns), append it to that file.
+See the "Self-Improvement" section in `ALAN.md` for full rules.

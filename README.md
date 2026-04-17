@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ScooterBooster
+
+**Potenciá tu scooter eléctrico** — Platform connecting electric scooter owners with technicians in Uruguay.
+
+## Overview
+
+ScooterBooster is a marketplace where scooter owners can find verified technicians for:
+- Speed limit removal (private property use only)
+- Firmware updates
+- Cruise control activation
+- General maintenance
+
+**Domain:** scooterbooster.uy
+**Market:** Uruguay (Spanish-language UI)
+
+## Tech Stack
+
+- **Framework:** Next.js 16+ (App Router) + TypeScript
+- **Styling:** Tailwind CSS + shadcn/ui + Lucide icons
+- **Database:** Firebase Firestore
+- **Auth:** Firebase Auth (Google SSO)
+- **Payments:** MercadoPago (payment link generation)
+- **Chat:** WhatsApp via wa.me links
+- **Deployment:** Vercel + Firebase
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Copy env vars and fill in your credentials
+cp .env.example .env.local
+
+# Run dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/            # Next.js App Router pages and API routes
+├── components/     # React components (shadcn/ui + custom)
+├── hooks/          # Custom React hooks (auth, Firestore)
+├── lib/            # Firebase, MercadoPago, utilities
+└── types/          # TypeScript interfaces
 
-## Learn More
+knowledge-base/     # RAG knowledge base for the Alan agent
+design-system/      # UI/UX design system (MASTER.md)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev     # Start development server
+npm run build   # Build for production
+npm run start   # Start production server
+npm run lint    # Run ESLint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Agent
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project includes **Alan**, a Claude Code dev assistant agent defined in `CLAUDE.md`. Alan has full context about the platform architecture, services, and business logic via the RAG knowledge base in `/knowledge-base/`.
