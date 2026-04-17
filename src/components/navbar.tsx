@@ -1,0 +1,93 @@
+"use client"
+
+import Link from "next/link"
+import { useState } from "react"
+import { Bike, Menu, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
+export function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const links = [
+    { href: "/scooters", label: "Scooters" },
+    { href: "/services", label: "Servicios" },
+    { href: "/technicians", label: "Técnicos" },
+  ]
+
+  return (
+    <header className="sticky top-0 z-40 w-full border-b border-[#e5e7eb] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-bold text-[#111827] transition-colors duration-200 hover:text-[#10b981]"
+          >
+            <Bike className="h-6 w-6 text-[#10b981]" />
+            <span className="text-lg">ScooterBooster</span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-6 md:flex">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-[#6b7280] transition-colors duration-200 hover:text-[#111827]"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Desktop CTA */}
+          <div className="hidden items-center gap-3 md:flex">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/login">Iniciar sesión</Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link href="/booking">Reservar ahora</Link>
+            </Button>
+          </div>
+
+          {/* Mobile menu toggle */}
+          <button
+            className="cursor-pointer p-2 text-[#6b7280] transition-colors hover:text-[#111827] md:hidden"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <div className="flex flex-col gap-4 border-t border-[#e5e7eb] py-4 md:hidden">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-[#6b7280] transition-colors duration-200 hover:text-[#111827]"
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="flex flex-col gap-2 border-t border-[#e5e7eb] pt-2">
+              <Button variant="secondary" asChild>
+                <Link href="/login" onClick={() => setMobileOpen(false)}>
+                  Iniciar sesión
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/booking" onClick={() => setMobileOpen(false)}>
+                  Reservar ahora
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  )
+}

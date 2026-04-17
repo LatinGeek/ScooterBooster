@@ -17,8 +17,8 @@ At the start of every session: read this file to know where to resume.
 | ----- | -------------------------------------------- | -------------- |
 | 00    | MCP Setup (Firebase + Vercel)                | ✅ COMPLETE    |
 | 01    | Foundations & Environment                    | ✅ COMPLETE    |
-| 02    | Design System Implementation                 | 🔄 IN PROGRESS |
-| 03    | Authentication & User Profiles               | ⬜ NOT STARTED |
+| 02    | Design System Implementation                 | ✅ COMPLETE    |
+| 03    | Authentication & User Profiles               | 🔄 IN PROGRESS |
 | 04    | Firestore Schema, Rules & Seed Data          | ⬜ NOT STARTED |
 | 05    | Scooter Catalog                              | ⬜ NOT STARTED |
 | 06    | Service Catalog + Legal Disclaimer           | ⬜ NOT STARTED |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-17
-- Completed: Phase 00 (env/credentials), Phase 01 (dev tooling, TS strict, validators, errors, logger, build clean)
-- Next: Phase 02 — Design system (shadcn/ui install + design tokens + base components)
+- Completed: Phase 00, 01, 02 (env, tooling, validators, design system, UI primitives, domain components)
+- Next: Phase 03 — Authentication (Google SSO, middleware, user profiles)
