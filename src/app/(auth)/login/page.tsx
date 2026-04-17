@@ -1,20 +1,16 @@
-"use client";
+"use client"
 
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth"
 
 export default function LoginPage() {
-  const { loginWithGoogle, loading } = useAuth();
+  const { loginWithGoogle, loading } = useAuth()
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FAFAFA] px-4">
       <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-md">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900">
-            ScooterBooster
-          </h1>
-          <p className="mt-2 text-gray-500">
-            Potenciá tu scooter eléctrico
-          </p>
+          <h1 className="text-3xl font-extrabold text-gray-900">ScooterBooster</h1>
+          <p className="mt-2 text-gray-500">Potenciá tu scooter eléctrico</p>
         </div>
         <button
           onClick={loginWithGoogle}
@@ -43,5 +39,5 @@ export default function LoginPage() {
         </button>
       </div>
     </main>
-  );
+  )
 }

@@ -1,14 +1,12 @@
-export default function ScooterDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ScooterDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900">Detalle del Scooter</h1>
       <p className="mt-2 text-gray-500">
-        Especificaciones técnicas y servicios compatibles.
+        Especificaciones técnicas y servicios compatibles. (#{id})
       </p>
     </main>
-  );
+  )
 }

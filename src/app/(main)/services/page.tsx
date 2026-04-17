@@ -1,4 +1,4 @@
-import { Gauge, Cpu, Navigation, Wrench } from "lucide-react";
+import { Gauge, Cpu, Navigation, Wrench } from "lucide-react"
 
 const services = [
   {
@@ -41,7 +41,7 @@ const services = [
     duration: "60-120 min",
     disclaimer: false,
   },
-];
+]
 
 export default function ServicesPage() {
   return (
@@ -60,23 +60,16 @@ export default function ServicesPage() {
             <div className="flex items-start gap-4">
               <service.icon className="h-10 w-10 shrink-0 text-emerald-500" />
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {service.name}
-                </h2>
-                <p className="mt-2 text-sm text-gray-500">
-                  {service.description}
-                </p>
+                <h2 className="text-xl font-semibold text-gray-900">{service.name}</h2>
+                <p className="mt-2 text-sm text-gray-500">{service.description}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
-                  <span className="font-semibold text-emerald-600">
-                    {service.priceRange}
-                  </span>
+                  <span className="font-semibold text-emerald-600">{service.priceRange}</span>
                   <span className="text-gray-400">|</span>
                   <span className="text-gray-500">{service.duration}</span>
                 </div>
                 {service.disclaimer && (
                   <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
-                    ⚠ Solo para uso en propiedad privada. Se requiere aceptar
-                    aviso legal.
+                    ⚠ Solo para uso en propiedad privada. Se requiere aceptar aviso legal.
                   </div>
                 )}
               </div>
@@ -85,5 +78,5 @@ export default function ServicesPage() {
         ))}
       </div>
     </main>
-  );
+  )
 }

@@ -17,6 +17,7 @@ ScooterBooster Keeps:   $  150 UYU
 ```
 
 ### Configuration
+
 - **Default fee:** 10%
 - **Stored in:** Environment variable `SERVICE_FEE_PERCENTAGE`
 - **Future:** Move to Firebase Remote Config for dynamic updates without redeployment
@@ -25,18 +26,20 @@ ScooterBooster Keeps:   $  150 UYU
 
 ```typescript
 function calculatePricing(basePrice: number, feePercentage: number = 10) {
-  const serviceFee = Math.round(basePrice * (feePercentage / 100));
-  const totalPrice = basePrice + serviceFee;
-  return { basePrice, serviceFee, totalPrice };
+  const serviceFee = Math.round(basePrice * (feePercentage / 100))
+  const totalPrice = basePrice + serviceFee
+  return { basePrice, serviceFee, totalPrice }
 }
 ```
 
 ## Payment Flow (MercadoPago)
 
 ### Overview
+
 We use MercadoPago's **Payment Link (Preference)** API to generate one-time payment links. The user is redirected to MercadoPago to complete payment, then redirected back to ScooterBooster.
 
 ### Flow
+
 1. User submits booking → API creates booking in Firestore with `paymentStatus: "pending"`
 2. API creates a MercadoPago preference with the total amount
 3. API returns the `init_point` URL (payment link) to the frontend
@@ -47,6 +50,7 @@ We use MercadoPago's **Payment Link (Preference)** API to generate one-time paym
 8. User sees confirmation on return URL
 
 ### MercadoPago Preference Structure
+
 ```json
 {
   "items": [
@@ -69,12 +73,14 @@ We use MercadoPago's **Payment Link (Preference)** API to generate one-time paym
 ```
 
 ## Pricing Display Rules
+
 - Always show prices in **UYU** (Uruguayan Pesos)
 - Always show the breakdown: base price + service fee = total
 - Use the format: `$1.650` (dot as thousands separator, as is standard in Uruguay)
 - Show "IVA incluido" (VAT included) if applicable
 
 ## Future Revenue Streams (Not MVP)
+
 - Premium technician listings (featured placement)
 - Subscription plans for frequent users
 - Sponsored scooter brand placements

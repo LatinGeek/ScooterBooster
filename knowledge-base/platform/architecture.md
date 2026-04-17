@@ -2,19 +2,19 @@
 
 ## Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Framework | Next.js 16+ (App Router) | Full-stack React framework |
-| Language | TypeScript (strict) | Type safety |
-| Styling | Tailwind CSS v4 | Utility-first CSS |
-| UI Components | shadcn/ui | Accessible component primitives |
-| Icons | Lucide React | SVG icon library |
-| Database | Firebase Firestore | NoSQL document database |
-| Auth | Firebase Auth | Google SSO authentication |
-| Payments | MercadoPago | Payment link generation |
-| Communication | WhatsApp (wa.me links) | User-technician messaging |
-| Deployment | Vercel | Frontend + API routes hosting |
-| Design System | UI/UX Pro Max | AI-generated design intelligence |
+| Layer         | Technology               | Purpose                          |
+| ------------- | ------------------------ | -------------------------------- |
+| Framework     | Next.js 16+ (App Router) | Full-stack React framework       |
+| Language      | TypeScript (strict)      | Type safety                      |
+| Styling       | Tailwind CSS v4          | Utility-first CSS                |
+| UI Components | shadcn/ui                | Accessible component primitives  |
+| Icons         | Lucide React             | SVG icon library                 |
+| Database      | Firebase Firestore       | NoSQL document database          |
+| Auth          | Firebase Auth            | Google SSO authentication        |
+| Payments      | MercadoPago              | Payment link generation          |
+| Communication | WhatsApp (wa.me links)   | User-technician messaging        |
+| Deployment    | Vercel                   | Frontend + API routes hosting    |
+| Design System | UI/UX Pro Max            | AI-generated design intelligence |
 
 ## Deployment Architecture
 
@@ -67,6 +67,7 @@ src/app/
 ## Data Flow
 
 ### Booking Flow
+
 1. User selects scooter model → views compatible services
 2. User selects service → views available technicians for that service
 3. User selects technician → views profile, reviews, availability, and pricing
@@ -79,6 +80,7 @@ src/app/
 10. After service completion → user can leave a review
 
 ### Auth Flow
+
 1. User clicks "Iniciar sesión" → redirected to Google SSO via Firebase Auth
 2. Firebase returns user token
 3. On first login → create user document in Firestore `users` collection
@@ -113,6 +115,7 @@ SERVICE_FEE_PERCENTAGE=10
 ```
 
 ## Performance Considerations
+
 - Use Server Components by default (less client-side JS)
 - Use `"use client"` only for interactive components
 - Lazy load heavy components (booking form, admin panel)

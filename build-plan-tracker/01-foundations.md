@@ -1,51 +1,72 @@
 # Tracker — Phase 01: Foundations & Environment
 
-> Status: ⬜ NOT STARTED
+> Status: ✅ COMPLETE
 > Last updated: 2026-04-17
 
 ## Tasks
 
 ### 1.1 Environment Variables
-- [ ] Create `.env.local` from `.env.example` (needs dev Firebase config from Germán)
-- [ ] Verify `.env.local` is gitignored ✓ (already in .gitignore)
-- [ ] Add all env vars to Vercel (needs Vercel project access)
+
+- [x] .env.local created and filled with dev Firebase config
+- [x] .env.local gitignored ✓
+- [x] .env.example updated with all vars + comments
+- [ ] Vercel env vars — deferred (needs Vercel CLI or dashboard access)
 
 ### 1.2 Dev Tooling
-- [ ] Install + configure Prettier with tailwindcss plugin
-- [ ] Install ESLint import sort plugin
-- [ ] Add format scripts to package.json
-- [ ] Install Husky + lint-staged
-- [ ] Configure commitlint for Conventional Commits
+
+- [x] Prettier installed with prettier-plugin-tailwindcss
+- [x] .prettierrc created
+- [x] eslint-plugin-simple-import-sort installed
+- [x] format / format:check scripts added to package.json
+- [x] Husky installed + initialized
+- [x] lint-staged configured in package.json
+- [x] pre-commit hook: runs lint-staged
+- [x] commit-msg hook: runs commitlint
+- [x] commitlint.config.js created
 
 ### 1.3 TypeScript Strictness
-- [ ] Verify/update tsconfig.json strict flags
-- [ ] Confirm `@/*` path alias works
-- [ ] Run `tsc --noEmit` → zero errors
+
+- [x] strict: true ✓ (already present)
+- [x] noUncheckedIndexedAccess: true added
+- [x] noImplicitOverride: true added
+- [x] @/\* path alias ✓ (already present)
+- [x] tsc --noEmit → zero errors ✓
 
 ### 1.4 Zod + Shared Validators
-- [ ] Create `src/lib/validators/` with typed validator files
-- [ ] Create `src/lib/api-response.ts` helpers
+
+- [x] src/lib/validators/user.ts
+- [x] src/lib/validators/booking.ts
+- [x] src/lib/validators/technician.ts
+- [x] src/lib/validators/review.ts
+- [x] src/lib/validators/service.ts
+- [x] src/lib/api-response.ts (ok/fail/withErrorHandling helpers)
 
 ### 1.5 Error Handling Primitives
-- [ ] Create `src/lib/errors.ts` with AppError + subclasses (bilingual messages)
+
+- [x] src/lib/errors.ts — AppError + AuthError, ForbiddenError, NotFoundError, ValidationError, PaymentError, ConflictError
 
 ### 1.6 Logger
-- [ ] Install pino + pino-pretty
-- [ ] Create `src/lib/logger.ts`
+
+- [x] pino + pino-pretty installed
+- [x] src/lib/logger.ts — pretty in dev, JSON in prod, PII redaction configured
 
 ### 1.7 CI (GitHub Actions)
-- [ ] Create `.github/workflows/ci.yml` (needs GitHub repo)
+
+- [ ] .github/workflows/ci.yml — deferred (needs GitHub repo push)
 
 ### 1.8 Firebase Emulators
-- [ ] Init emulators (needs Firebase CLI + project)
-- [ ] Update firebase.ts to connect to emulators when env flag set
+
+- [ ] Deferred to after Firebase CLI setup
 
 ### 1.9 Package Scripts
-- [ ] Add all required npm scripts to package.json
-- [ ] Add `engines.node >= 20.15.0`
+
+- [x] dev, build, start, lint, format, format:check, type-check, emulators, test, test:watch, test:e2e
+- [x] engines.node >= 20.15.0
 
 ## Notes
 
-- Tasks 1.1, 1.7, 1.8 depend on Phase 00 (credentials/external setup)
-- Tasks 1.2, 1.3, 1.4, 1.5, 1.6, 1.9 can proceed without credentials — do these first
-- zod is already installed (v4.3.6) ✓
+- pino moved to dependencies (not devDependencies) — needed at runtime for server-side logging
+- @fontsource-variable/inter added — next/font/google fails in no-internet build sandbox
+- layout.tsx updated: Inter font, OG metadata, lang="es"
+- globals.css updated: full design token set, prefers-reduced-motion, Inter as base font
+- Build passes clean: 17 routes, 0 warnings ✓

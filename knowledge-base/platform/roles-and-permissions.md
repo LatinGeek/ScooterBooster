@@ -2,15 +2,16 @@
 
 ## Roles Overview
 
-| Role | Description | How Assigned |
-|------|-------------|-------------|
-| **user** | Scooter owner who browses, books, and reviews | Default on signup |
-| **technician** | Service provider who receives bookings | Admin approval required |
-| **admin** | Platform administrator | Manual assignment via Firebase console |
+| Role           | Description                                   | How Assigned                           |
+| -------------- | --------------------------------------------- | -------------------------------------- |
+| **user**       | Scooter owner who browses, books, and reviews | Default on signup                      |
+| **technician** | Service provider who receives bookings        | Admin approval required                |
+| **admin**      | Platform administrator                        | Manual assignment via Firebase console |
 
 ## User (Scooter Owner)
 
 ### Can:
+
 - Browse scooter catalog (brands and models)
 - View service listings and pricing
 - Search and filter technicians by service, location, rating
@@ -24,6 +25,7 @@
 - Edit their profile (display name, phone)
 
 ### Cannot:
+
 - Access technician dashboard
 - Approve/reject other technicians
 - Modify service catalog or scooter catalog
@@ -33,6 +35,7 @@
 ## Technician
 
 ### Can:
+
 - Everything a User can do, PLUS:
 - Create and manage their technician profile (bio, location, photo)
 - Set their availability schedule
@@ -45,6 +48,7 @@
 - View their earnings summary
 
 ### Cannot:
+
 - Approve other technicians
 - Modify the platform-wide service catalog
 - Modify the scooter catalog
@@ -52,6 +56,7 @@
 - Delete user reviews
 
 ### Onboarding Flow:
+
 1. User signs up with Google SSO → role = "user"
 2. User applies to become a technician (fills profile form)
 3. Admin reviews application in admin panel
@@ -61,6 +66,7 @@
 ## Admin
 
 ### Can:
+
 - Everything a Technician can do, PLUS:
 - View and approve/reject technician applications
 - Manage the scooter catalog (add/edit/deactivate brands and models)
@@ -72,6 +78,7 @@
 - Configure platform settings (service fee percentage)
 
 ### Cannot:
+
 - Delete the database (safeguard)
 - Access Firebase console directly from the app (must use Firebase console separately)
 
@@ -81,11 +88,11 @@ Roles are stored as Firebase Auth custom claims for secure server-side verificat
 
 ```typescript
 // Setting a role (admin API route)
-await adminAuth.setCustomUserClaims(uid, { role: "technician" });
+await adminAuth.setCustomUserClaims(uid, { role: "technician" })
 
 // Verifying a role (API route middleware)
-const decodedToken = await adminAuth.verifyIdToken(token);
-const role = decodedToken.role; // "user" | "technician" | "admin"
+const decodedToken = await adminAuth.verifyIdToken(token)
+const role = decodedToken.role // "user" | "technician" | "admin"
 ```
 
 ## Firestore Security Rules (Role-Based)

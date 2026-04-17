@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "next/link"
 import {
   Gauge,
   Cpu,
@@ -8,7 +8,7 @@ import {
   Star,
   Shield,
   MessageCircle,
-} from "lucide-react";
+} from "lucide-react"
 
 const services = [
   {
@@ -39,7 +39,7 @@ const services = [
       "Servicio completo de mantenimiento: neumáticos, frenos, batería, diagnóstico y más.",
     slug: "maintenance",
   },
-];
+]
 
 const steps = [
   {
@@ -55,10 +55,9 @@ const steps = [
   {
     number: "3",
     title: "Reservá un técnico",
-    description:
-      "Elegí un técnico verificado, revisá sus reseñas y agendá tu cita.",
+    description: "Elegí un técnico verificado, revisá sus reseñas y agendá tu cita.",
   },
-];
+]
 
 export default function HomePage() {
   return (
@@ -67,12 +66,11 @@ export default function HomePage() {
       <section className="bg-gradient-to-br from-emerald-50 to-blue-50 px-4 py-16 md:py-24">
         <div className="mx-auto max-w-6xl text-center">
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 md:text-6xl">
-            Potenciá tu{" "}
-            <span className="text-emerald-500">scooter eléctrico</span>
+            Potenciá tu <span className="text-emerald-500">scooter eléctrico</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 md:text-xl">
-            Conectamos dueños de scooters eléctricos con los mejores técnicos de
-            Uruguay. Velocidad, firmware, cruise control y mantenimiento.
+            Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay. Velocidad,
+            firmware, cruise control y mantenimiento.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
@@ -95,9 +93,7 @@ export default function HomePage() {
       {/* Services Section */}
       <section className="bg-white px-4 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-3xl font-bold text-gray-900">
-            Nuestros Servicios
-          </h2>
+          <h2 className="text-center text-3xl font-bold text-gray-900">Nuestros Servicios</h2>
           <p className="mx-auto mt-4 max-w-2xl text-center text-gray-500">
             Todo lo que necesitás para tu scooter eléctrico, en un solo lugar.
           </p>
@@ -109,12 +105,8 @@ export default function HomePage() {
                 className="group cursor-pointer rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               >
                 <service.icon className="h-10 w-10 text-emerald-500" />
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                  {service.name}
-                </h3>
-                <p className="mt-2 text-sm text-gray-500">
-                  {service.description}
-                </p>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">{service.name}</h3>
+                <p className="mt-2 text-sm text-gray-500">{service.description}</p>
               </Link>
             ))}
           </div>
@@ -124,18 +116,14 @@ export default function HomePage() {
       {/* How It Works Section */}
       <section className="bg-gray-50 px-4 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-3xl font-bold text-gray-900">
-            ¿Cómo funciona?
-          </h2>
+          <h2 className="text-center text-3xl font-bold text-gray-900">¿Cómo funciona?</h2>
           <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
             {steps.map((step) => (
               <div key={step.number} className="text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-2xl font-bold text-white">
                   {step.number}
                 </div>
-                <h3 className="mt-6 text-xl font-semibold text-gray-900">
-                  {step.title}
-                </h3>
+                <h3 className="mt-6 text-xl font-semibold text-gray-900">{step.title}</h3>
                 <p className="mt-2 text-gray-500">{step.description}</p>
               </div>
             ))}
@@ -149,29 +137,21 @@ export default function HomePage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="flex flex-col items-center text-center">
               <Shield className="h-12 w-12 text-emerald-500" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                Técnicos verificados
-              </h3>
+              <h3 className="mt-4 text-lg font-semibold text-gray-900">Técnicos verificados</h3>
               <p className="mt-2 text-sm text-gray-500">
-                Todos nuestros técnicos son revisados y aprobados por nuestro
-                equipo.
+                Todos nuestros técnicos son revisados y aprobados por nuestro equipo.
               </p>
             </div>
             <div className="flex flex-col items-center text-center">
               <Star className="h-12 w-12 text-amber-400" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                Reseñas reales
-              </h3>
+              <h3 className="mt-4 text-lg font-semibold text-gray-900">Reseñas reales</h3>
               <p className="mt-2 text-sm text-gray-500">
-                Calificaciones y comentarios de usuarios reales que ya usaron el
-                servicio.
+                Calificaciones y comentarios de usuarios reales que ya usaron el servicio.
               </p>
             </div>
             <div className="flex flex-col items-center text-center">
               <MessageCircle className="h-12 w-12 text-green-500" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">
-                Contacto directo
-              </h3>
+              <h3 className="mt-4 text-lg font-semibold text-gray-900">Contacto directo</h3>
               <p className="mt-2 text-sm text-gray-500">
                 Comunicación directa con tu técnico vía WhatsApp.
               </p>
@@ -183,9 +163,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="bg-emerald-500 px-4 py-16">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold text-white">
-            ¿Listo para potenciar tu scooter?
-          </h2>
+          <h2 className="text-3xl font-bold text-white">¿Listo para potenciar tu scooter?</h2>
           <p className="mt-4 text-lg text-emerald-100">
             Encontrá el técnico perfecto para tu scooter eléctrico en Uruguay.
           </p>
@@ -206,30 +184,41 @@ export default function HomePage() {
             <div>
               <h3 className="text-lg font-bold text-white">ScooterBooster</h3>
               <p className="mt-2 text-sm text-gray-400">
-                Potenciá tu scooter eléctrico con los mejores técnicos de
-                Uruguay.
+                Potenciá tu scooter eléctrico con los mejores técnicos de Uruguay.
               </p>
             </div>
             <div>
               <h4 className="font-semibold text-white">Servicios</h4>
               <ul className="mt-2 space-y-2 text-sm text-gray-400">
                 <li>
-                  <Link href="/services" className="cursor-pointer hover:text-white transition-colors">
+                  <Link
+                    href="/services"
+                    className="cursor-pointer transition-colors hover:text-white"
+                  >
                     Límite de velocidad
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services" className="cursor-pointer hover:text-white transition-colors">
+                  <Link
+                    href="/services"
+                    className="cursor-pointer transition-colors hover:text-white"
+                  >
                     Firmware
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services" className="cursor-pointer hover:text-white transition-colors">
+                  <Link
+                    href="/services"
+                    className="cursor-pointer transition-colors hover:text-white"
+                  >
                     Cruise control
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services" className="cursor-pointer hover:text-white transition-colors">
+                  <Link
+                    href="/services"
+                    className="cursor-pointer transition-colors hover:text-white"
+                  >
                     Mantenimiento
                   </Link>
                 </li>
@@ -239,17 +228,23 @@ export default function HomePage() {
               <h4 className="font-semibold text-white">Plataforma</h4>
               <ul className="mt-2 space-y-2 text-sm text-gray-400">
                 <li>
-                  <Link href="/scooters" className="cursor-pointer hover:text-white transition-colors">
+                  <Link
+                    href="/scooters"
+                    className="cursor-pointer transition-colors hover:text-white"
+                  >
                     Scooters
                   </Link>
                 </li>
                 <li>
-                  <Link href="/technicians" className="cursor-pointer hover:text-white transition-colors">
+                  <Link
+                    href="/technicians"
+                    className="cursor-pointer transition-colors hover:text-white"
+                  >
                     Técnicos
                   </Link>
                 </li>
                 <li>
-                  <Link href="/login" className="cursor-pointer hover:text-white transition-colors">
+                  <Link href="/login" className="cursor-pointer transition-colors hover:text-white">
                     Iniciar sesión
                   </Link>
                 </li>
@@ -273,5 +268,5 @@ export default function HomePage() {
         </div>
       </footer>
     </main>
-  );
+  )
 }

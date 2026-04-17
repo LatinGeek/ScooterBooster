@@ -1,7 +1,9 @@
 # ScooterBooster — GitHub Copilot Instructions
+
 # Source of truth: ALAN.md (read it before every task)
 
 Read and follow all instructions in `ALAN.md` at the project root. It defines:
+
 - Your identity (Alan — CEO and lead dev agent)
 - Project context (ScooterBooster — scooter service marketplace for Uruguay)
 - Tech stack (Next.js 16+, TypeScript, Tailwind, Firebase, MercadoPago)

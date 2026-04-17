@@ -1,22 +1,20 @@
-import { MercadoPagoConfig, Preference } from "mercadopago";
-import type { PaymentLink } from "@/types";
+import { MercadoPagoConfig, Preference } from "mercadopago"
+import type { PaymentLink } from "@/types"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
-});
+})
 
 interface CreatePaymentLinkParams {
-  bookingId: string;
-  serviceName: string;
-  scooterModelName: string;
-  totalPrice: number;
+  bookingId: string
+  serviceName: string
+  scooterModelName: string
+  totalPrice: number
 }
 
-export async function createPaymentLink(
-  params: CreatePaymentLinkParams
-): Promise<PaymentLink> {
-  const preference = new Preference(client);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://scooterbooster.uy";
+export async function createPaymentLink(params: CreatePaymentLinkParams): Promise<PaymentLink> {
+  const preference = new Preference(client)
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://scooterbooster.uy"
 
   const result = await preference.create({
     body: {
@@ -38,19 +36,19 @@ export async function createPaymentLink(
       notification_url: `${appUrl}/api/payments/webhook`,
       external_reference: `booking_${params.bookingId}`,
     },
-  });
+  })
 
   return {
     preferenceId: result.id!,
     initPoint: result.init_point!,
-  };
+  }
 }
 
 export function calculatePricing(
   basePrice: number,
   feePercentage: number = parseInt(process.env.SERVICE_FEE_PERCENTAGE || "10")
 ) {
-  const serviceFee = Math.round(basePrice * (feePercentage / 100));
-  const totalPrice = basePrice + serviceFee;
-  return { basePrice, serviceFee, totalPrice, feePercentage };
+  const serviceFee = Math.round(basePrice * (feePercentage / 100))
+  const totalPrice = basePrice + serviceFee
+  return { basePrice, serviceFee, totalPrice, feePercentage }
 }

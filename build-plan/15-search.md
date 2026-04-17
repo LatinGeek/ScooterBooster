@@ -11,6 +11,7 @@
 ## 15.2 — Index Strategy
 
 For MVP, use Firestore queries with prefix matching on normalized fields:
+
 - [ ] Add `searchTokens: string[]` field to each indexed doc (lowercase, accent-stripped, split by whitespace)
 - [ ] Query with `array-contains-any`
 

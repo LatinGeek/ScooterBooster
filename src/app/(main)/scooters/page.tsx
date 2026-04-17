@@ -1,9 +1,7 @@
 export default function ScootersPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900">
-        Catálogo de Scooters
-      </h1>
+      <h1 className="text-3xl font-bold text-gray-900">Catálogo de Scooters</h1>
       <p className="mt-2 text-gray-500">
         Seleccioná tu marca y modelo para ver los servicios disponibles.
       </p>
@@ -14,5 +12,5 @@ export default function ScootersPage() {
         </div>
       </div>
     </main>
-  );
+  )
 }

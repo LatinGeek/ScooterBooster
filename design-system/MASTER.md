@@ -32,37 +32,39 @@
 
 ## COLORS
 
-| Token | Hex | Name | Usage |
-|-------|-----|------|-------|
-| Primary | `#10B981` | Emerald Green | Brand, CTAs, active states |
-| Primary Dark | `#059669` | Dark Emerald | Hover states, emphasis |
-| Primary Light | `#D1FAE5` | Mint | Subtle backgrounds, badges |
-| Secondary | `#3B82F6` | Electric Blue | Links, secondary actions |
-| Accent | `#F59E0B` | Amber | Ratings stars, warnings, highlights |
-| Background | `#FAFAFA` | Off White | Page background |
-| Surface | `#FFFFFF` | White | Cards, modals, inputs |
-| Surface Alt | `#F3F4F6` | Light Gray | Alternate sections, table rows |
-| Text Primary | `#111827` | Near Black | Headings, body text |
-| Text Secondary | `#6B7280` | Gray | Subtitles, descriptions |
-| Text Muted | `#9CA3AF` | Light Gray | Placeholders, disabled |
-| Border | `#E5E7EB` | Border Gray | Card borders, dividers |
-| Error | `#EF4444` | Red | Error states, destructive actions |
-| Success | `#10B981` | Green | Success states (same as primary) |
-| Warning | `#F59E0B` | Amber | Warnings, disclaimers |
+| Token          | Hex       | Name          | Usage                               |
+| -------------- | --------- | ------------- | ----------------------------------- |
+| Primary        | `#10B981` | Emerald Green | Brand, CTAs, active states          |
+| Primary Dark   | `#059669` | Dark Emerald  | Hover states, emphasis              |
+| Primary Light  | `#D1FAE5` | Mint          | Subtle backgrounds, badges          |
+| Secondary      | `#3B82F6` | Electric Blue | Links, secondary actions            |
+| Accent         | `#F59E0B` | Amber         | Ratings stars, warnings, highlights |
+| Background     | `#FAFAFA` | Off White     | Page background                     |
+| Surface        | `#FFFFFF` | White         | Cards, modals, inputs               |
+| Surface Alt    | `#F3F4F6` | Light Gray    | Alternate sections, table rows      |
+| Text Primary   | `#111827` | Near Black    | Headings, body text                 |
+| Text Secondary | `#6B7280` | Gray          | Subtitles, descriptions             |
+| Text Muted     | `#9CA3AF` | Light Gray    | Placeholders, disabled              |
+| Border         | `#E5E7EB` | Border Gray   | Card borders, dividers              |
+| Error          | `#EF4444` | Red           | Error states, destructive actions   |
+| Success        | `#10B981` | Green         | Success states (same as primary)    |
+| Warning        | `#F59E0B` | Amber         | Warnings, disclaimers               |
 
 ### Tailwind Config Extension
+
 ```css
 /* In globals.css or tailwind theme */
 @theme inline {
-  --color-primary: #10B981;
+  --color-primary: #10b981;
   --color-primary-dark: #059669;
-  --color-primary-light: #D1FAE5;
-  --color-secondary: #3B82F6;
-  --color-accent: #F59E0B;
+  --color-primary-light: #d1fae5;
+  --color-secondary: #3b82f6;
+  --color-accent: #f59e0b;
 }
 ```
 
 ### Color Notes
+
 - Green = electric/eco/energy — aligns with electric scooters
 - Blue secondary for trust and professionalism
 - Amber for ratings and attention-grabbing elements
@@ -74,23 +76,28 @@
 
 ### Font Pairing: Inter + JetBrains Mono
 
-| Role | Font | Weight | Size | Usage |
-|------|------|--------|------|-------|
-| H1 | Inter | 800 (ExtraBold) | 36px / 2.25rem | Page titles |
-| H2 | Inter | 700 (Bold) | 30px / 1.875rem | Section headings |
-| H3 | Inter | 600 (SemiBold) | 24px / 1.5rem | Card titles |
-| H4 | Inter | 600 (SemiBold) | 20px / 1.25rem | Sub-sections |
-| Body | Inter | 400 (Regular) | 16px / 1rem | Paragraph text |
-| Body Small | Inter | 400 (Regular) | 14px / 0.875rem | Secondary text |
-| Caption | Inter | 500 (Medium) | 12px / 0.75rem | Labels, badges |
-| Code/Specs | JetBrains Mono | 400 | 14px / 0.875rem | Technical specs |
+| Role       | Font           | Weight          | Size            | Usage            |
+| ---------- | -------------- | --------------- | --------------- | ---------------- |
+| H1         | Inter          | 800 (ExtraBold) | 36px / 2.25rem  | Page titles      |
+| H2         | Inter          | 700 (Bold)      | 30px / 1.875rem | Section headings |
+| H3         | Inter          | 600 (SemiBold)  | 24px / 1.5rem   | Card titles      |
+| H4         | Inter          | 600 (SemiBold)  | 20px / 1.25rem  | Sub-sections     |
+| Body       | Inter          | 400 (Regular)   | 16px / 1rem     | Paragraph text   |
+| Body Small | Inter          | 400 (Regular)   | 14px / 0.875rem | Secondary text   |
+| Caption    | Inter          | 500 (Medium)    | 12px / 0.75rem  | Labels, badges   |
+| Code/Specs | JetBrains Mono | 400             | 14px / 0.875rem | Technical specs  |
 
 ### Google Fonts Import
+
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400&display=swap"
+  rel="stylesheet"
+/>
 ```
 
 ### Typography Notes
+
 - Inter: clean, modern, highly legible — perfect for marketplaces
 - JetBrains Mono: used sparingly for scooter specs (speed, range, battery)
 - All text in Spanish — use proper accents (á, é, í, ó, ú, ñ, ü)
@@ -99,38 +106,38 @@
 
 ## SPACING
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| xs | 4px / 0.25rem | Tight inline spacing |
-| sm | 8px / 0.5rem | Icon gaps, badge padding |
-| md | 16px / 1rem | Component internal padding |
-| lg | 24px / 1.5rem | Card padding, section gaps |
-| xl | 32px / 2rem | Section padding |
-| 2xl | 48px / 3rem | Major section separation |
-| 3xl | 64px / 4rem | Hero/footer padding |
+| Token | Value         | Usage                      |
+| ----- | ------------- | -------------------------- |
+| xs    | 4px / 0.25rem | Tight inline spacing       |
+| sm    | 8px / 0.5rem  | Icon gaps, badge padding   |
+| md    | 16px / 1rem   | Component internal padding |
+| lg    | 24px / 1.5rem | Card padding, section gaps |
+| xl    | 32px / 2rem   | Section padding            |
+| 2xl   | 48px / 3rem   | Major section separation   |
+| 3xl   | 64px / 4rem   | Hero/footer padding        |
 
 ---
 
 ## BORDER RADIUS
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| sm | 6px / 0.375rem | Buttons, inputs |
-| md | 8px / 0.5rem | Default |
-| lg | 12px / 0.75rem | Cards |
-| xl | 16px / 1rem | Large cards, modals |
-| full | 9999px | Avatars, badges, pills |
+| Token | Value          | Usage                  |
+| ----- | -------------- | ---------------------- |
+| sm    | 6px / 0.375rem | Buttons, inputs        |
+| md    | 8px / 0.5rem   | Default                |
+| lg    | 12px / 0.75rem | Cards                  |
+| xl    | 16px / 1rem    | Large cards, modals    |
+| full  | 9999px         | Avatars, badges, pills |
 
 ---
 
 ## SHADOWS
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| sm | `0 1px 2px rgba(0,0,0,0.05)` | Subtle depth |
-| md | `0 4px 6px -1px rgba(0,0,0,0.1)` | Cards, dropdowns |
-| lg | `0 10px 15px -3px rgba(0,0,0,0.1)` | Modals, elevated cards |
-| xl | `0 20px 25px -5px rgba(0,0,0,0.1)` | Popovers |
+| Token | Value                              | Usage                  |
+| ----- | ---------------------------------- | ---------------------- |
+| sm    | `0 1px 2px rgba(0,0,0,0.05)`       | Subtle depth           |
+| md    | `0 4px 6px -1px rgba(0,0,0,0.1)`   | Cards, dropdowns       |
+| lg    | `0 10px 15px -3px rgba(0,0,0,0.1)` | Modals, elevated cards |
+| xl    | `0 20px 25px -5px rgba(0,0,0,0.1)` | Popovers               |
 
 ---
 
@@ -147,6 +154,7 @@
 ## COMPONENTS STYLE GUIDE
 
 ### Buttons
+
 ```
 Primary:    bg-primary text-white hover:bg-primary-dark rounded-lg px-6 py-3 font-semibold
 Secondary:  bg-white text-primary border border-primary hover:bg-primary-light rounded-lg px-6 py-3
@@ -155,18 +163,21 @@ Danger:     bg-red-500 text-white hover:bg-red-600 rounded-lg px-6 py-3
 ```
 
 ### Cards
+
 ```
 Default:    bg-white border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200
 Interactive: + cursor-pointer hover:-translate-y-0.5
 ```
 
 ### Inputs
+
 ```
 Default:    bg-white border border-border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary
 Error:      border-red-500 focus:ring-red-500
 ```
 
 ### Badges
+
 ```
 Default:    bg-primary-light text-primary-dark rounded-full px-3 py-1 text-xs font-medium
 Warning:    bg-amber-100 text-amber-800 rounded-full px-3 py-1 text-xs font-medium
@@ -199,16 +210,17 @@ Warning:    bg-amber-100 text-amber-800 rounded-full px-3 py-1 text-xs font-medi
 
 ## RESPONSIVE BREAKPOINTS
 
-| Breakpoint | Width | Target |
-|-----------|-------|--------|
-| Default | < 640px | Mobile (375px+) |
-| sm | 640px | Large phone |
-| md | 768px | Tablet |
-| lg | 1024px | Laptop |
-| xl | 1280px | Desktop |
-| 2xl | 1440px | Large desktop |
+| Breakpoint | Width   | Target          |
+| ---------- | ------- | --------------- |
+| Default    | < 640px | Mobile (375px+) |
+| sm         | 640px   | Large phone     |
+| md         | 768px   | Tablet          |
+| lg         | 1024px  | Laptop          |
+| xl         | 1280px  | Desktop         |
+| 2xl        | 1440px  | Large desktop   |
 
 ### Mobile-First Rules
+
 - Cards: 1 column on mobile, 2 on md, 3 on lg
 - Navigation: hamburger menu on mobile, full nav on md+
 - Hero text: centered on mobile, left-aligned on lg

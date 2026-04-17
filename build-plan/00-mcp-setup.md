@@ -38,6 +38,7 @@
 - [ ] Add the MCP server to your AI client's MCP config (see per-client snippets below)
 
 **Claude Desktop** (`%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+
 ```json
 {
   "mcpServers": {
@@ -54,6 +55,7 @@
 ```
 
 **Cursor** (`.cursor/mcp.json` in the repo):
+
 ```json
 {
   "mcpServers": {

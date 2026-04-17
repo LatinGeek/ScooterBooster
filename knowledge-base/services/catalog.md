@@ -65,6 +65,7 @@
 ## Service Display Format (UI)
 
 Each service card should show:
+
 1. Service icon (Lucide icon)
 2. Service name (Spanish)
 3. Short description

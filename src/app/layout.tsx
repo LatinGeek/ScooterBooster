@@ -1,42 +1,30 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import type { Metadata } from "next"
+import "@fontsource-variable/inter"
+import "./globals.css"
 
 export const metadata: Metadata = {
   title: "ScooterBooster — Potenciá tu scooter",
   description:
     "Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay. Eliminación de límite de velocidad, firmware, cruise control y mantenimiento.",
-  keywords: [
-    "scooter eléctrico",
-    "Uruguay",
-    "técnicos",
-    "mantenimiento",
-    "firmware",
-    "velocidad",
-  ],
-};
+  keywords: ["scooter eléctrico", "Uruguay", "técnicos", "mantenimiento", "firmware", "velocidad"],
+  openGraph: {
+    title: "ScooterBooster — Potenciá tu scooter",
+    description: "Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay.",
+    url: "https://scooterbooster.uy",
+    siteName: "ScooterBooster",
+    locale: "es_UY",
+    type: "website",
+  },
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="es" className="h-full antialiased">
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
-  );
+  )
 }

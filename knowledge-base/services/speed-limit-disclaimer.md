@@ -43,6 +43,7 @@ This disclaimer MUST be shown to the user and explicitly accepted BEFORE they ca
 ## UI Implementation Requirements
 
 ### Disclaimer Modal Component
+
 - **Trigger:** When user selects a service with `requiresDisclaimer: true`
 - **Modal content:** Full Spanish disclaimer text above
 - **Checkbox:** "He leído y acepto los términos del aviso legal" (I have read and accept the terms)
@@ -51,7 +52,9 @@ This disclaimer MUST be shown to the user and explicitly accepted BEFORE they ca
 - **Storage:** `disclaimerAccepted: true` and `disclaimerAcceptedAt: timestamp` stored in the booking document
 
 ### Firestore Record
+
 When the user accepts the disclaimer, the booking document must include:
+
 ```json
 {
   "disclaimerAccepted": true,

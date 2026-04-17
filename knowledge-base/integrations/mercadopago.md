@@ -1,6 +1,7 @@
 # ScooterBooster — MercadoPago Integration
 
 ## Overview
+
 ScooterBooster uses MercadoPago's **Checkout Pro** (Payment Preferences API) to generate payment links. This is the simplest integration level — no embedded checkout SDK required.
 
 ## Flow
@@ -35,19 +36,19 @@ ScooterBooster uses MercadoPago's **Checkout Pro** (Payment Preferences API) to 
 
 ```typescript
 // src/lib/mercadopago.ts
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import { MercadoPagoConfig, Preference } from "mercadopago"
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
-});
+})
 
 export async function createPaymentLink(booking: {
-  id: string;
-  serviceName: string;
-  scooterModelName: string;
-  totalPrice: number;
+  id: string
+  serviceName: string
+  scooterModelName: string
+  totalPrice: number
 }) {
-  const preference = new Preference(client);
+  const preference = new Preference(client)
 
   const result = await preference.create({
     body: {
@@ -69,12 +70,12 @@ export async function createPaymentLink(booking: {
       notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/webhook`,
       external_reference: `booking_${booking.id}`,
     },
-  });
+  })
 
   return {
     preferenceId: result.id,
     initPoint: result.init_point, // This is the payment URL
-  };
+  }
 }
 ```
 
@@ -82,32 +83,33 @@ export async function createPaymentLink(booking: {
 
 ```typescript
 // src/app/api/payments/webhook/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { MercadoPagoConfig, Payment } from "mercadopago";
+import { NextRequest, NextResponse } from "next/server"
+import { MercadoPagoConfig, Payment } from "mercadopago"
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  const body = await request.json()
 
   if (body.type === "payment") {
     const client = new MercadoPagoConfig({
       accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
-    });
-    const payment = new Payment(client);
-    const paymentData = await payment.get({ id: body.data.id });
+    })
+    const payment = new Payment(client)
+    const paymentData = await payment.get({ id: body.data.id })
 
     if (paymentData.status === "approved") {
       // Extract booking ID from external_reference
-      const bookingId = paymentData.external_reference?.replace("booking_", "");
+      const bookingId = paymentData.external_reference?.replace("booking_", "")
       // Update booking in Firestore
       // ... update paymentStatus to "paid" and status to "confirmed"
     }
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true })
 }
 ```
 
 ## MercadoPago Account Requirements
+
 - **Country:** Uruguay (UY)
 - **Currency:** UYU (Uruguayan Peso)
 - **Account type:** MercadoPago Business account
@@ -116,11 +118,13 @@ export async function POST(request: NextRequest) {
   - Public Key (client-side, for hosted checkout)
 
 ## Testing
+
 - Use MercadoPago **sandbox** credentials for development
 - Test cards: see [MercadoPago testing docs](https://www.mercadopago.com.uy/developers/en/docs/checkout-pro/additional-content/your-integrations/test/cards)
 - Webhook testing: use ngrok or similar tunnel for local development
 
 ## Environment Variables
+
 ```env
 MERCADOPAGO_ACCESS_TOKEN=APP_USR-xxxx     # Server-side secret
 MERCADOPAGO_PUBLIC_KEY=APP_USR-xxxx       # Client-side public

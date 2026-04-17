@@ -6,19 +6,43 @@
 }
 
 @theme inline {
+  /* Brand colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: #10B981;
+  --color-primary: #10b981;
   --color-primary-dark: #059669;
-  --color-primary-light: #D1FAE5;
-  --color-secondary: #3B82F6;
-  --color-accent: #F59E0B;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary-light: #d1fae5;
+  --color-secondary: #3b82f6;
+  --color-accent: #f59e0b;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f3f4f6;
+  --color-border: #e5e7eb;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-error: #ef4444;
+
+  /* Typography */
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

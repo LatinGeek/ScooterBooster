@@ -38,6 +38,7 @@
 ## 17.5 — Manual QA Checklist
 
 Run on prod Vercel preview before launch:
+
 - [ ] All pages load on: iPhone 13, Pixel 7, iPad, 13" laptop, 27" monitor
 - [ ] Landscape mobile works
 - [ ] Slow 3G throttle: all pages load < 5s

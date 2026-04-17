@@ -14,31 +14,31 @@
 
 ## Phase Index
 
-| # | Phase | File |
-|---|-------|------|
-| 00 | MCP Setup (Firebase + Vercel) — **Do this first** | [00-mcp-setup.md](00-mcp-setup.md) |
-| 01 | Foundations & Environment | [01-foundations.md](01-foundations.md) |
-| 02 | Design System Implementation | [02-design-system.md](02-design-system.md) |
-| 03 | Authentication & User Profiles | [03-auth.md](03-auth.md) |
-| 04 | Firestore Schema, Rules & Seed Data | [04-firestore.md](04-firestore.md) |
-| 05 | Scooter Catalog (Brands & Models) | [05-scooter-catalog.md](05-scooter-catalog.md) |
-| 06 | Service Catalog + Legal Disclaimer | [06-services.md](06-services.md) |
-| 07 | Technicians (Onboarding, Profiles, Approval) | [07-technicians.md](07-technicians.md) |
-| 08 | Booking Flow | [08-booking.md](08-booking.md) |
-| 09 | Payments (MercadoPago) | [09-payments.md](09-payments.md) |
-| 10 | Reviews & Ratings | [10-reviews.md](10-reviews.md) |
-| 11 | User Dashboard | [11-user-dashboard.md](11-user-dashboard.md) |
-| 12 | Technician Dashboard | [12-technician-dashboard.md](12-technician-dashboard.md) |
-| 13 | Admin Panel | [13-admin-panel.md](13-admin-panel.md) |
-| 14 | Notifications & WhatsApp Integration | [14-notifications.md](14-notifications.md) |
-| 15 | Search, Filters & Discovery | [15-search.md](15-search.md) |
-| 16 | SEO, Metadata & Legal Pages | [16-seo-legal.md](16-seo-legal.md) |
-| 17 | Testing & QA | [17-testing.md](17-testing.md) |
-| 18 | Observability (Logging, Analytics, Errors) | [18-observability.md](18-observability.md) |
-| 19 | Security Hardening | [19-security.md](19-security.md) |
-| 20 | Performance & Polish | [20-performance.md](20-performance.md) |
-| 21 | Deployment (Vercel + Firebase Prod) | [21-deployment.md](21-deployment.md) |
-| 22 | Launch Checklist & Go-Live | [22-launch.md](22-launch.md) |
+| #   | Phase                                             | File                                                     |
+| --- | ------------------------------------------------- | -------------------------------------------------------- |
+| 00  | MCP Setup (Firebase + Vercel) — **Do this first** | [00-mcp-setup.md](00-mcp-setup.md)                       |
+| 01  | Foundations & Environment                         | [01-foundations.md](01-foundations.md)                   |
+| 02  | Design System Implementation                      | [02-design-system.md](02-design-system.md)               |
+| 03  | Authentication & User Profiles                    | [03-auth.md](03-auth.md)                                 |
+| 04  | Firestore Schema, Rules & Seed Data               | [04-firestore.md](04-firestore.md)                       |
+| 05  | Scooter Catalog (Brands & Models)                 | [05-scooter-catalog.md](05-scooter-catalog.md)           |
+| 06  | Service Catalog + Legal Disclaimer                | [06-services.md](06-services.md)                         |
+| 07  | Technicians (Onboarding, Profiles, Approval)      | [07-technicians.md](07-technicians.md)                   |
+| 08  | Booking Flow                                      | [08-booking.md](08-booking.md)                           |
+| 09  | Payments (MercadoPago)                            | [09-payments.md](09-payments.md)                         |
+| 10  | Reviews & Ratings                                 | [10-reviews.md](10-reviews.md)                           |
+| 11  | User Dashboard                                    | [11-user-dashboard.md](11-user-dashboard.md)             |
+| 12  | Technician Dashboard                              | [12-technician-dashboard.md](12-technician-dashboard.md) |
+| 13  | Admin Panel                                       | [13-admin-panel.md](13-admin-panel.md)                   |
+| 14  | Notifications & WhatsApp Integration              | [14-notifications.md](14-notifications.md)               |
+| 15  | Search, Filters & Discovery                       | [15-search.md](15-search.md)                             |
+| 16  | SEO, Metadata & Legal Pages                       | [16-seo-legal.md](16-seo-legal.md)                       |
+| 17  | Testing & QA                                      | [17-testing.md](17-testing.md)                           |
+| 18  | Observability (Logging, Analytics, Errors)        | [18-observability.md](18-observability.md)               |
+| 19  | Security Hardening                                | [19-security.md](19-security.md)                         |
+| 20  | Performance & Polish                              | [20-performance.md](20-performance.md)                   |
+| 21  | Deployment (Vercel + Firebase Prod)               | [21-deployment.md](21-deployment.md)                     |
+| 22  | Launch Checklist & Go-Live                        | [22-launch.md](22-launch.md)                             |
 
 ## Definition of Done (MVP)
 

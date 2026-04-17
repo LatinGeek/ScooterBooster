@@ -5,6 +5,7 @@
 ## 8.1 — Booking State Machine
 
 Define `BookingStatus` as a strict union:
+
 - `pending_payment` → awaiting MercadoPago checkout
 - `confirmed` → paid, scheduled
 - `in_progress` → technician marked started
@@ -19,6 +20,7 @@ Define `BookingStatus` as a strict union:
 ## 8.2 — Booking Creation UI
 
 Entry points:
+
 - From scooter detail page → service selected → technician selected
 - From service detail page → technician selected → scooter model selected
 - From technician profile → service selected → scooter model selected
