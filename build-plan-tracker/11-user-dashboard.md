@@ -1,18 +1,18 @@
-# Tracker — Phase 11: User Dashboard
+# Tracker - Phase 11: User Dashboard
 
-> Status: ⬜ NOT STARTED
-> Last updated: 2026-04-17
+> Status: COMPLETE
+> Last updated: 2026-04-18
 
 ## Tasks
 
-- [ ] Bookings grouped by: Upcoming / Past / Cancelled
-- [ ] Per-booking actions: Pay, Cancel, Contact (WhatsApp), Leave Review
-- [ ] Profile editing
-- [ ] Account management
-- [ ] Mobile: tab bar; Desktop: sidebar layout
-- [ ] Real-time updates via Firestore subscription
+- [x] Bookings grouped by: Upcoming / Past / Cancelled
+- [x] Per-booking actions: Pay, Cancel, Contact (WhatsApp), Leave Review
+- [x] Profile editing
+- [x] Account management shell
+- [x] Mobile: tab bar; Desktop: sidebar layout
+- [x] Real-time updates via Firestore subscription
 
 ## Notes
 
-- Page shell exists at src/app/dashboard/page.tsx
+- Implemented in `src/app/dashboard/page.tsx`, `src/app/dashboard/dashboard-bookings-client.tsx`, `src/app/dashboard/profile/page.tsx`, and `src/app/dashboard/profile/profile-client.tsx`
 - WhatsApp contact uses wa.me links per knowledge-base/integrations/whatsapp.md

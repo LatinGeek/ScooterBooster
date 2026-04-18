@@ -63,7 +63,7 @@ export function ServiceCard({ service, basePrice }: ServiceCardProps) {
         )}
 
         <Button asChild className="w-full">
-          <Link href={`/booking?service=${service.id}`}>Reservar servicio</Link>
+          <Link href={`/booking/new?service=${service.id}`}>Reservar servicio</Link>
         </Button>
       </CardContent>
     </Card>

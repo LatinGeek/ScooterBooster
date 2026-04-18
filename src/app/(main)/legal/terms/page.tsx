@@ -3,8 +3,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Términos y Condiciones",
-  description: "Términos y condiciones de uso de la plataforma ScooterBooster.",
+  title: "Terminos y Condiciones",
+  description: "Terminos y condiciones de uso de la plataforma ScooterBooster.",
 }
 
 export default function TermsPage() {
@@ -18,39 +18,41 @@ export default function TermsPage() {
         Volver a Legal
       </Link>
 
-      <h1 className="mb-2 text-3xl font-bold text-[#111827]">Términos y Condiciones</h1>
-      <p className="mb-8 text-sm text-[#9ca3af]">Última actualización: abril 2026</p>
+      <h1 className="mb-2 text-3xl font-bold text-[#111827]">Terminos y Condiciones</h1>
+      <p className="mb-8 text-sm text-[#9ca3af]">Ultima actualizacion: abril 2026</p>
 
       <div className="prose prose-sm max-w-none space-y-6 text-[#374151]">
         <section>
-          <h2 className="text-lg font-semibold text-[#111827]">1. Aceptación de los Términos</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">1. Aceptacion de los Terminos</h2>
           <p>
-            Al acceder y utilizar la plataforma ScooterBooster ("la Plataforma"), usted acepta
-            cumplir con estos Términos y Condiciones. Si no está de acuerdo, no utilice la
+            Al acceder y utilizar la plataforma ScooterBooster (&quot;la Plataforma&quot;), usted
+            acepta cumplir con estos Terminos y Condiciones. Si no esta de acuerdo, no utilice la
             Plataforma.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-[#111827]">2. Descripción del Servicio</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">2. Descripcion del Servicio</h2>
           <p>
-            ScooterBooster es una plataforma digital que conecta propietarios de scooters
-            eléctricos con técnicos especializados en Uruguay para la realización de servicios de
-            mantenimiento, actualización de firmware, instalación de control de crucero y
-            modificación de limitadores de velocidad.
+            ScooterBooster es una plataforma digital que conecta propietarios de scooters electricos
+            con tecnicos especializados en Uruguay para la realizacion de servicios de
+            mantenimiento, actualizacion de firmware, instalacion de control de crucero y
+            modificacion de limitadores de velocidad.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-[#111827]">3. Modificación del Límite de Velocidad</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">
+            3. Modificacion del Limite de Velocidad
+          </h2>
           <div className="rounded-xl border-l-4 border-amber-400 bg-amber-50 px-4 py-3">
             <p className="font-semibold text-amber-800">Aviso Legal Obligatorio</p>
             <p className="mt-1 text-amber-700">
-              La modificación del límite de velocidad de su scooter eléctrico está destinada
-              únicamente para uso en propiedad privada y circuitos cerrados. ScooterBooster no se
-              responsabiliza por el uso de scooters modificados en vías públicas. El usuario asume
-              toda responsabilidad por el cumplimiento de las normativas de tránsito vigentes en
-              Uruguay (Decreto N° 348/020 y normativa de UNIT).
+              La modificacion del limite de velocidad de su scooter electrico esta destinada
+              unicamente para uso en propiedad privada y circuitos cerrados. ScooterBooster no se
+              responsabiliza por el uso de scooters modificados en vias publicas. El usuario asume
+              toda responsabilidad por el cumplimiento de las normativas de transito vigentes en
+              Uruguay (Decreto N 348/020 y normativa de UNIT).
             </p>
           </div>
         </section>
@@ -58,9 +60,9 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-[#111827]">4. Comisiones y Pagos</h2>
           <p>
-            ScooterBooster cobra una comisión de servicio (porcentaje configurable, mínimo 10%)
-            sobre el precio base del técnico. Los pagos se procesan a través de MercadoPago. Los
-            técnicos reciben el precio base acordado; la comisión de la plataforma es retenida por
+            ScooterBooster cobra una comision de servicio (porcentaje configurable, minimo 10 %)
+            sobre el precio base del tecnico. Los pagos se procesan a traves de MercadoPago. Los
+            tecnicos reciben el precio base acordado; la comision de la plataforma es retenida por
             ScooterBooster.
           </p>
         </section>
@@ -68,36 +70,38 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-[#111827]">5. Cancelaciones y Reembolsos</h2>
           <p>
-            El usuario puede cancelar una reserva en estado "pendiente de pago" sin costo. Las
-            cancelaciones de reservas confirmadas están sujetas a la política de cada técnico.
-            Los reembolsos se procesan a través de MercadoPago en un plazo de 5-10 días hábiles.
+            El usuario puede cancelar una reserva en estado &quot;pendiente de pago&quot; sin costo.
+            Las cancelaciones de reservas confirmadas estan sujetas a la politica de cada tecnico.
+            Los reembolsos se procesan a traves de MercadoPago en un plazo de 5 a 10 dias habiles.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-[#111827]">6. Responsabilidades del Usuario</h2>
           <p>El usuario se compromete a:</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Proporcionar información veraz al registrarse y reservar.</li>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>Proporcionar informacion veraz al registrarse y reservar.</li>
             <li>Usar los servicios de acuerdo con la normativa vigente en Uruguay.</li>
             <li>No usar la plataforma para fines ilegales o fraudulentos.</li>
-            <li>Asumir responsabilidad por el uso de equipos modificados en vías públicas.</li>
+            <li>Asumir responsabilidad por el uso de equipos modificados en vias publicas.</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-[#111827]">7. Responsabilidades de los Técnicos</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">
+            7. Responsabilidades de los Tecnicos
+          </h2>
           <p>
-            Los técnicos son profesionales independientes. ScooterBooster actúa como intermediario
-            y no es responsable de la calidad o resultado de los servicios prestados por los
-            técnicos. Los técnicos deben contar con las habilitaciones pertinentes para operar.
+            Los tecnicos son profesionales independientes. ScooterBooster actua como intermediario y
+            no es responsable de la calidad o resultado de los servicios prestados por los tecnicos.
+            Los tecnicos deben contar con las habilitaciones pertinentes para operar.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-[#111827]">8. Limitación de Responsabilidad</h2>
+          <h2 className="text-lg font-semibold text-[#111827]">8. Limitacion de Responsabilidad</h2>
           <p>
-            ScooterBooster no será responsable por daños directos, indirectos, incidentales o
+            ScooterBooster no sera responsable por danos directos, indirectos, incidentales o
             consecuentes derivados del uso de la plataforma o los servicios contratados.
           </p>
         </section>
@@ -105,15 +109,15 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-[#111827]">9. Ley Aplicable</h2>
           <p>
-            Estos términos se rigen por las leyes de la República Oriental del Uruguay. Cualquier
-            disputa será resuelta en los tribunales competentes de Montevideo.
+            Estos terminos se rigen por las leyes de la Republica Oriental del Uruguay. Cualquier
+            disputa sera resuelta en los tribunales competentes de Montevideo.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-[#111827]">10. Contacto</h2>
           <p>
-            Para consultas sobre estos términos, contacte a{" "}
+            Para consultas sobre estos terminos, contacte a{" "}
             <a href="mailto:legal@scooterbooster.uy" className="text-[#10b981] hover:underline">
               legal@scooterbooster.uy
             </a>
