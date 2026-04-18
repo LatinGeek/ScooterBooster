@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { Bike, Menu, Search, X } from "lucide-react"
+import { Bike, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { GlobalSearchBox } from "@/components/global-search-box"
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -38,21 +39,15 @@ export function Navbar() {
             ))}
           </nav>
 
-          <form action="/search" className="hidden flex-1 px-4 lg:block">
-            <label className="sr-only" htmlFor="navbar-search">
-              Buscar scooters, servicios o técnicos
-            </label>
-            <div className="flex h-11 items-center gap-2 rounded-full border border-[#d1d5db] bg-[#f8fafc] px-4 shadow-sm">
-              <Search className="h-4 w-4 text-[#6b7280]" />
-              <input
-                id="navbar-search"
-                name="q"
-                type="search"
-                placeholder="Buscar scooters, servicios o técnicos"
-                className="w-full bg-transparent text-sm text-[#111827] outline-none placeholder:text-[#9ca3af]"
-              />
-            </div>
-          </form>
+          <div className="hidden flex-1 px-4 lg:block">
+            <GlobalSearchBox
+              inputId="navbar-search"
+              wrapperClassName="relative"
+              className="w-full"
+              inputClassName="flex h-11 items-center gap-2 rounded-full border border-[#d1d5db] bg-[#f8fafc] px-4 shadow-sm"
+              panelClassName="absolute left-0 right-0 mt-3 rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-xl shadow-slate-200/60"
+            />
+          </div>
 
           <div className="hidden items-center gap-3 md:flex">
             <Button variant="ghost" size="sm" asChild>
@@ -64,7 +59,7 @@ export function Navbar() {
           </div>
 
           <button
-            className="cursor-pointer p-2 text-[#6b7280] transition-colors hover:text-[#111827] md:hidden"
+            className="cursor-pointer p-2 text-[#6b7280] transition-colors duration-200 hover:text-[#111827] md:hidden"
             onClick={() => setMobileOpen((open) => !open)}
             aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
           >
@@ -72,23 +67,17 @@ export function Navbar() {
           </button>
         </div>
 
-        {mobileOpen && (
+        {mobileOpen ? (
           <div className="flex flex-col gap-4 border-t border-[#e5e7eb] py-4 md:hidden">
-            <form action="/search" className="rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] p-2">
-              <label className="sr-only" htmlFor="mobile-search">
-                Buscar scooters, servicios o técnicos
-              </label>
-              <div className="flex items-center gap-2 px-2">
-                <Search className="h-4 w-4 text-[#6b7280]" />
-                <input
-                  id="mobile-search"
-                  name="q"
-                  type="search"
-                  placeholder="Buscar"
-                  className="h-10 w-full bg-transparent text-sm text-[#111827] outline-none placeholder:text-[#9ca3af]"
-                />
-              </div>
-            </form>
+            <GlobalSearchBox
+              inputId="mobile-search"
+              compact
+              wrapperClassName="relative"
+              className="w-full"
+              inputClassName="flex h-11 items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-4"
+              panelClassName="mt-3 rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-lg"
+              onNavigate={() => setMobileOpen(false)}
+            />
 
             {links.map((link) => (
               <Link
@@ -114,7 +103,7 @@ export function Navbar() {
               </Button>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </header>
   )

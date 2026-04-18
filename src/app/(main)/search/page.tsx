@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Bike, Search, Sparkles, Wrench } from "lucide-react"
 import { getActiveBrands } from "@/lib/db/brands"
 import { searchPlatform } from "@/lib/search"
+import { GlobalSearchBox } from "@/components/global-search-box"
 import { ServiceCard } from "@/components/service-card"
 import { TechnicianCard } from "@/components/technician-card"
 
@@ -46,30 +47,17 @@ export default async function SearchPage({
             </p>
           </div>
 
-          <form
-            action="/search"
-            className="flex flex-col gap-3 rounded-3xl border border-[#d1fae5] bg-white p-4 shadow-sm sm:flex-row"
-          >
-            <label className="sr-only" htmlFor="global-search-page">
-              Buscar scooters, servicios o técnicos
-            </label>
-            <div className="flex flex-1 items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-4">
-              <Search className="h-4 w-4 text-[#6b7280]" />
-              <input
-                id="global-search-page"
-                name="q"
-                defaultValue={query}
-                placeholder="Ej.: Montevideo, Xiaomi, firmware"
-                className="h-12 w-full bg-transparent text-sm text-[#111827] outline-none placeholder:text-[#9ca3af]"
-              />
-            </div>
-            <button
-              type="submit"
-              className="inline-flex h-12 cursor-pointer items-center justify-center rounded-2xl bg-[#10b981] px-6 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
-            >
-              Buscar
-            </button>
-          </form>
+          <GlobalSearchBox
+            key={query || "empty-search"}
+            initialQuery={query}
+            inputId="global-search-page"
+            autoFocus={query.length === 0}
+            wrapperClassName="relative"
+            className="rounded-3xl border border-[#d1fae5] bg-white p-4 shadow-sm"
+            inputClassName="flex h-12 items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-4"
+            panelClassName="mt-3 rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-xl shadow-slate-200/60"
+            placeholder="Ej.: Montevideo, Xiaomi, firmware"
+          />
         </div>
       </section>
 
