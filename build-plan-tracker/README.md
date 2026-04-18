@@ -29,12 +29,12 @@ At the start of every session: read this file to know where to resume.
 | 11    | User Dashboard                               | ✅ COMPLETE    |
 | 12    | Technician Dashboard                         | ✅ COMPLETE    |
 | 13    | Admin Panel                                  | 🔶 PARTIAL     |
-| 14    | Notifications & WhatsApp                     | ⬜ NOT STARTED |
+| 14    | Notifications & WhatsApp                     | 🔶 PARTIAL     |
 | 15    | Search, Filters & Discovery                  | ⬜ NOT STARTED |
-| 16    | SEO, Metadata & Legal Pages                  | ⬜ NOT STARTED |
+| 16    | SEO, Metadata & Legal Pages                  | 🔶 PARTIAL     |
 | 17    | Testing & QA                                 | ⬜ NOT STARTED |
 | 18    | Observability                                | ⬜ NOT STARTED |
-| 19    | Security Hardening                           | ⬜ NOT STARTED |
+| 19    | Security Hardening                           | 🔶 PARTIAL     |
 | 20    | Performance & Polish                         | ⬜ NOT STARTED |
 | 21    | Deployment (Vercel + Firebase Prod)          | ⬜ NOT STARTED |
 | 22    | Launch Checklist & Go-Live                   | ⬜ NOT STARTED |
@@ -43,4 +43,4 @@ At the start of every session: read this file to know where to resume.
 
 - Date: 2026-04-18
 - Completed: Phase 11 (User Dashboard) + Phase 12 (Technician Dashboard)
-- Next: Phase 13 — Admin Panel (technician approval queue, scooter/service catalog management, KPIs)
+- Next: Phase 15 — Search & Filters (technician filter by service/location/rating, URL params)

@@ -69,3 +69,14 @@
   - Affected files: `src/app/(main)/booking/new/booking-wizard.tsx`
 
 - **`.git/index.lock` left by automated sessions:** If a previous automated session was interrupted mid-git-operation, it leaves a `.git/index.lock` file that the sandbox FUSE filesystem won't let another process delete (EPERM). Fix: Germán must delete it manually from his terminal or Finder — `rm ScooterBooster/.git/index.lock`. Cannot be deleted from within the sandbox.
+
+- **Review type needs technicianReply fields:** The `Review` interface was missing `technicianReply: string | null` and `technicianRepliedAt: string | null`. Added in Phase 12 to support technician replies from dashboard.
+  - Affected files: `src/types/index.ts`, `src/lib/db/reviews.ts`
+
+- **WhatsApp links need user phone, not UID:** In technician bookings dashboard, `booking.userId` is a Firebase Auth UID (not a phone number). For proper wa.me links, fetch user's phone from Firestore `users/{uid}.phone`. This is a Phase 14 task.
+
+- **next.config.ts distDir must be reverted before Vercel deploy:** The sandbox workaround `distDir: "/tmp/sb-build"` causes build output to go to /tmp. Vercel deploy reads from default `.next/`. Remove `distDir` line before deploying.
+  - Affected files: `next.config.ts`
+
+- **Firestore config/global for platform settings:** Admin-configurable platform settings (service fee %) stored in `config/global` Firestore doc. Read via `GET /api/admin/settings`. The `mercadopago.ts` currently still reads from env var — wire to Firestore config before launch.
+  - Affected files: `src/lib/mercadopago.ts`, `src/app/api/admin/settings/route.ts`
