@@ -573,7 +573,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
       const json = (await res.json()) as {
         success: boolean
-        data?: { booking: { id: string } }
+        data?: { booking: { id: string }; paymentLinkUrl?: string | null }
         error?: string
       }
 
@@ -583,10 +583,19 @@ export function BookingWizard({ models, services, technicians }: Props) {
       }
 
       const bookingId = json.data?.booking?.id
-      if (bookingId) {
-        router.push(`/booking/${bookingId}`)
-      } else {
+      const paymentLinkUrl = json.data?.paymentLinkUrl
+
+      if (!bookingId) {
         setError("Error inesperado al crear la reserva.")
+        return
+      }
+
+      // If MP payment link is available, redirect to MercadoPago checkout
+      if (paymentLinkUrl) {
+        window.location.href = paymentLinkUrl
+      } else {
+        // No MP credentials configured (dev mode) — go to booking detail
+        router.push(`/booking/${bookingId}`)
       }
     } catch {
       setError("Error de conexión. Revisá tu internet e intentá de nuevo.")

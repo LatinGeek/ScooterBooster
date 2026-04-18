@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server"
-import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { createBookingSchema } from "@/lib/validators/booking"
-import { createBooking, getBookingsByUser } from "@/lib/db/bookings"
+import { createBooking, getBookingsByUser, updateBookingPaymentLink } from "@/lib/db/bookings"
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
-import { calculatePricing } from "@/lib/mercadopago"
+import { calculatePricing, createPaymentLink } from "@/lib/mercadopago"
 import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
 import logger from "@/lib/logger"
 
@@ -104,5 +104,24 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     throw err
   }
 
-  return ok({ booking }, 201)
+  // Generate MercadoPago payment link (skip gracefully if MP not configured in dev)
+  let paymentLinkUrl: string | null = null
+  if (process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    try {
+      const { preferenceId, initPoint } = await createPaymentLink({
+        bookingId: booking.id,
+        serviceName: service.name,
+        scooterModelName: scooterModel.name,
+        totalPrice: booking.totalPrice,
+      })
+      await updateBookingPaymentLink(booking.id, preferenceId, initPoint)
+      paymentLinkUrl = initPoint
+      logger.info({ bookingId: booking.id, preferenceId }, "MercadoPago preference created")
+    } catch (mpErr) {
+      // Don't fail the booking if MP is unavailable — user can retry payment later
+      logger.error({ bookingId: booking.id, err: mpErr }, "Failed to create MP preference")
+    }
+  }
+
+  return ok({ booking: { ...booking, paymentLinkUrl }, paymentLinkUrl }, 201)
 })
