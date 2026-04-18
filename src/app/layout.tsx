@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import "@fontsource-variable/inter"
 import "./globals.css"
+import { AuthProvider } from "@/providers/auth-provider"
 
 export const metadata: Metadata = {
   title: "ScooterBooster — Potenciá tu scooter",
@@ -24,7 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   )
 }
