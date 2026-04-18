@@ -17,6 +17,7 @@ function docToService(id: string, data: FirebaseFirestore.DocumentData): Service
     estimatedDuration: data["estimatedDuration"] as number,
     requiresDisclaimer: Boolean(data["requiresDisclaimer"]),
     isActive: Boolean(data["isActive"]),
+    searchTokens: (data["searchTokens"] as string[]) ?? [],
     createdAt:
       typeof data["createdAt"] === "string"
         ? data["createdAt"]

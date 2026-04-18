@@ -28,6 +28,8 @@ export interface Technician {
   reviewCount: number
   isApproved: boolean
   isActive: boolean
+  normalizedLocation?: string
+  searchTokens?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -49,6 +51,7 @@ export interface ScooterBrand {
   slug: string
   logoURL: string | null
   isActive: boolean
+  searchTokens?: string[]
   createdAt: string
 }
 
@@ -61,6 +64,7 @@ export interface ScooterModel {
   specs: ScooterSpecs
   compatibleServices: string[]
   isActive: boolean
+  searchTokens?: string[]
   createdAt: string
 }
 
@@ -83,6 +87,7 @@ export interface Service {
   estimatedDuration: number
   requiresDisclaimer: boolean
   isActive: boolean
+  searchTokens?: string[]
   createdAt: string
 }
 

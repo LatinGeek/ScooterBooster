@@ -14,6 +14,7 @@ function docToScooterBrand(id: string, data: FirebaseFirestore.DocumentData): Sc
     slug: data["slug"] as string,
     logoURL: (data["logoURL"] as string | null) ?? null,
     isActive: Boolean(data["isActive"]),
+    searchTokens: (data["searchTokens"] as string[]) ?? [],
     createdAt:
       typeof data["createdAt"] === "string"
         ? data["createdAt"]

@@ -1,6 +1,6 @@
 # Tracker - Phase 15: Search, Filters & Discovery
 
-> Status: PARTIAL - debounced client search shipped, search-token indexing still pending
+> Status: PARTIAL - search tokens shipped, Firestore token-query optimization still pending
 > Last updated: 2026-04-18
 
 ## Tasks
@@ -19,3 +19,4 @@
 - Future migration path documented in `knowledge-base/integrations/search-migration.md`
 - Technician discovery now supports browser geolocation plus Uruguay location presets for approximate distance sorting
 - Navbar and `/search` now share the same debounced live-search component with grouped preview results
+- Seed data and technician profile updates now maintain `searchTokens`/`normalizedLocation`, and app search prefers those indexed fields when present

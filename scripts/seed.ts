@@ -25,6 +25,28 @@ if (getApps().length === 0) {
 const db = getFirestore()
 const now = Timestamp.now()
 
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+}
+
+function buildSearchTokens(...values: Array<string | undefined | null>): string[] {
+  const tokens = new Set<string>()
+
+  for (const value of values) {
+    if (!value) continue
+    for (const token of normalizeSearchText(value).split(" ")) {
+      if (token) tokens.add(token)
+    }
+  }
+
+  return [...tokens]
+}
+
 // ─── SERVICE IDs (deterministic so we can reference them in models) ───────────
 const SERVICE_IDS = {
   speedLimit: "speed-limit",
@@ -42,6 +64,23 @@ const BRAND_IDS = {
   vsett: "brand-vsett",
   zero: "brand-zero",
   inokim: "brand-inokim",
+}
+
+const BRAND_NAMES_BY_ID: Record<string, string> = {
+  [BRAND_IDS.xiaomi]: "Xiaomi",
+  [BRAND_IDS.segway]: "Segway-Ninebot",
+  [BRAND_IDS.dualtron]: "Dualtron",
+  [BRAND_IDS.kaabo]: "Kaabo",
+  [BRAND_IDS.vsett]: "VSETT",
+  [BRAND_IDS.zero]: "Zero",
+  [BRAND_IDS.inokim]: "Inokim",
+}
+
+const SERVICE_NAMES_BY_ID: Record<string, string> = {
+  [SERVICE_IDS.speedLimit]: "Eliminación de Límite de Velocidad",
+  [SERVICE_IDS.firmware]: "Actualización de Firmware",
+  [SERVICE_IDS.cruiseControl]: "Control Crucero",
+  [SERVICE_IDS.maintenance]: "Mantenimiento General",
 }
 
 async function seedServices() {
@@ -99,7 +138,13 @@ async function seedServices() {
 
   for (const svc of services) {
     const { id, ...data } = svc
-    await db.collection("services").doc(id).set(data)
+    await db
+      .collection("services")
+      .doc(id)
+      .set({
+        ...data,
+        searchTokens: buildSearchTokens(data.name, data.slug, data.description, data.category),
+      })
     console.log(`  ✅ ${svc.name}`)
   }
 }
@@ -167,7 +212,13 @@ async function seedBrands() {
 
   for (const brand of brands) {
     const { id, ...data } = brand
-    await db.collection("scooterBrands").doc(id).set(data)
+    await db
+      .collection("scooterBrands")
+      .doc(id)
+      .set({
+        ...data,
+        searchTokens: buildSearchTokens(data.name, data.slug),
+      })
     console.log(`  ✅ ${brand.name}`)
   }
 }
@@ -487,7 +538,18 @@ async function seedModels() {
 
   for (const model of models) {
     const { id, ...data } = model
-    await db.collection("scooterModels").doc(id).set(data)
+    await db
+      .collection("scooterModels")
+      .doc(id)
+      .set({
+        ...data,
+        searchTokens: buildSearchTokens(
+          data.name,
+          data.slug,
+          BRAND_NAMES_BY_ID[data.brandId],
+          ...data.compatibleServices.map((serviceId) => SERVICE_NAMES_BY_ID[serviceId])
+        ),
+      })
     console.log(`  ✅ ${model.name}`)
   }
 }
@@ -596,7 +658,20 @@ async function seedDemoTechnicians() {
 
   for (const tech of technicians) {
     const { id, ...data } = tech
-    await db.collection("technicians").doc(id).set(data)
+    await db
+      .collection("technicians")
+      .doc(id)
+      .set({
+        ...data,
+        normalizedLocation: normalizeSearchText(data.location),
+        searchTokens: buildSearchTokens(
+          data.displayName,
+          data.bio,
+          data.location,
+          ...data.services.map((serviceId) => SERVICE_NAMES_BY_ID[serviceId]),
+          ...data.supportedBrands.map((brandId) => BRAND_NAMES_BY_ID[brandId])
+        ),
+      })
     console.log(`  ✅ ${tech.displayName}`)
   }
 }

@@ -86,3 +86,6 @@
 
 - **Next.js 16 `next build` mutates `tsconfig.json` with temp type paths:** The build injects `/tmp/sb-fresh-*/types/**/*.ts` entries into `include`. They are only build-time noise in this workspace and should be removed before committing.
   - Affected files: `tsconfig.json`
+
+- **Search tokens should be refreshed on write paths, not only in search code:** Search/discovery now prefers indexed `searchTokens` and `normalizedLocation` fields when present, but those fields need to be maintained anywhere data is seeded or technician profiles are updated. Current implementation covers `scripts/seed.ts` and `updateTechnicianProfile()` so discovery stays in sync with profile edits.
+  - Affected files: `scripts/seed.ts`, `src/lib/search.ts`, `src/lib/db/technicians.ts`, `src/lib/db/brands.ts`, `src/lib/db/models.ts`, `src/lib/db/services.ts`

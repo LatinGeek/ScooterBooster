@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-18
-- Completed: Phase 15 live-search slice - shared debounced search previews in navbar and `/search`
-- Next: Finish Phase 15 search-token indexing, then move to Phase 17 testing
+- Completed: Phase 15 indexing slice - seed data and search flow now support `searchTokens`
+- Next: Move to Phase 17 testing; Firestore `array-contains-any` optimization can stay as a search follow-up

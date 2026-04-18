@@ -3,9 +3,33 @@
  * Server-side only (uses Admin SDK)
  */
 import { adminDb } from "@/lib/firebase-admin"
+import { getBrandById } from "@/lib/db/brands"
+import { getServicesByIds } from "@/lib/db/services"
 import type { Technician } from "@/types"
 
 const COLLECTION = "technicians"
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+}
+
+function buildSearchTokens(...values: Array<string | undefined | null>): string[] {
+  const tokens = new Set<string>()
+
+  for (const value of values) {
+    if (!value) continue
+    for (const token of normalizeSearchText(value).split(" ")) {
+      if (token) tokens.add(token)
+    }
+  }
+
+  return [...tokens]
+}
 
 function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Technician {
   return {
@@ -25,6 +49,8 @@ function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Tech
     reviewCount: (data["reviewCount"] as number) ?? 0,
     isApproved: Boolean(data["isApproved"]),
     isActive: Boolean(data["isActive"]),
+    normalizedLocation: (data["normalizedLocation"] as string | undefined) ?? undefined,
+    searchTokens: (data["searchTokens"] as string[]) ?? [],
     createdAt:
       typeof data["createdAt"] === "string"
         ? data["createdAt"]
@@ -134,6 +160,41 @@ export async function updateTechnicianProfile(
   for (const f of fields) {
     if (input[f] !== undefined) updates[f] = input[f]
   }
+
+  const shouldRefreshSearchIndex =
+    input.displayName !== undefined ||
+    input.bio !== undefined ||
+    input.location !== undefined ||
+    input.services !== undefined ||
+    input.supportedBrands !== undefined
+
+  if (shouldRefreshSearchIndex) {
+    const existing = await getTechnicianById(id)
+    if (!existing) {
+      throw new Error(`Technician ${id} not found while refreshing search index`)
+    }
+
+    const displayName = input.displayName ?? existing.displayName
+    const bio = input.bio ?? existing.bio
+    const location = input.location ?? existing.location
+    const services = input.services ?? existing.services
+    const supportedBrands = input.supportedBrands ?? existing.supportedBrands
+
+    const [serviceDocs, brandDocs] = await Promise.all([
+      getServicesByIds(services),
+      Promise.all(supportedBrands.map((brandId) => getBrandById(brandId))),
+    ])
+
+    updates["normalizedLocation"] = normalizeSearchText(location)
+    updates["searchTokens"] = buildSearchTokens(
+      displayName,
+      bio,
+      location,
+      ...serviceDocs.map((service) => service.name),
+      ...brandDocs.map((brand) => brand?.name)
+    )
+  }
+
   await adminDb.collection(COLLECTION).doc(id).update(updates)
   const doc = await adminDb.collection(COLLECTION).doc(id).get()
   return docToTechnician(doc.id, doc.data()!)

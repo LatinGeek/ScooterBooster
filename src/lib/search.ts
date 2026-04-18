@@ -40,6 +40,16 @@ export function tokenizeSearchText(value: string): string[] {
   return [...new Set(normalizeSearchText(value).split(" ").filter(Boolean))]
 }
 
+function matchesIndexedTokens(searchTokens: string[] | undefined, query: string): boolean | null {
+  const indexedTokens = searchTokens?.filter(Boolean) ?? []
+  if (indexedTokens.length === 0) return null
+
+  const tokens = tokenizeSearchText(query)
+  if (tokens.length === 0) return true
+
+  return tokens.every((token) => indexedTokens.some((searchToken) => searchToken.includes(token)))
+}
+
 function matchesSearch(values: Array<string | null | undefined>, query: string): boolean {
   const tokens = tokenizeSearchText(query)
   if (tokens.length === 0) return true
@@ -80,7 +90,7 @@ export async function searchTechnicians(
   const technicians = await getActiveTechnicians({ sortBy: "rating" })
   const selectedServices = filters.serviceIds?.filter(Boolean) ?? []
   const normalizedQuery = filters.query?.trim() ?? ""
-  const normalizedLocation = filters.location?.trim() ?? ""
+  const normalizedLocation = filters.location ? normalizeSearchText(filters.location) : ""
   const hasCoordinates = filters.latitude !== undefined && filters.longitude !== undefined
 
   return technicians
@@ -98,15 +108,24 @@ export async function searchTechnicians(
 
       if (
         normalizedQuery &&
-        !matchesSearch(
-          [technician.displayName, technician.bio, technician.location],
-          normalizedQuery
+        !(
+          matchesIndexedTokens(technician.searchTokens, normalizedQuery) ??
+          matchesSearch(
+            [technician.displayName, technician.bio, technician.location],
+            normalizedQuery
+          )
         )
       ) {
         return false
       }
 
-      if (normalizedLocation && !matchesSearch([technician.location], normalizedLocation)) {
+      if (
+        normalizedLocation &&
+        !(
+          technician.normalizedLocation?.includes(normalizedLocation) ??
+          matchesSearch([technician.location], normalizedLocation)
+        )
+      ) {
         return false
       }
 
@@ -167,40 +186,48 @@ export async function searchPlatform(query: string, limit = 6): Promise<Platform
   const serviceById = new Map(services.map((service) => [service.id, service]))
 
   const scooters = models
-    .filter((model) =>
-      matchesSearch(
-        [
-          model.name,
-          model.slug,
-          brandById.get(model.brandId)?.name,
-          brandById.get(model.brandId)?.slug,
-        ],
-        normalizedQuery
-      )
+    .filter(
+      (model) =>
+        matchesIndexedTokens(model.searchTokens, normalizedQuery) ??
+        matchesSearch(
+          [
+            model.name,
+            model.slug,
+            brandById.get(model.brandId)?.name,
+            brandById.get(model.brandId)?.slug,
+          ],
+          normalizedQuery
+        )
     )
     .slice(0, limit)
 
   const matchedServices = services
-    .filter((service) =>
-      matchesSearch(
-        [service.name, service.description, service.category, service.slug],
-        normalizedQuery
-      )
+    .filter(
+      (service) =>
+        matchesIndexedTokens(service.searchTokens, normalizedQuery) ??
+        matchesSearch(
+          [service.name, service.description, service.category, service.slug],
+          normalizedQuery
+        )
     )
     .slice(0, limit)
 
   const matchedTechnicians = technicians
-    .filter((technician) =>
-      matchesSearch(
-        [
-          technician.displayName,
-          technician.bio,
-          technician.location,
-          ...technician.services.map((serviceId) => serviceById.get(serviceId)?.name ?? serviceId),
-          ...technician.supportedBrands.map((brandId) => brandById.get(brandId)?.name ?? brandId),
-        ],
-        normalizedQuery
-      )
+    .filter(
+      (technician) =>
+        matchesIndexedTokens(technician.searchTokens, normalizedQuery) ??
+        matchesSearch(
+          [
+            technician.displayName,
+            technician.bio,
+            technician.location,
+            ...technician.services.map(
+              (serviceId) => serviceById.get(serviceId)?.name ?? serviceId
+            ),
+            ...technician.supportedBrands.map((brandId) => brandById.get(brandId)?.name ?? brandId),
+          ],
+          normalizedQuery
+        )
     )
     .slice(0, limit)
 

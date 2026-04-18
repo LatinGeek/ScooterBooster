@@ -17,6 +17,7 @@ function docToScooterModel(id: string, data: FirebaseFirestore.DocumentData): Sc
     specs: data["specs"] as ScooterModel["specs"],
     compatibleServices: (data["compatibleServices"] as string[]) ?? [],
     isActive: Boolean(data["isActive"]),
+    searchTokens: (data["searchTokens"] as string[]) ?? [],
     createdAt:
       typeof data["createdAt"] === "string"
         ? data["createdAt"]
