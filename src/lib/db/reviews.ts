@@ -24,6 +24,8 @@ function docToReview(id: string, data: FirebaseFirestore.DocumentData): Review {
     technicianId: data["technicianId"] as string,
     rating: data["rating"] as number,
     comment: data["comment"] as string,
+    technicianReply: (data["technicianReply"] as string | null) ?? null,
+    technicianRepliedAt: toIso(data["technicianRepliedAt"]),
     createdAt: toIso(data["createdAt"]) ?? "",
     updatedAt: toIso(data["updatedAt"]),
   }
@@ -86,6 +88,8 @@ export async function createReview(input: CreateReviewInput): Promise<Review> {
     technicianId: input.technicianId,
     rating: input.rating,
     comment: input.comment,
+    technicianReply: null,
+    technicianRepliedAt: null,
     createdAt: now,
     updatedAt: null,
   }
@@ -96,7 +100,6 @@ export async function createReview(input: CreateReviewInput): Promise<Review> {
     const techData = techDoc.data()!
     const oldRating = (techData["rating"] as number) ?? 0
     const oldCount = (techData["reviewCount"] as number) ?? 0
-    // Compute new rolling average
     const newCount = oldCount + 1
     const newRating = parseFloat(((oldRating * oldCount + input.rating) / newCount).toFixed(2))
     tx.set(reviewRef, data)
@@ -108,4 +111,14 @@ export async function createReview(input: CreateReviewInput): Promise<Review> {
   })
 
   return { id: reviewRef.id, ...data }
+}
+
+/** Add or update a technician's reply to a review */
+export async function setTechnicianReply(reviewId: string, reply: string): Promise<void> {
+  const now = new Date().toISOString()
+  await adminDb.collection(COLLECTION).doc(reviewId).update({
+    technicianReply: reply,
+    technicianRepliedAt: now,
+    updatedAt: now,
+  })
 }

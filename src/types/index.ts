@@ -126,6 +126,8 @@ export interface Review {
   technicianId: string
   rating: number
   comment: string
+  technicianReply: string | null
+  technicianRepliedAt: string | null
   createdAt: string
   updatedAt: string | null
 }

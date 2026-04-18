@@ -99,3 +99,42 @@ export async function setTechnicianApproval(id: string, isApproved: boolean): Pr
     updatedAt: new Date().toISOString(),
   })
 }
+
+export interface UpdateTechnicianInput {
+  displayName?: string
+  bio?: string
+  phone?: string
+  whatsappNumber?: string
+  location?: string
+  services?: string[]
+  supportedBrands?: string[]
+  availability?: Technician["availability"]
+  pricing?: Technician["pricing"]
+  isActive?: boolean
+}
+
+/** Update a technician's own profile fields */
+export async function updateTechnicianProfile(
+  id: string,
+  input: UpdateTechnicianInput
+): Promise<Technician> {
+  const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() }
+  const fields = [
+    "displayName",
+    "bio",
+    "phone",
+    "whatsappNumber",
+    "location",
+    "services",
+    "supportedBrands",
+    "availability",
+    "pricing",
+    "isActive",
+  ] as const
+  for (const f of fields) {
+    if (input[f] !== undefined) updates[f] = input[f]
+  }
+  await adminDb.collection(COLLECTION).doc(id).update(updates)
+  const doc = await adminDb.collection(COLLECTION).doc(id).get()
+  return docToTechnician(doc.id, doc.data()!)
+}

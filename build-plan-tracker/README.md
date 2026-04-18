@@ -24,10 +24,10 @@ At the start of every session: read this file to know where to resume.
 | 06    | Service Catalog + Legal Disclaimer           | 🔶 PARTIAL     |
 | 07    | Technicians (Onboarding, Profiles, Approval) | 🔶 PARTIAL     |
 | 08    | Booking Flow                                 | ✅ COMPLETE    |
-| 09    | Payments (MercadoPago)                       | ⬜ NOT STARTED |
-| 10    | Reviews & Ratings                            | ⬜ NOT STARTED |
-| 11    | User Dashboard                               | ⬜ NOT STARTED |
-| 12    | Technician Dashboard                         | ⬜ NOT STARTED |
+| 09    | Payments (MercadoPago)                       | ✅ COMPLETE    |
+| 10    | Reviews & Ratings                            | ✅ COMPLETE    |
+| 11    | User Dashboard                               | ✅ COMPLETE    |
+| 12    | Technician Dashboard                         | ✅ COMPLETE    |
 | 13    | Admin Panel                                  | ⬜ NOT STARTED |
 | 14    | Notifications & WhatsApp                     | ⬜ NOT STARTED |
 | 15    | Search, Filters & Discovery                  | ⬜ NOT STARTED |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-18
-- Completed: Phase 08 (Booking Flow — wizard, API routes, detail page, status machine)
-- Next: Phase 09 — Payments (MercadoPago payment link generation on booking creation, webhook handler)
+- Completed: Phase 11 (User Dashboard) + Phase 12 (Technician Dashboard)
+- Next: Phase 13 — Admin Panel (technician approval queue, scooter/service catalog management, KPIs)
