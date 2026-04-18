@@ -28,7 +28,7 @@ At the start of every session: read this file to know where to resume.
 | 10    | Reviews & Ratings                            | ✅ COMPLETE    |
 | 11    | User Dashboard                               | ✅ COMPLETE    |
 | 12    | Technician Dashboard                         | ✅ COMPLETE    |
-| 13    | Admin Panel                                  | ⬜ NOT STARTED |
+| 13    | Admin Panel                                  | 🔶 PARTIAL     |
 | 14    | Notifications & WhatsApp                     | ⬜ NOT STARTED |
 | 15    | Search, Filters & Discovery                  | ⬜ NOT STARTED |
 | 16    | SEO, Metadata & Legal Pages                  | ⬜ NOT STARTED |

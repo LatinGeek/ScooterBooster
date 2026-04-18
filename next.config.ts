@@ -1,5 +1,35 @@
 import type { NextConfig } from "next"
 
-const nextConfig: NextConfig = {}
+const securityHeaders = [
+  { key: "X-DNS-Prefetch-Control", value: "on" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-XSS-Protection", value: "1; mode=block" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(self)",
+  },
+  // HSTS — only effective on HTTPS; Vercel handles this, but set for completeness
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+]
+
+const nextConfig: NextConfig = {
+  // distDir points outside the FUSE mount to avoid EPERM on sandbox cleanup.
+  // REVERT to default before deploying to Vercel.
+  distDir: "/tmp/sb-build",
+
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ]
+  },
+}
 
 export default nextConfig
