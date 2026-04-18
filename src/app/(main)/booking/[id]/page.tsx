@@ -4,6 +4,7 @@ import { getBookingById } from "@/lib/db/bookings"
 import { getTechnicianById, getTechnicianByUserId } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
+import { getReviewByBooking } from "@/lib/db/reviews"
 import { BookingDetailClient } from "./booking-detail-client"
 
 export const dynamic = "force-dynamic"
@@ -46,11 +47,12 @@ export default async function BookingDetailPage({
 
   if (!hasAccess) notFound()
 
-  // Fetch related entities
-  const [technician, service, scooterModel] = await Promise.all([
+  // Fetch related entities in parallel
+  const [technician, service, scooterModel, existingReview] = await Promise.all([
     getTechnicianById(booking.technicianId),
     getServiceById(booking.serviceId),
     getModelById(booking.scooterModelId),
+    booking.status === "completed" ? getReviewByBooking(id) : Promise.resolve(null),
   ])
 
   return (
@@ -63,6 +65,7 @@ export default async function BookingDetailPage({
         role={role}
         userId={session.uid}
         paymentReturnStatus={paymentStatus}
+        hasReview={!!existingReview}
       />
     </main>
   )

@@ -43,6 +43,19 @@ export async function getReviewsByTechnician(
   return snap.docs.map((doc) => docToReview(doc.id, doc.data()))
 }
 
+/** Get a review for a specific booking (to check if one already exists) */
+export async function getReviewByBooking(bookingId: string): Promise<Review | null> {
+  const snap = await adminDb
+    .collection(COLLECTION)
+    .where("bookingId", "==", bookingId)
+    .limit(1)
+    .get()
+  if (snap.empty) return null
+  const doc = snap.docs[0]
+  if (!doc) return null
+  return docToReview(doc.id, doc.data())
+}
+
 /** Get reviews left by a user */
 export async function getReviewsByUser(userId: string): Promise<Review[]> {
   const snap = await adminDb

@@ -108,13 +108,12 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
   }
 
   await adminDb.runTransaction(async (tx) => {
-    // Check for conflicting bookings on the same date+time
     const conflictSnap = await tx.get(
       adminDb
         .collection(COLLECTION)
         .where("technicianId", "==", input.technicianId)
         .where("scheduledDate", "==", input.scheduledDate)
-        .where("status", "in", ["pending", "confirmed", "in_progress"])
+        .where("status", "in", ["pending", "confirmed", "in_progress"]),
     )
     if (!conflictSnap.empty) {
       throw new Error("SLOT_TAKEN")
@@ -137,7 +136,7 @@ export async function updateBookingStatus(id: string, status: Booking["status"])
 export async function updateBookingPaymentLink(
   id: string,
   preferenceId: string,
-  paymentLinkUrl: string
+  paymentLinkUrl: string,
 ): Promise<void> {
   await adminDb.collection(COLLECTION).doc(id).update({
     paymentLinkId: preferenceId,
@@ -150,7 +149,7 @@ export async function updateBookingPaymentLink(
 export async function updateBookingPaymentStatus(
   id: string,
   paymentStatus: Booking["paymentStatus"],
-  bookingStatus?: Booking["status"]
+  bookingStatus?: Booking["status"],
 ): Promise<void> {
   const update: Record<string, unknown> = {
     paymentStatus,
@@ -164,7 +163,7 @@ export async function updateBookingPaymentStatus(
 
 /** Get a booking by external reference (MP external_reference = "booking_{id}") */
 export async function getBookingByExternalReference(
-  externalReference: string
+  externalReference: string,
 ): Promise<Booking | null> {
   const bookingId = externalReference.replace("booking_", "")
   return getBookingById(bookingId)

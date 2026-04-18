@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ReviewForm } from "@/components/review-form"
 import type { Booking, BookingStatus, Technician, Service, ScooterModel } from "@/types"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,6 +29,7 @@ interface Props {
   role: string
   userId: string
   paymentReturnStatus?: string
+  hasReview?: boolean
 }
 
 // ─── Status config ────────────────────────────────────────────────────────────
@@ -267,6 +269,7 @@ export function BookingDetailClient({
   scooterModel,
   role,
   paymentReturnStatus,
+  hasReview = false,
 }: Props) {
   const router = useRouter()
   const [booking, setBooking] = useState<Booking>(initialBooking)
@@ -427,6 +430,24 @@ export function BookingDetailClient({
             </Button>
           )}
       </div>
+
+      {/* Review form — only for users, completed bookings, no existing review */}
+      {booking.status === "completed" && role === "user" && technician && (
+        <div className="mt-6">
+          {hasReview ? (
+            <div className="flex items-center gap-2 rounded-xl border border-[#e5e7eb] bg-[#f9fafb] px-4 py-3 text-sm text-[#6b7280]">
+              <CheckCircle className="h-4 w-4 text-[#10b981]" />
+              Ya dejaste una reseña para este servicio.
+            </div>
+          ) : (
+            <ReviewForm
+              bookingId={booking.id}
+              technicianId={booking.technicianId}
+              technicianName={technician.displayName}
+            />
+          )}
+        </div>
+      )}
 
       {/* Timestamps */}
       <div className="mt-8 text-xs text-[#9ca3af]">
