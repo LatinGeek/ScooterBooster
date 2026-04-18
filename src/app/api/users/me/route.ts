@@ -26,6 +26,19 @@ export const GET = withErrorHandling(async () => {
   return ok({ uid: session.uid, ...snap.data() } as User)
 })
 
+// DELETE /api/users/me — soft-delete the account (sets deletedAt timestamp)
+export const DELETE = withErrorHandling(async () => {
+  const session = await getSession()
+  if (!session) return fail("No autenticado", 401)
+
+  await adminDb.collection("users").doc(session.uid).update({
+    deletedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  })
+
+  return ok({ message: "Cuenta eliminada" })
+})
+
 // PATCH /api/users/me — update profile fields
 export const PATCH = withErrorHandling(async (req: NextRequest) => {
   const session = await getSession()
