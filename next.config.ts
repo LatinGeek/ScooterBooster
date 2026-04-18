@@ -1,7 +1,5 @@
 import type { NextConfig } from "next"
 
-const nextConfig: NextConfig = {
-  distDir: "/tmp/sb-build",
-}
+const nextConfig: NextConfig = {}
 
 export default nextConfig
