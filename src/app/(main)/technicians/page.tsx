@@ -1,10 +1,16 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ChevronRight, Search, ShieldCheck, SlidersHorizontal } from "lucide-react"
+import { ChevronRight, MapPinned, Search, ShieldCheck, SlidersHorizontal } from "lucide-react"
 import { getActiveBrands } from "@/lib/db/brands"
 import { getActiveServices } from "@/lib/db/services"
-import { searchTechnicians } from "@/lib/search"
+import { getDistanceToTechnician, searchTechnicians } from "@/lib/search"
+import {
+  getPresetBySlug,
+  URUGUAY_LOCATION_PRESETS,
+  type UruguayLocationPreset,
+} from "@/lib/uruguay-locations"
 import { TechnicianCard } from "@/components/technician-card"
+import { LocationSortControls } from "./location-sort-controls"
 
 export const dynamic = "force-dynamic"
 
@@ -24,6 +30,18 @@ function getMultiSearchParam(value: string | string[] | undefined): string[] {
   return []
 }
 
+function createLocationHref(
+  selectedPreset: UruguayLocationPreset,
+  currentParams: URLSearchParams
+): string {
+  const params = new URLSearchParams(currentParams.toString())
+  params.set("location", selectedPreset.label)
+  params.set("near", selectedPreset.slug)
+  params.delete("lat")
+  params.delete("lng")
+  return `/technicians?${params.toString()}`
+}
+
 export default async function TechniciansPage({
   searchParams,
 }: {
@@ -35,6 +53,9 @@ export default async function TechniciansPage({
     minRating?: string | string[]
     minPrice?: string | string[]
     maxPrice?: string | string[]
+    lat?: string | string[]
+    lng?: string | string[]
+    near?: string | string[]
   }>
 }) {
   const params = await searchParams
@@ -45,9 +66,19 @@ export default async function TechniciansPage({
   const minRatingValue = getSingleSearchParam(params.minRating)
   const minPriceRaw = getSingleSearchParam(params.minPrice)
   const maxPriceRaw = getSingleSearchParam(params.maxPrice)
+  const near = getSingleSearchParam(params.near)
+  const latitudeRaw = getSingleSearchParam(params.lat)
+  const longitudeRaw = getSingleSearchParam(params.lng)
   const minRating = minRatingValue ? Number(minRatingValue) : undefined
   const minPrice = minPriceRaw ? Number(minPriceRaw) : undefined
   const maxPrice = maxPriceRaw ? Number(maxPriceRaw) : undefined
+  const latitude = latitudeRaw ? Number(latitudeRaw) : undefined
+  const longitude = longitudeRaw ? Number(longitudeRaw) : undefined
+  const hasCoordinates =
+    latitude !== undefined &&
+    longitude !== undefined &&
+    !Number.isNaN(latitude) &&
+    !Number.isNaN(longitude)
 
   const [technicians, services, brands] = await Promise.all([
     searchTechnicians({
@@ -58,10 +89,26 @@ export default async function TechniciansPage({
       minRating,
       minPrice,
       maxPrice,
+      latitude: hasCoordinates ? latitude : undefined,
+      longitude: hasCoordinates ? longitude : undefined,
     }),
     getActiveServices(),
     getActiveBrands(),
   ])
+
+  const currentSearchParams = new URLSearchParams()
+  if (query) currentSearchParams.set("q", query)
+  if (location) currentSearchParams.set("location", location)
+  if (brand) currentSearchParams.set("brand", brand)
+  if (minRatingValue) currentSearchParams.set("minRating", minRatingValue)
+  if (minPriceRaw) currentSearchParams.set("minPrice", minPriceRaw)
+  if (maxPriceRaw) currentSearchParams.set("maxPrice", maxPriceRaw)
+  if (near) currentSearchParams.set("near", near)
+  if (latitudeRaw) currentSearchParams.set("lat", latitudeRaw)
+  if (longitudeRaw) currentSearchParams.set("lng", longitudeRaw)
+  for (const serviceId of selectedServices) {
+    currentSearchParams.append("service", serviceId)
+  }
 
   const activeFilterCount = [
     query,
@@ -70,8 +117,18 @@ export default async function TechniciansPage({
     minRatingValue,
     minPriceRaw,
     maxPriceRaw,
+    near,
     ...selectedServices,
   ].filter(Boolean).length
+
+  const nearPreset = near ? getPresetBySlug(near) : null
+  const nearbyLabel = near === "mi-ubicacion" ? "tu ubicación" : (nearPreset?.label ?? null)
+  const distanceByTechnicianId = new Map(
+    technicians.map((technician) => [
+      technician.id,
+      hasCoordinates ? getDistanceToTechnician(technician, latitude, longitude) : null,
+    ])
+  )
 
   return (
     <main>
@@ -241,6 +298,46 @@ export default async function TechniciansPage({
                 </Link>
               </div>
             </form>
+
+            <div className="mt-6 space-y-4">
+              <LocationSortControls
+                initialSearch={currentSearchParams.toString()}
+                hasNearbySort={hasCoordinates}
+              />
+
+              <div className="rounded-3xl border border-[#e5e7eb] bg-[#f8fafc] p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eff6ff]">
+                    <MapPinned className="h-5 w-5 text-[#2563eb]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#111827]">Zonas rápidas</p>
+                    <p className="mt-1 text-xs leading-5 text-[#6b7280]">
+                      Elegí una zona popular para ordenar y filtrar sin escribirla manualmente.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {URUGUAY_LOCATION_PRESETS.map((preset) => {
+                    const isActive = near === preset.slug || location === preset.label
+                    return (
+                      <Link
+                        key={preset.slug}
+                        href={createLocationHref(preset, currentSearchParams)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 ${
+                          isActive
+                            ? "bg-[#111827] text-white"
+                            : "bg-white text-[#374151] hover:bg-[#e2e8f0]"
+                        }`}
+                      >
+                        {preset.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
           </aside>
 
           <div>
@@ -255,6 +352,12 @@ export default async function TechniciansPage({
                 {technicians.length} resultado{technicians.length === 1 ? "" : "s"}
               </div>
             </div>
+
+            {nearbyLabel ? (
+              <div className="mb-5 rounded-3xl border border-[#d1fae5] bg-[#f0fdf4] px-4 py-3 text-sm text-[#047857]">
+                Ordenado por cercanía aproximada a {nearbyLabel}.
+              </div>
+            ) : null}
 
             {technicians.length === 0 ? (
               <div className="rounded-[2rem] border border-dashed border-[#cbd5e1] bg-white px-6 py-16 text-center text-[#6b7280] shadow-sm">
@@ -275,7 +378,11 @@ export default async function TechniciansPage({
             ) : (
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {technicians.map((tech) => (
-                  <TechnicianCard key={tech.id} technician={tech} />
+                  <TechnicianCard
+                    key={tech.id}
+                    technician={tech}
+                    distanceKm={distanceByTechnicianId.get(tech.id) ?? null}
+                  />
                 ))}
               </div>
             )}

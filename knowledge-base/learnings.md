@@ -83,3 +83,6 @@
 
 - **Next.js 16 page `searchParams` are promises:** Server pages should `await searchParams` instead of treating them as synchronous objects. That keeps new App Router pages aligned with request-time APIs and avoids future deprecation cleanup.
   - Affected files: `src/app/(main)/technicians/page.tsx`, `src/app/(main)/search/page.tsx`
+
+- **Next.js 16 `next build` mutates `tsconfig.json` with temp type paths:** The build injects `/tmp/sb-fresh-*/types/**/*.ts` entries into `include`. They are only build-time noise in this workspace and should be removed before committing.
+  - Affected files: `tsconfig.json`

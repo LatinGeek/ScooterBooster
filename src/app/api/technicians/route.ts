@@ -12,6 +12,8 @@ const technicianSearchQuerySchema = z.object({
   minRating: z.coerce.number().min(0).max(5).optional(),
   minPrice: z.coerce.number().min(0).optional(),
   maxPrice: z.coerce.number().min(0).optional(),
+  lat: z.coerce.number().min(-90).max(90).optional(),
+  lng: z.coerce.number().min(-180).max(180).optional(),
 })
 
 export const dynamic = "force-dynamic"
@@ -25,6 +27,8 @@ export async function GET(request: NextRequest) {
     minRating: request.nextUrl.searchParams.get("minRating") ?? undefined,
     minPrice: request.nextUrl.searchParams.get("minPrice") ?? undefined,
     maxPrice: request.nextUrl.searchParams.get("maxPrice") ?? undefined,
+    lat: request.nextUrl.searchParams.get("lat") ?? undefined,
+    lng: request.nextUrl.searchParams.get("lng") ?? undefined,
   })
 
   if (!parsed.success) {
@@ -42,6 +46,8 @@ export async function GET(request: NextRequest) {
     minRating: parsed.data.minRating,
     minPrice: parsed.data.minPrice,
     maxPrice: parsed.data.maxPrice,
+    latitude: parsed.data.lat,
+    longitude: parsed.data.lng,
   })
 
   return ok(technicians)

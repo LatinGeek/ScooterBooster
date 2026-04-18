@@ -8,9 +8,10 @@ import { WhatsAppButton } from "./whatsapp-button"
 
 interface TechnicianCardProps {
   technician: Technician
+  distanceKm?: number | null
 }
 
-export function TechnicianCard({ technician }: TechnicianCardProps) {
+export function TechnicianCard({ technician, distanceKm }: TechnicianCardProps) {
   const initials = technician.displayName
     .split(" ")
     .map((n) => n[0])
@@ -41,6 +42,11 @@ export function TechnicianCard({ technician }: TechnicianCardProps) {
                 <div className="mt-0.5 flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5 text-[#9ca3af]" />
                   <span className="text-xs text-[#6b7280]">{technician.location}</span>
+                  {distanceKm !== null && distanceKm !== undefined ? (
+                    <span className="text-xs text-[#9ca3af]">
+                      · a {distanceKm < 10 ? distanceKm.toFixed(1) : Math.round(distanceKm)} km
+                    </span>
+                  ) : null}
                 </div>
               </div>
               <div className="flex flex-shrink-0 items-center gap-1">

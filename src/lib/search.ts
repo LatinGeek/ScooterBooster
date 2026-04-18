@@ -2,6 +2,11 @@ import { getActiveBrands } from "@/lib/db/brands"
 import { getActiveModels } from "@/lib/db/models"
 import { getActiveServices } from "@/lib/db/services"
 import { getActiveTechnicians } from "@/lib/db/technicians"
+import {
+  haversineDistanceKm,
+  matchUruguayLocation,
+  type UruguayLocationPreset,
+} from "@/lib/uruguay-locations"
 import type { ScooterModel, Service, Technician } from "@/types"
 
 export interface TechnicianSearchFilters {
@@ -12,6 +17,8 @@ export interface TechnicianSearchFilters {
   minRating?: number
   minPrice?: number
   maxPrice?: number
+  latitude?: number
+  longitude?: number
 }
 
 export interface PlatformSearchResults {
@@ -50,6 +57,23 @@ function getRelevantPrices(technician: Technician, serviceIds: string[]): number
     .filter((price): price is number => typeof price === "number")
 }
 
+export function getTechnicianLocationPreset(technician: Technician): UruguayLocationPreset | null {
+  return matchUruguayLocation(technician.location)
+}
+
+export function getDistanceToTechnician(
+  technician: Technician,
+  latitude?: number,
+  longitude?: number
+): number | null {
+  if (latitude === undefined || longitude === undefined) return null
+
+  const preset = getTechnicianLocationPreset(technician)
+  if (!preset) return null
+
+  return haversineDistanceKm(latitude, longitude, preset.latitude, preset.longitude)
+}
+
 export async function searchTechnicians(
   filters: TechnicianSearchFilters = {}
 ): Promise<Technician[]> {
@@ -57,6 +81,7 @@ export async function searchTechnicians(
   const selectedServices = filters.serviceIds?.filter(Boolean) ?? []
   const normalizedQuery = filters.query?.trim() ?? ""
   const normalizedLocation = filters.location?.trim() ?? ""
+  const hasCoordinates = filters.latitude !== undefined && filters.longitude !== undefined
 
   return technicians
     .filter((technician) => {
@@ -105,6 +130,17 @@ export async function searchTechnicians(
       return true
     })
     .sort((left, right) => {
+      if (hasCoordinates) {
+        const leftDistance = getDistanceToTechnician(left, filters.latitude, filters.longitude)
+        const rightDistance = getDistanceToTechnician(right, filters.latitude, filters.longitude)
+
+        if (leftDistance !== null && rightDistance !== null && leftDistance !== rightDistance) {
+          return leftDistance - rightDistance
+        }
+        if (leftDistance !== null && rightDistance === null) return -1
+        if (leftDistance === null && rightDistance !== null) return 1
+      }
+
       if (right.rating !== left.rating) return right.rating - left.rating
       if (right.reviewCount !== left.reviewCount) return right.reviewCount - left.reviewCount
 

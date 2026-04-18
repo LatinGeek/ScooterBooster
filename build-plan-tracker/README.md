@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-18
-- Completed: Phase 15 core search slice - global search page/API and shareable technician filters
-- Next: Finish Phase 15 geolocation/discovery polish, then move to Phase 17 testing
+- Completed: Phase 15 proximity slice - technician geolocation sorting and quick Uruguay location presets
+- Next: Finish Phase 15 debounced search UX / search-token indexing, then move to Phase 17 testing
