@@ -132,3 +132,40 @@ export async function updateBookingStatus(id: string, status: Booking["status"])
     updatedAt: new Date().toISOString(),
   })
 }
+
+/** Store MercadoPago preference ID and payment link URL on the booking */
+export async function updateBookingPaymentLink(
+  id: string,
+  preferenceId: string,
+  paymentLinkUrl: string
+): Promise<void> {
+  await adminDb.collection(COLLECTION).doc(id).update({
+    paymentLinkId: preferenceId,
+    paymentLinkUrl,
+    updatedAt: new Date().toISOString(),
+  })
+}
+
+/** Update booking payment status (called by webhook after MP confirmation) */
+export async function updateBookingPaymentStatus(
+  id: string,
+  paymentStatus: Booking["paymentStatus"],
+  bookingStatus?: Booking["status"]
+): Promise<void> {
+  const update: Record<string, unknown> = {
+    paymentStatus,
+    updatedAt: new Date().toISOString(),
+  }
+  if (bookingStatus) {
+    update["status"] = bookingStatus
+  }
+  await adminDb.collection(COLLECTION).doc(id).update(update)
+}
+
+/** Get a booking by external reference (MP external_reference = "booking_{id}") */
+export async function getBookingByExternalReference(
+  externalReference: string
+): Promise<Booking | null> {
+  const bookingId = externalReference.replace("booking_", "")
+  return getBookingById(bookingId)
+}
