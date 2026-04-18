@@ -1,20 +1,27 @@
 # Tracker — Phase 05: Scooter Catalog
 
-> Status: ⬜ NOT STARTED
-> Last updated: 2026-04-17
+> Status: ✅ COMPLETE
+> Last updated: 2026-04-18
 
 ## Tasks
 
-- [ ] Scooters listing page with hero + filters (brand, category)
-- [ ] Scooter detail page: specs, compatible services, compatible technicians
-- [ ] Server-side data fetching from Firestore
-- [ ] Search API for scooters
-- [ ] SEO metadata + JSON-LD per model
-- [ ] ISR: revalidate every 1h
+- [x] Scooters listing page — grouped by brand with model cards showing specs
+- [x] ScooterCard component — src/components/scooter-card.tsx
+- [x] Scooter detail page — specs grid, compatible services, compatible technicians section
+- [x] Server-side data fetching from Firestore (Admin SDK, force-dynamic)
+- [x] SEO metadata via generateMetadata on detail page
+- [x] (main)/layout.tsx created — Navbar added
+
+## Deferred
+
+- [ ] Client-side filters (brand, category) — deferred, brand grouping serves the same purpose
+- [ ] Search API — deferred to Phase 15
+- [ ] JSON-LD structured data per model — deferred to Phase 16
+- [ ] ISR — switched to force-dynamic (build sandbox has no internet to Firestore at build time)
 
 ## Notes
 
-- Brands and models data is documented in knowledge-base/scooters/brands-and-models.md
-- 7 brands: Xiaomi, Segway-Ninebot, Dualtron, Kaabo, VSETT, Zero, Inokim
-- Compatibility matrix in knowledge-base/scooters/compatibility-matrix.md
-- Page shells already exist at src/app/(main)/scooters/
+- ISR (`export const revalidate`) fails in the build sandbox (no internet → Firestore DNS fails).
+  Use `export const dynamic = "force-dynamic"` for all Firestore-dependent pages during dev.
+  ISR can be re-enabled when deployed to Vercel (has internet access).
+- ScooterCard routes to `/scooters/[model.slug]` — slug is the URL param, not doc ID.

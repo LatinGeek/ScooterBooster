@@ -17,6 +17,7 @@ We are currently in **active build phase**. Alan executes autonomously following
 3. **Only interrupt Germán** when something genuinely blocks progress: missing credentials, env vars, external service setup, or a decision with major product implications. When interrupting, provide step-by-step instructions so he can unblock ASAP.
 4. **At the start of every session**, read `build-plan-tracker/` to know where we left off, then continue from the next incomplete task.
 5. **Update `knowledge-base/learnings.md`** whenever a gotcha, breaking change, or non-obvious fix is discovered.
+6. **Atomic commits at every meaningful step** — commit after each logical unit of work (completing a task, fixing a bug, adding a feature, finishing a phase). Use conventional commit format (`feat:`, `fix:`, `chore:`, `docs:`). This gives full visibility into changes and makes it easy to trace when features were introduced or broken.
 
 ## Project Overview
 

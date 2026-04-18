@@ -1,20 +1,20 @@
 # Tracker — Phase 06: Service Catalog + Legal Disclaimer
 
-> Status: ⬜ NOT STARTED
-> Last updated: 2026-04-17
+> Status: 🔶 PARTIAL — listing done, disclaimer enforcement in booking flow pending
+> Last updated: 2026-04-18
 
 ## Tasks
 
-- [ ] Services listing page (4 services with cards)
-- [ ] Service detail with pricing, duration, compatibility
-- [ ] DisclaimerModal component (mandatory for speed-limit-removal)
-- [ ] Modal: cannot close without explicit checkbox + timestamp audit trail
-- [ ] Store disclaimer acceptance in Firestore (bookings.disclaimerAccepted + timestamp)
-- [ ] Service-to-scooter compatibility matrix display
+- [x] Services listing page — 4 service cards with icons, prices, duration, disclaimer warning
+- [x] DisclaimerModal component — src/components/disclaimer-modal.tsx (built in Phase 02)
+- [ ] Service detail page (/services/[slug]) — deferred (listing page covers main use case for now)
+- [ ] DisclaimerModal enforcement in booking flow — wired in Phase 08
+- [ ] Store disclaimer acceptance in Firestore — handled in booking creation (bookings.disclaimerAccepted)
+- [ ] Service-to-scooter compatibility matrix display — shown on scooter detail page (Phase 05)
 
 ## Notes
 
-- Speed limit disclaimer text is in knowledge-base/services/speed-limit-disclaimer.md — use EXACTLY as written
-- Any service with category=speed-limit MUST trigger the modal before booking
-- Disclaimer acceptance must be stored with userId + timestamp for legal compliance
-- Page shell exists at src/app/(main)/services/page.tsx
+- Disclaimer text is in DisclaimerModal component — uses exact text from knowledge-base/services/speed-limit-disclaimer.md
+- Services are fetched from Firestore via getActiveServices() (Admin SDK)
+- requiresDisclaimer flag drives amber warning badge on service cards
+- Booking flow (Phase 08) must check service.requiresDisclaimer and gate on DisclaimerModal

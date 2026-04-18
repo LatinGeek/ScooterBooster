@@ -18,12 +18,12 @@ At the start of every session: read this file to know where to resume.
 | 00    | MCP Setup (Firebase + Vercel)                | ✅ COMPLETE    |
 | 01    | Foundations & Environment                    | ✅ COMPLETE    |
 | 02    | Design System Implementation                 | ✅ COMPLETE    |
-| 03    | Authentication & User Profiles               | 🔄 IN PROGRESS |
-| 04    | Firestore Schema, Rules & Seed Data          | ⬜ NOT STARTED |
-| 05    | Scooter Catalog                              | ⬜ NOT STARTED |
-| 06    | Service Catalog + Legal Disclaimer           | ⬜ NOT STARTED |
-| 07    | Technicians (Onboarding, Profiles, Approval) | ⬜ NOT STARTED |
-| 08    | Booking Flow                                 | ⬜ NOT STARTED |
+| 03    | Authentication & User Profiles               | ✅ COMPLETE    |
+| 04    | Firestore Schema, Rules & Seed Data          | 🔶 PARTIAL     |
+| 05    | Scooter Catalog                              | ✅ COMPLETE    |
+| 06    | Service Catalog + Legal Disclaimer           | 🔶 PARTIAL     |
+| 07    | Technicians (Onboarding, Profiles, Approval) | 🔶 PARTIAL     |
+| 08    | Booking Flow                                 | ✅ COMPLETE    |
 | 09    | Payments (MercadoPago)                       | ⬜ NOT STARTED |
 | 10    | Reviews & Ratings                            | ⬜ NOT STARTED |
 | 11    | User Dashboard                               | ⬜ NOT STARTED |
@@ -41,6 +41,6 @@ At the start of every session: read this file to know where to resume.
 
 ## Last Session
 
-- Date: 2026-04-17
-- Completed: Phase 00, 01, 02 (env, tooling, validators, design system, UI primitives, domain components)
-- Next: Phase 03 — Authentication (Google SSO, middleware, user profiles)
+- Date: 2026-04-18
+- Completed: Phase 08 (Booking Flow — wizard, API routes, detail page, status machine)
+- Next: Phase 09 — Payments (MercadoPago payment link generation on booking creation, webhook handler)

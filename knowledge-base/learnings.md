@@ -30,3 +30,42 @@
 
 - **pino belongs in dependencies, not devDependencies:** Logger is used in API routes at runtime (server-side). Moving it to devDeps would break production builds.
   - Affected files: `package.json`
+
+---
+
+## 2026-04-18
+
+- **Next.js 16 renames middleware.ts → proxy.ts:** The file is `src/proxy.ts` and the exported function must be named `proxy()` (not `middleware()`). Third-party docs still say "middleware" — they mean the same thing. Config export still works as before.
+  - Affected files: `src/proxy.ts`
+
+- **useSearchParams() requires Suspense wrapper at build time:** Any client component using `useSearchParams()` that isn't inside `<Suspense>` will fail during static prerendering with "missing-suspense-with-csr-bailout". Wrap the component that calls useSearchParams in its own inner component, then wrap with `<Suspense fallback={...}>` in the page export.
+  - Affected files: `src/app/(auth)/login/page.tsx`
+
+- **ISR (export const revalidate) fails in no-internet build sandbox:** During `next build`, Next.js tries to prerender pages with revalidate — this runs the page's data fetching code which calls Firestore. Without internet, Firestore DNS fails. Use `export const dynamic = "force-dynamic"` during development. Re-enable ISR after deploying to Vercel (which has internet).
+  - Affected files: all pages in `src/app/(main)/` that query Firestore
+
+- **withErrorHandling() must accept variadic args:** The original signature `handler: () => Promise<...>` rejects handlers that take `(req: NextRequest)`. Fixed to use generics: `handler: (...args: Args) => Promise<...>`.
+  - Affected files: `src/lib/api-response.ts`
+
+- **Zod v4 uses `.issues` not `.errors`:** `ZodError.errors` was renamed to `ZodError.issues` in Zod v4. Accessing `.errors` throws a TypeScript error. Use `parsed.error.issues[0]?.message`.
+  - Affected files: `src/app/api/users/me/route.ts`
+
+- **.next/.fuse_hidden files block rebuild:** macOS FUSE filesystem creates hidden lock files in `.next/` that can't be deleted from the sandbox (`EPERM`). Fix: use `mcp__cowork__allow_cowork_file_delete` to enable deletion, then `rm -f .next/.fuse_hidden*` before rebuilding.
+
+- **Seed script uses deterministic IDs:** Seed doc IDs like `"brand-xiaomi"`, `"speed-limit"` make the seed idempotent (safe to re-run). Services are referenced by these deterministic IDs in scooterModels.compatibleServices and technicians.services/pricing.
+
+- **(main)/layout.tsx was missing:** The `(main)` route group had no layout, so the Navbar was never rendered on main pages. Created `src/app/(main)/layout.tsx` importing and rendering `<Navbar />`.
+
+- **FUSE lock files follow distDir:** Setting `distDir: "/tmp/sb-build"` in next.config.ts doesn't avoid FUSE `.fuse_hidden*` files — they appear in the new distDir too. Build still succeeds (all pages compiled, TypeScript clean); the EPERM is only on final cleanup. Safe to ignore in sandbox; revert distDir before Vercel deploy.
+  - Affected files: `next.config.ts`
+
+- **BookingStatus union expanded:** Changed from flat `"cancelled"` to `"cancelled_by_user" | "cancelled_by_technician" | "expired"`. More precise for technician dashboard UX and audit trails. All downstream code updated.
+  - Affected files: `src/types/index.ts`, `src/lib/db/bookings.ts`, `src/app/api/bookings/[id]/route.ts`
+
+- **AppError subclass constructors:** `NotFoundError` and `ValidationError` original constructors accepted English messages but hardcoded Spanish userMessage. Fixed to accept Spanish user-facing message as constructor arg — makes API error messages caller-controlled.
+  - Affected files: `src/lib/errors.ts`
+
+- **Booking wizard URL state persistence:** Use `useSearchParams()` + `router.replace()` to sync wizard step and selections to URL. This lets users refresh without losing progress. The wizard client must be wrapped in `<Suspense>` (useSearchParams rule).
+  - Affected files: `src/app/(main)/booking/new/booking-wizard.tsx`
+
+- **`.git/index.lock` left by automated sessions:** If a previous automated session was interrupted mid-git-operation, it leaves a `.git/index.lock` file that the sandbox FUSE filesystem won't let another process delete (EPERM). Fix: Germán must delete it manually from his terminal or Finder — `rm ScooterBooster/.git/index.lock`. Cannot be deleted from within the sandbox.
