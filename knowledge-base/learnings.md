@@ -89,3 +89,9 @@
 
 - **Search tokens should be refreshed on write paths, not only in search code:** Search/discovery now prefers indexed `searchTokens` and `normalizedLocation` fields when present, but those fields need to be maintained anywhere data is seeded or technician profiles are updated. Current implementation covers `scripts/seed.ts` and `updateTechnicianProfile()` so discovery stays in sync with profile edits.
   - Affected files: `scripts/seed.ts`, `src/lib/search.ts`, `src/lib/db/technicians.ts`, `src/lib/db/brands.ts`, `src/lib/db/models.ts`, `src/lib/db/services.ts`
+
+- **`Intl.NumberFormat("es-UY")` uses a non-breaking space after the currency symbol:** Unit tests for `formatPrice()` should normalize `\u00A0` before comparing exact strings, otherwise locale-correct output can fail brittle assertions.
+  - Affected files: `src/lib/utils.ts`, `src/lib/utils.test.ts`
+
+- **Booking rules are safer when extracted from route handlers:** Disclaimer enforcement and role-based booking status transitions were previously embedded inside route/UI code. Moving them into `src/lib/booking-rules.ts` makes the API route and booking wizard share the same decisions and gives Vitest a stable unit-test target.
+  - Affected files: `src/lib/booking-rules.ts`, `src/app/api/bookings/route.ts`, `src/app/api/bookings/[id]/route.ts`, `src/app/(main)/booking/new/booking-wizard.tsx`

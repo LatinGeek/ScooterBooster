@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-18
-- Completed: Phase 15 indexing slice - seed data and search flow now support `searchTokens`
-- Next: Move to Phase 17 testing; Firestore `array-contains-any` optimization can stay as a search follow-up
+- Completed: Phase 17 booking-rules slice - shared booking disclaimer/transition logic now has unit coverage
+- Next: Continue Phase 17 with API route tests, then Playwright setup

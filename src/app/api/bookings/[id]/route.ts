@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server"
 import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { canTransitionBookingStatus, canUserCancelBooking } from "@/lib/booking-rules"
 import { getSession } from "@/lib/session"
 import { getBookingById, updateBookingStatus } from "@/lib/db/bookings"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
@@ -9,22 +10,6 @@ import { z } from "zod"
 export const dynamic = "force-dynamic"
 
 type RouteParams = { params: Promise<{ id: string }> }
-
-const ALLOWED_USER_TRANSITIONS: Record<string, string[]> = {
-  pending: ["cancelled_by_user"],
-}
-
-const ALLOWED_TECHNICIAN_TRANSITIONS: Record<string, string[]> = {
-  pending: ["confirmed", "cancelled_by_technician"],
-  confirmed: ["in_progress"],
-  in_progress: ["completed"],
-}
-
-const ALLOWED_ADMIN_TRANSITIONS: Record<string, string[]> = {
-  pending: ["confirmed", "cancelled_by_user", "cancelled_by_technician", "expired"],
-  confirmed: ["in_progress", "cancelled_by_user", "cancelled_by_technician"],
-  in_progress: ["completed", "cancelled_by_technician"],
-}
 
 const patchSchema = z.object({
   status: z.enum([
@@ -85,24 +70,22 @@ export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Rout
   let allowed = false
 
   if (role === "admin") {
-    allowed = (ALLOWED_ADMIN_TRANSITIONS[currentStatus] ?? []).includes(newStatus)
+    allowed = canTransitionBookingStatus("admin", currentStatus, newStatus)
   } else if (role === "technician") {
     const techProfile = await getTechnicianByUserId(session.uid)
     if (techProfile?.id !== booking.technicianId) throw new ForbiddenError()
-    allowed = (ALLOWED_TECHNICIAN_TRANSITIONS[currentStatus] ?? []).includes(newStatus)
+    allowed = canTransitionBookingStatus("technician", currentStatus, newStatus)
   } else {
     // user role
     if (booking.userId !== session.uid) throw new ForbiddenError()
 
     // Cancellation window: free up to 24h before scheduled time
     if (newStatus === "cancelled_by_user") {
-      const scheduledAt = new Date(booking.scheduledDate)
-      const hoursUntil = (scheduledAt.getTime() - Date.now()) / (1000 * 60 * 60)
-      if (hoursUntil < 0) {
+      if (!canUserCancelBooking(booking)) {
         throw new ValidationError("No es posible cancelar una reserva pasada")
       }
     }
-    allowed = (ALLOWED_USER_TRANSITIONS[currentStatus] ?? []).includes(newStatus)
+    allowed = canTransitionBookingStatus("user", currentStatus, newStatus)
   }
 
   if (!allowed) {

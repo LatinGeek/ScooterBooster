@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DisclaimerModal } from "@/components/disclaimer-modal"
+import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import type { ScooterModel, Service, Technician } from "@/types"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -440,7 +441,7 @@ function StepConfirm({
           </div>
         </div>
       </div>
-      {service?.requiresDisclaimer && wizardState.disclaimerAccepted && (
+      {requiresBookingDisclaimer(service) && wizardState.disclaimerAccepted && (
         <div className="mt-4 flex items-center gap-2 rounded-lg border border-[#d1fae5] bg-[#d1fae5] px-4 py-3 text-sm text-[#065f46]">
           <Check className="h-4 w-4 shrink-0" />
           <span>Aviso legal aceptado</span>
@@ -539,7 +540,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
     const nextStep = (step + 1) as Step
     // If service requires disclaimer and we're moving to step 5, show it first
-    if (nextStep === 5 && service?.requiresDisclaimer && !state.disclaimerAccepted) {
+    if (nextStep === 5 && requiresBookingDisclaimer(service) && !state.disclaimerAccepted) {
       setShowDisclaimer(true)
       return
     }

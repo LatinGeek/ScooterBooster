@@ -6,6 +6,7 @@ import { createBooking, getBookingsByUser, updateBookingPaymentLink } from "@/li
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
+import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, createPaymentLink } from "@/lib/mercadopago"
 import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
 import logger from "@/lib/logger"
@@ -66,7 +67,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   // Enforce disclaimer for speed-limit services
-  if (service.requiresDisclaimer && !disclaimerAccepted) {
+  if (requiresBookingDisclaimer(service) && !disclaimerAccepted) {
     throw new ValidationError("Debe aceptar el aviso legal para continuar con este servicio")
   }
 
