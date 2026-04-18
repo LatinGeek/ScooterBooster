@@ -86,7 +86,14 @@ export interface Service {
   createdAt: string
 }
 
-export type BookingStatus = "pending" | "confirmed" | "in-progress" | "completed" | "cancelled"
+export type BookingStatus =
+  | "pending"
+  | "confirmed"
+  | "in_progress"
+  | "completed"
+  | "cancelled_by_user"
+  | "cancelled_by_technician"
+  | "expired"
 
 export type PaymentStatus = "pending" | "paid" | "refunded"
 

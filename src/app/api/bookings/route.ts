@@ -1,23 +1,108 @@
-import { NextRequest, NextResponse } from "next/server"
-import type { ApiResponse } from "@/types"
+import { NextRequest } from "next/server"
+import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { getSession } from "@/lib/session"
+import { createBookingSchema } from "@/lib/validators/booking"
+import { createBooking, getBookingsByUser } from "@/lib/db/bookings"
+import { getTechnicianById } from "@/lib/db/technicians"
+import { getServiceById } from "@/lib/db/services"
+import { getModelById } from "@/lib/db/models"
+import { calculatePricing } from "@/lib/mercadopago"
+import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
+import logger from "@/lib/logger"
 
-export async function GET() {
-  // TODO: Fetch bookings from Firestore (filtered by authenticated user)
-  return NextResponse.json<ApiResponse>({ success: true, data: [] })
-}
+export const dynamic = "force-dynamic"
 
-export async function POST(request: NextRequest) {
-  try {
-    // TODO: Validate with Zod, verify Firebase auth token, create booking in Firestore
-    // TODO: Generate MercadoPago payment link
-    // TODO: Handle disclaimer acceptance for speed-limit services
-    await request.json()
+/** GET /api/bookings — fetch current user's bookings */
+export const GET = withErrorHandling(async () => {
+  const session = await getSession()
+  if (!session) throw new AuthError()
 
-    return NextResponse.json<ApiResponse>({ success: true, data: { id: "placeholder" } })
-  } catch {
-    return NextResponse.json<ApiResponse>(
-      { success: false, error: "Error interno del servidor" },
-      { status: 500 }
+  const bookings = await getBookingsByUser(session.uid)
+  return ok(bookings)
+})
+
+/** POST /api/bookings — create a new booking */
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  const session = await getSession()
+  if (!session) throw new AuthError()
+
+  const body: unknown = await req.json()
+  const parsed = createBookingSchema.safeParse(body)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")
+  }
+
+  const { technicianId, serviceId, scooterModelId, scheduledDate, notes, disclaimerAccepted } =
+    parsed.data
+
+  // Verify technician exists and is approved
+  const technician = await getTechnicianById(technicianId)
+  if (!technician || !technician.isApproved || !technician.isActive) {
+    throw new NotFoundError("Técnico no disponible")
+  }
+
+  // Verify service exists and is active
+  const service = await getServiceById(serviceId)
+  if (!service || !service.isActive) {
+    throw new NotFoundError("Servicio no encontrado")
+  }
+
+  // Verify scooter model exists
+  const scooterModel = await getModelById(scooterModelId)
+  if (!scooterModel || !scooterModel.isActive) {
+    throw new NotFoundError("Modelo de scooter no encontrado")
+  }
+
+  // Verify service is compatible with scooter model
+  if (!scooterModel.compatibleServices.includes(serviceId)) {
+    throw new ValidationError(
+      "Este servicio no es compatible con el modelo de scooter seleccionado"
     )
   }
-}
+
+  // Verify technician offers this service
+  if (!technician.services.includes(serviceId)) {
+    throw new ValidationError("El técnico no ofrece este servicio")
+  }
+
+  // Enforce disclaimer for speed-limit services
+  if (service.requiresDisclaimer && !disclaimerAccepted) {
+    throw new ValidationError("Debe aceptar el aviso legal para continuar con este servicio")
+  }
+
+  // Get base price from technician pricing
+  const pricingEntry = technician.pricing[serviceId]
+  if (!pricingEntry) {
+    throw new ValidationError("El técnico no tiene precio configurado para este servicio")
+  }
+  const { basePrice, serviceFee, totalPrice } = calculatePricing(pricingEntry.basePrice)
+
+  logger.info({ userId: session.uid, technicianId, serviceId, scheduledDate }, "Creating booking")
+
+  let booking
+  try {
+    booking = await createBooking({
+      userId: session.uid,
+      technicianId,
+      serviceId,
+      scooterModelId,
+      scheduledDate,
+      notes: notes ?? null,
+      basePrice,
+      serviceFee,
+      totalPrice,
+      disclaimerAccepted: !!disclaimerAccepted,
+      disclaimerAcceptedAt: disclaimerAccepted ? new Date().toISOString() : null,
+      disclaimerVersion: disclaimerAccepted ? "1.0" : null,
+    })
+  } catch (err) {
+    if (err instanceof Error && err.message === "SLOT_TAKEN") {
+      throw new ValidationError(
+        "El técnico ya tiene una reserva en ese horario. Por favor elegí otro horario."
+      )
+    }
+    throw err
+  }
+
+  return ok({ booking }, 201)
+})

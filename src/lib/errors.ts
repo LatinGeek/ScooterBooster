@@ -32,15 +32,15 @@ export class ForbiddenError extends AppError {
 }
 
 export class NotFoundError extends AppError {
-  constructor(resource = "Resource") {
-    super(`${resource} not found`, "El recurso solicitado no existe.", 404)
+  constructor(userMessage = "El recurso solicitado no existe.") {
+    super("Resource not found", userMessage, 404)
     this.name = "NotFoundError"
   }
 }
 
 export class ValidationError extends AppError {
-  constructor(message = "Validation failed") {
-    super(message, "Los datos enviados no son válidos.", 400)
+  constructor(userMessage = "Los datos enviados no son válidos.") {
+    super("Validation failed", userMessage, 400)
     this.name = "ValidationError"
   }
 }

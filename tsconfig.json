@@ -30,7 +30,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "/tmp/sb-build/types/**/*.ts",
+    "/tmp/sb-build/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
