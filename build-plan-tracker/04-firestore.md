@@ -1,6 +1,6 @@
 ﻿# Tracker â€” Phase 04: Firestore Schema, Rules & Seed Data
 
-> Status: PARTIAL - composite indexes are deployed, and rules/tests are now in repo, but local emulator execution is blocked until Java is installed
+> Status: PARTIAL - composite indexes are deployed, and Firestore rules plus emulator-backed rule tests are now in repo
 > Last updated: 2026-04-19
 
 ## Tasks
@@ -22,6 +22,6 @@
 - `getServicesByIds` uses Firestore `__name__ in [...]` for batch fetching (chunked to 10 per query limit).
 - DAL functions for technicians support optional filtering by serviceId and brandId for catalog display.
 - `firestore.indexes.json` now covers the composite queries used by catalog, booking, reviews, and technician discovery pages.
-- `npm run test:rules` now shells through `firebase emulators:exec`, but the Firestore emulator cannot boot on this machine until `java` is available on `PATH`.
+- `npm run test:rules` shells through `firebase emulators:exec` and requires Java so the Firestore emulator can start.
 
 

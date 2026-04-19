@@ -133,3 +133,6 @@
 - **Firestore rules testing still depends on the Java-backed emulator:** Adding `@firebase/rules-unit-testing` plus `firebase emulators:exec` gets the repo ready for rules coverage, but the suite will fail before boot if `java` is missing from `PATH`. Treat that as an environment prerequisite, not an app-code failure.
   - Affected files: `firestore.rules`, `tests/firestore.rules.test.ts`, `package.json`, `firebase.json`
 
+- **Seed data is a prerequisite for meaningful public-flow E2E checks:** The booking wizard rendered correctly but had no selectable scooter models until the deterministic seed script was re-run. Public booking/disclaimer browser tests are reliable once `npm run seed` has repopulated the dev Firestore dataset.
+  - Affected files: `scripts/seed.ts`, `tests/e2e/booking-disclaimer.spec.ts`
+
