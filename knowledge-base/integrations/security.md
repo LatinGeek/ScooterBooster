@@ -39,6 +39,17 @@ Current limits:
 - payment initiation: 10 requests per minute per user
 - review creation: 10 requests per day per user
 
+## Content Sanitization
+
+The shared sanitizer lives in `src/lib/sanitize.ts` and uses `isomorphic-dompurify` to strip unsafe HTML before validation and persistence.
+
+Current sanitized inputs:
+- review comments on `POST /api/reviews`
+- technician replies on `PATCH /api/reviews/[id]`
+- technician bios on `PATCH /api/technicians/me`
+
+These fields are stored as plain text, not rich HTML.
+
 ## Why Webhooks Are Excluded From Origin Checks
 
 Server-to-server integrations such as `POST /api/payments/webhook` do not come from a browser, so they cannot rely on `Origin` the way app mutations do.

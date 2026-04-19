@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 19 rate-limiting foundation slice. Core auth, booking, payment, and review mutations now use a shared limiter with Upstash support plus a local-memory fallback for dev/test, and the security tracker documents the current protected routes plus the remaining MercadoPago webhook gap.
+- Completed: Phase 19 input-sanitization slice. Review comments, technician replies, and technician bios now pass through `isomorphic-dompurify` before validation/persistence, with regression coverage in route tests and a shared sanitizer helper.
 - Next: Continue Phase 19 with CSP/header tightening or finish webhook/IP hardening, then return to the remaining observability and payment-confirmation follow-through.

@@ -114,6 +114,26 @@ describe("/api/technicians/me", () => {
     expect(json.data.displayName).toBe("Carlos Tech")
     expect(mocks.updateTechnicianProfile).toHaveBeenCalledWith("tech-1", payload)
   })
+
+  it("sanitizes technician bios before persisting them", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "tech-user-1", role: "technician" })
+    mocks.getTechnicianByUserId.mockResolvedValue({ id: "tech-1" })
+    mocks.updateTechnicianProfile.mockResolvedValue({
+      id: "tech-1",
+      bio: "Tecnico certificado",
+    })
+
+    const response = await PATCH(
+      createPatchRequest({
+        bio: "<script>alert('x')</script><b>Tecnico certificado</b>",
+      })
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.updateTechnicianProfile).toHaveBeenCalledWith("tech-1", {
+      bio: "Tecnico certificado",
+    })
+  })
 })
 
 

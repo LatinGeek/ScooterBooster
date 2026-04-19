@@ -6,6 +6,7 @@ import { setTechnicianReply, getReviewsByTechnician } from "@/lib/db/reviews"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { adminDb } from "@/lib/firebase-admin"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { sanitizePlainText } from "@/lib/sanitize"
 import { assertTrustedOrigin } from "@/lib/security"
 
 const replySchema = z.object({
@@ -35,7 +36,14 @@ export const PATCH = withErrorHandling(
       throw new ForbiddenError()
     }
 
-    const body: unknown = await req.json()
+    const rawBody = (await req.json()) as Record<string, unknown>
+    const body: unknown = {
+      ...rawBody,
+      technicianReply:
+        typeof rawBody.technicianReply === "string"
+          ? sanitizePlainText(rawBody.technicianReply)
+          : rawBody.technicianReply,
+    }
     const parsed = replySchema.safeParse(body)
     if (!parsed.success) {
       throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")

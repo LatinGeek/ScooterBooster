@@ -124,6 +124,28 @@ describe("/api/reviews/[id]", () => {
     expect(mocks.setTechnicianReply).toHaveBeenCalledWith("review-1", "Gracias por confiar")
     expect(mocks.getReviewsByTechnician).toHaveBeenCalledWith("tech-1")
   })
+
+  it("sanitizes html from technician replies before saving them", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "tech-user-1", role: "technician" })
+    mocks.reviewGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ technicianId: "tech-1" }),
+    })
+    mocks.getTechnicianByUserId.mockResolvedValue({ id: "tech-1" })
+    mocks.getReviewsByTechnician.mockResolvedValue([{ id: "review-1" }])
+
+    const response = await PATCH(
+      createPatchRequest({
+        technicianReply: "<script>alert('x')</script><b>Gracias por confiar</b>",
+      }),
+      {
+        params: Promise.resolve({ id: "review-1" }),
+      }
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.setTechnicianReply).toHaveBeenCalledWith("review-1", "Gracias por confiar")
+  })
 })
 
 

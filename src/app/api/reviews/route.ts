@@ -7,6 +7,7 @@ import { getBookingById } from "@/lib/db/bookings"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
 import logger from "@/lib/logger"
 import { enforceRateLimit } from "@/lib/ratelimit"
+import { sanitizePlainText } from "@/lib/sanitize"
 import { assertTrustedOrigin } from "@/lib/security"
 
 export const dynamic = "force-dynamic"
@@ -29,7 +30,12 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   if (!session) throw new AuthError()
   await enforceRateLimit("reviewUser", session.uid)
 
-  const body: unknown = await req.json()
+  const rawBody = (await req.json()) as Record<string, unknown>
+  const body: unknown = {
+    ...rawBody,
+    comment:
+      typeof rawBody.comment === "string" ? sanitizePlainText(rawBody.comment) : rawBody.comment,
+  }
   const parsed = createReviewSchema.safeParse(body)
   if (!parsed.success) {
     throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")

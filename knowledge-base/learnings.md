@@ -178,3 +178,6 @@
 
 - **A local-memory fallback keeps Upstash-style rate limiting testable before infra is wired:** `@upstash/ratelimit` + `@upstash/redis` can back the real production limits, but a tiny process-local windowed fallback lets route tests and local development keep exercising the same guardrails before Redis credentials exist. Keep that limitation documented so nobody mistakes local fallback behavior for true distributed enforcement.
   - Affected files: `src/lib/ratelimit.ts`, `src/lib/ratelimit.test.ts`, `src/app/api/auth/session/route.ts`, `src/app/api/auth/signout/route.ts`, `src/app/api/bookings/route.ts`, `src/app/api/payments/initiate/route.ts`, `src/app/api/reviews/route.ts`, `knowledge-base/integrations/security.md`
+
+- **Sanitize before validating when a field should stay plain text:** For bios, review comments, and technician replies, stripping tags first with `isomorphic-dompurify` keeps the stored value safe and lets the existing Zod length rules run against the cleaned text instead of the attacker-controlled HTML shell.
+  - Affected files: `src/lib/sanitize.ts`, `src/lib/sanitize.test.ts`, `src/app/api/reviews/route.ts`, `src/app/api/reviews/[id]/route.ts`, `src/app/api/technicians/me/route.ts`

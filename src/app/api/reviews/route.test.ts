@@ -180,6 +180,42 @@ describe("/api/reviews", () => {
     })
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
+
+  it("sanitizes html from review comments before storing them", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-1",
+      technicianId: "tech-1",
+      status: "completed",
+    })
+    mocks.getReviewByBooking.mockResolvedValue(null)
+    mocks.createReview.mockResolvedValue({
+      id: "review-2",
+      bookingId: "booking-1",
+      technicianId: "tech-1",
+      rating: 5,
+      comment: "Excelente servicio.",
+    })
+
+    const response = await POST(
+      createPostRequest({
+        bookingId: "booking-1",
+        technicianId: "tech-1",
+        rating: 5,
+        comment: "<script>alert('x')</script><b>Excelente servicio.</b>",
+      })
+    )
+
+    expect(response.status).toBe(201)
+    expect(mocks.createReview).toHaveBeenCalledWith({
+      bookingId: "booking-1",
+      userId: "user-1",
+      technicianId: "tech-1",
+      rating: 5,
+      comment: "Excelente servicio.",
+    })
+  })
 })
 
 

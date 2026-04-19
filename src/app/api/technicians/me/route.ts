@@ -4,6 +4,7 @@ import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId, updateTechnicianProfile } from "@/lib/db/technicians"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { sanitizeOptionalPlainText } from "@/lib/sanitize"
 import { assertTrustedOrigin } from "@/lib/security"
 
 const dayAvailabilitySchema = z.object({
@@ -59,7 +60,12 @@ export const PATCH = withErrorHandling(async (req: NextRequest) => {
   const tech = await getTechnicianByUserId(session.uid)
   if (!tech) throw new NotFoundError("Perfil de técnico no encontrado")
 
-  const body: unknown = await req.json()
+  const rawBody = (await req.json()) as Record<string, unknown>
+  const body: unknown = {
+    ...rawBody,
+    bio:
+      typeof rawBody.bio === "string" ? sanitizeOptionalPlainText(rawBody.bio) : rawBody.bio,
+  }
   const parsed = patchSchema.safeParse(body)
   if (!parsed.success) {
     throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")
