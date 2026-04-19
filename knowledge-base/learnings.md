@@ -184,3 +184,18 @@
 
 - **Privacy export endpoints can stay small if they only return user-owned records:** For this repo, `GET /api/users/me/export` is useful even before the full deletion workflow exists because it bundles the signed-in user's profile, bookings, reviews, and optional technician profile without exposing unrelated users' data.
   - Affected files: `src/app/api/users/me/export/route.ts`, `src/app/api/users/me/export/route.test.ts`, `knowledge-base/integrations/security.md`
+
+- **Next.js 16 `revalidateTag` requires two arguments:** The signature is `revalidateTag(tag: string, profile: string | { expire?: number }): void`. Single-arg form errors at TypeScript build time. Use `{ expire: 0 }` for immediate purge from admin/mutation routes.
+  - Affected files: `src/app/api/admin/technicians/[id]/route.ts`
+
+- **`import dynamic` collides with `export const dynamic` route segment config:** Naming the next/dynamic import `dynamic` causes "defined multiple times" TypeScript error when the same file also exports `export const dynamic = "force-dynamic"`. Fix: alias the import — `import lazyLoad from "next/dynamic"`.
+  - Affected files: all 6 dashboard + admin pages with lazy-loaded client components
+
+- **Vercel Cron jobs are configured in `vercel.json`:** Add a `"crons"` array with `path` and `schedule` (cron syntax). Vercel calls the path via POST with `Authorization: Bearer CRON_SECRET`. Check `CRON_SECRET` env var in the route handler to distinguish cron from manual admin calls.
+  - Affected files: `vercel.json`, `src/app/api/admin/users/purge-deleted/route.ts`
+
+- **Sonner v2 `classNames` API for per-type styling:** Pass `toastOptions.classNames` to the `<Toaster>` component to apply Tailwind classes by toast type (`success`, `error`, etc.). The `classNames` prop moved from top-level to nested under `toastOptions` in v2.
+  - Affected files: `src/app/layout.tsx`
+
+- **CSP `frame-ancestors 'none'` supersedes `X-Frame-Options: DENY` for modern browsers** — set both for maximum compatibility. `upgrade-insecure-requests` should be in the CSP, not as a separate header. Next.js App Router hydration requires `unsafe-inline` on `script-src` until nonce infrastructure is added.
+  - Affected files: `next.config.ts`

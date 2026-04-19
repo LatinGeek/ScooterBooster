@@ -34,13 +34,13 @@ At the start of every session: read this file to know where to resume.
 | 16    | SEO, Metadata & Legal Pages                  | PARTIAL     |
 | 17    | Testing & QA                                 | PARTIAL     |
 | 18    | Observability                                | PARTIAL     |
-| 19    | Security Hardening                           | PARTIAL     |
-| 20    | Performance & Polish                         | NOT STARTED |
+| 19    | Security Hardening                           | COMPLETE    |
+| 20    | Performance & Polish                         | PARTIAL     |
 | 21    | Deployment (Vercel + Firebase Prod)          | NOT STARTED |
 | 22    | Launch Checklist & Go-Live                   | NOT STARTED |
 
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 19 privacy/export slice. `GET /api/users/me/export` now returns a GDPR-style export bundle for the signed-in user, including profile data, bookings, reviews, and any linked technician profile.
-- Next: Continue Phase 19 with hard-delete/grace-period handling plus CSP/header tightening, then return to the remaining observability and payment-confirmation follow-through.
+- Completed: Phase 19 COMPLETE (CSP header, hard-delete grace period + daily purge cron, Firestore rules tightening). Phase 20 major slice: branded 404/500/error pages, loading.tsx skeletons for all routes, next/dynamic lazy loading on all 6 heavy dashboard clients, AVIF+WebP image config, unstable_cache on brands/services/technicians reads (5min, tag-busted), sonner toasts replacing all alert() calls.
+- Next: Phase 20 remaining — Lighthouse audit (mobile Perf ≥ 90, A11y ≥ 95, SEO ≥ 95), microcopy review. Then Phase 21 (Deployment to Firebase Prod + real domain).
