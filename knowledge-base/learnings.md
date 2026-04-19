@@ -120,3 +120,6 @@
 
 - **Admin-facing validation still needs explicit Spanish messages:** Zod's default messages are English, so admin routes should provide localized validation text explicitly instead of surfacing raw parser output. We fixed this for technician approval actions and platform settings updates while adding handler tests.
   - Affected files: `src/app/api/admin/technicians/[id]/route.ts`, `src/app/api/admin/settings/route.ts`
+
+- **Cookie-based auth routes are easy to regression-test with a mocked `next/headers` store:** For `auth/session` and `auth/signout`, mocking the cookie store directly lets us verify httpOnly/session-role cookie behavior without spinning up middleware or a browser.
+  - Affected files: `src/app/api/auth/session/route.test.ts`, `src/app/api/auth/signout/route.test.ts`

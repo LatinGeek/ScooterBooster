@@ -1,0 +1,137 @@
+import { NextRequest } from "next/server"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+const mocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
+  getBookingById: vi.fn(),
+  updateBookingPaymentLink: vi.fn(),
+  getServiceById: vi.fn(),
+  getModelById: vi.fn(),
+  createPaymentLink: vi.fn(),
+  loggerInfo: vi.fn(),
+}))
+
+vi.mock("@/lib/session", () => ({
+  getSession: mocks.getSession,
+}))
+
+vi.mock("@/lib/db/bookings", () => ({
+  getBookingById: mocks.getBookingById,
+  updateBookingPaymentLink: mocks.updateBookingPaymentLink,
+}))
+
+vi.mock("@/lib/db/services", () => ({
+  getServiceById: mocks.getServiceById,
+}))
+
+vi.mock("@/lib/db/models", () => ({
+  getModelById: mocks.getModelById,
+}))
+
+vi.mock("@/lib/mercadopago", () => ({
+  createPaymentLink: mocks.createPaymentLink,
+}))
+
+vi.mock("@/lib/logger", () => ({
+  default: {
+    info: mocks.loggerInfo,
+  },
+}))
+
+import { POST } from "@/app/api/payments/initiate/route"
+
+function createPostRequest(body: unknown) {
+  return new NextRequest("http://localhost:3000/api/payments/initiate", {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+describe("/api/payments/initiate", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("requires authentication", async () => {
+    mocks.getSession.mockResolvedValue(null)
+
+    const response = await POST(createPostRequest({ bookingId: "booking-1" }))
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(401)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("iniciar sesión")
+  })
+
+  it("only allows the booking owner to initiate payment", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-2",
+      status: "pending",
+    })
+
+    const response = await POST(createPostRequest({ bookingId: "booking-1" }))
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(403)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("permisos")
+  })
+
+  it("blocks payment recreation for non-pending bookings", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-1",
+      status: "confirmed",
+    })
+
+    const response = await POST(createPostRequest({ bookingId: "booking-1" }))
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(400)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("pendiente de pago")
+  })
+
+  it("creates a payment link for a pending booking", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-1",
+      serviceId: "service-1",
+      scooterModelId: "model-1",
+      totalPrice: 1980,
+      status: "pending",
+    })
+    mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware" })
+    mocks.getModelById.mockResolvedValue({ id: "model-1", name: "Xiaomi 1S" })
+    mocks.createPaymentLink.mockResolvedValue({
+      preferenceId: "pref-1",
+      initPoint: "https://mp.test/pay",
+    })
+
+    const response = await POST(createPostRequest({ bookingId: "booking-1" }))
+    const json = (await response.json()) as {
+      success: boolean
+      data: { initPoint: string; preferenceId: string }
+    }
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(json.data).toEqual({
+      initPoint: "https://mp.test/pay",
+      preferenceId: "pref-1",
+    })
+    expect(mocks.updateBookingPaymentLink).toHaveBeenCalledWith(
+      "booking-1",
+      "pref-1",
+      "https://mp.test/pay"
+    )
+    expect(mocks.loggerInfo).toHaveBeenCalled()
+  })
+})
