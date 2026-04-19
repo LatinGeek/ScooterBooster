@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session"
 import { getTechnicianById, setTechnicianApproval } from "@/lib/db/technicians"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { assertTrustedOrigin } from "@/lib/security"
 
 const patchSchema = z.object({
   action: z.enum(["approve", "reject"], { error: "Acción inválida" }),
@@ -14,6 +15,8 @@ const patchSchema = z.object({
 /** PATCH /api/admin/technicians/[id] — approve or reject a technician */
 export const PATCH = withErrorHandling(
   async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
+    assertTrustedOrigin(req)
+
     const session = await getSession()
     if (!session) throw new AuthError()
     if (session.role !== "admin") throw new ForbiddenError()

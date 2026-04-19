@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
@@ -15,6 +16,15 @@ vi.mock("@/lib/session", () => ({
 
 import { POST } from "@/app/api/auth/signout/route"
 
+function createPostRequest() {
+  return new NextRequest("http://localhost:3000/api/auth/signout", {
+    method: "POST",
+    headers: {
+      Origin: "http://localhost:3000",
+    },
+  })
+}
+
 describe("/api/auth/signout", () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -24,7 +34,7 @@ describe("/api/auth/signout", () => {
   })
 
   it("clears the auth cookies", async () => {
-    const response = await POST()
+    const response = await POST(createPostRequest())
     const json = (await response.json()) as { success: boolean; data: { message: string } }
 
     expect(response.status).toBe(200)
@@ -32,5 +42,18 @@ describe("/api/auth/signout", () => {
     expect(json.data.message).toBe("Sesión cerrada")
     expect(mocks.cookieDelete).toHaveBeenNthCalledWith(1, "__session")
     expect(mocks.cookieDelete).toHaveBeenNthCalledWith(2, "__role")
+  })
+
+  it("rejects signout requests without an origin header", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/auth/signout", {
+        method: "POST",
+      })
+    )
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(403)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("bloqueada por seguridad")
   })
 })

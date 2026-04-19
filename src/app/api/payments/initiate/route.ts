@@ -7,6 +7,7 @@ import { getModelById } from "@/lib/db/models"
 import { createPaymentLink } from "@/lib/mercadopago"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { assertTrustedOrigin } from "@/lib/security"
 import { z } from "zod"
 
 export const dynamic = "force-dynamic"
@@ -21,6 +22,8 @@ const schema = z.object({
  * Returns { initPoint } — the URL to redirect the user to.
  */
 export const POST = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) throw new AuthError()
 

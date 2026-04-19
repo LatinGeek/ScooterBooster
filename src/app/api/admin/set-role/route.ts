@@ -3,6 +3,7 @@ import { z } from "zod"
 import { adminAuth } from "@/lib/firebase-admin"
 import { getSession } from "@/lib/session"
 import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { assertTrustedOrigin } from "@/lib/security"
 
 const bodySchema = z.object({
   uid: z.string().min(1),
@@ -10,6 +11,8 @@ const bodySchema = z.object({
 })
 
 export const POST = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   // Only admins can set roles
   const session = await getSession()
   if (!session) return fail("No autenticado", 401)

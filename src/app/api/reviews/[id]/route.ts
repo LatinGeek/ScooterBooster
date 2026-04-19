@@ -6,6 +6,7 @@ import { setTechnicianReply, getReviewsByTechnician } from "@/lib/db/reviews"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { adminDb } from "@/lib/firebase-admin"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { assertTrustedOrigin } from "@/lib/security"
 
 const replySchema = z.object({
   technicianReply: z.string().min(1).max(300),
@@ -14,6 +15,8 @@ const replySchema = z.object({
 /** PATCH /api/reviews/[id] — technician adds/updates reply */
 export const PATCH = withErrorHandling(
   async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
+    assertTrustedOrigin(req)
+
     const session = await getSession()
     if (!session) throw new AuthError()
     if (session.role !== "technician" && session.role !== "admin") throw new ForbiddenError()

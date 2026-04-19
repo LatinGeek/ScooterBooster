@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 18 Sentry foundation slice and real MercadoPago checkout handoff coverage - the app now has Sentry SDK wiring across client/server/edge, a dev-only Sentry verification route, and Playwright reaches MercadoPago checkout with real credentials.
-- Next: Finish the remaining payment confirmation path on a publicly reachable preview/prod domain, then continue the remaining observability and security hardening work.
+- Completed: Phase 19 CSRF/origin hardening slice. Browser-facing mutation routes now reject untrusted or missing `Origin` headers, tests cover the helper plus auth/session flows, and the trusted-origin policy is documented in `knowledge-base/integrations/security.md`.
+- Next: Continue Phase 19 with rate limiting and CSP/header tightening, then return to the remaining observability and payment-confirmation follow-through.

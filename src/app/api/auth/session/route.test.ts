@@ -31,6 +31,7 @@ function createPostRequest(body: unknown) {
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
+      Origin: "http://localhost:3000",
     },
   })
 }
@@ -51,6 +52,23 @@ describe("/api/auth/session", () => {
     expect(json.success).toBe(false)
     expect(json.error).toBe("Token inválido")
     expect(mocks.createSessionCookie).not.toHaveBeenCalled()
+  })
+
+  it("rejects session creation without an origin header", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/auth/session", {
+        method: "POST",
+        body: JSON.stringify({ idToken: "id-token-123" }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    )
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(403)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("bloqueada por seguridad")
   })
 
   it("creates the session cookie and role cookie", async () => {

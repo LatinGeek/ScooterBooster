@@ -4,6 +4,7 @@ import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId, updateTechnicianProfile } from "@/lib/db/technicians"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { assertTrustedOrigin } from "@/lib/security"
 
 const dayAvailabilitySchema = z.object({
   start: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM requerido"),
@@ -49,6 +50,8 @@ export const GET = withErrorHandling(async () => {
 
 /** PATCH /api/technicians/me — update own technician profile */
 export const PATCH = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) throw new AuthError()
   if (session.role !== "technician" && session.role !== "admin") throw new ForbiddenError()

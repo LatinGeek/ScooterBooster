@@ -34,6 +34,16 @@ function createPatchRequest(body: unknown) {
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
+      Origin: "http://localhost:3000",
+    },
+  })
+}
+
+function createDeleteRequest() {
+  return new NextRequest("http://localhost:3000/api/users/me", {
+    method: "DELETE",
+    headers: {
+      Origin: "http://localhost:3000",
     },
   })
 }
@@ -135,7 +145,7 @@ describe("/api/users/me", () => {
   it("soft deletes the current account", async () => {
     mocks.getSession.mockResolvedValue({ uid: "user-1" })
 
-    const response = await DELETE()
+    const response = await DELETE(createDeleteRequest())
     const json = (await response.json()) as { success: boolean; data: { message: string } }
 
     expect(response.status).toBe(200)

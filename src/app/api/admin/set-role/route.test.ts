@@ -24,6 +24,7 @@ function createPostRequest(body: unknown) {
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
+      Origin: "http://localhost:3000",
     },
   })
 }
@@ -79,3 +80,5 @@ describe("/api/admin/set-role", () => {
     expect(mocks.setCustomUserClaims).toHaveBeenCalledWith("user-1", { role: "technician" })
   })
 })
+
+

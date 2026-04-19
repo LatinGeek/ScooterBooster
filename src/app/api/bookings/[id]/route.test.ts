@@ -29,6 +29,7 @@ function createPatchRequest(body: unknown) {
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
+      Origin: "http://localhost:3000",
     },
   })
 }
@@ -126,3 +127,5 @@ describe("/api/bookings/[id]", () => {
     expect(json.error).toContain('No es posible cambiar el estado de "pending" a "confirmed"')
   })
 })
+
+

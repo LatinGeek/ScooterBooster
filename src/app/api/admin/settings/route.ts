@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session"
 import { adminDb } from "@/lib/firebase-admin"
 import { AuthError, ForbiddenError, ValidationError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { assertTrustedOrigin } from "@/lib/security"
 
 const CONFIG_DOC = adminDb.collection("config").doc("global")
 
@@ -32,6 +33,8 @@ export const GET = withErrorHandling(async () => {
 
 /** PATCH /api/admin/settings — update global platform settings */
 export const PATCH = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) throw new AuthError()
   if (session.role !== "admin") throw new ForbiddenError()

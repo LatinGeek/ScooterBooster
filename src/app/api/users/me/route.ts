@@ -3,6 +3,7 @@ import { z } from "zod"
 import { adminDb } from "@/lib/firebase-admin"
 import { getSession } from "@/lib/session"
 import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { assertTrustedOrigin } from "@/lib/security"
 import type { User } from "@/types"
 
 const patchSchema = z.object({
@@ -27,7 +28,9 @@ export const GET = withErrorHandling(async () => {
 })
 
 // DELETE /api/users/me — soft-delete the account (sets deletedAt timestamp)
-export const DELETE = withErrorHandling(async () => {
+export const DELETE = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) return fail("No autenticado", 401)
 
@@ -41,6 +44,8 @@ export const DELETE = withErrorHandling(async () => {
 
 // PATCH /api/users/me — update profile fields
 export const PATCH = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) return fail("No autenticado", 401)
 

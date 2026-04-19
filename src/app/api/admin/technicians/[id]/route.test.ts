@@ -31,6 +31,7 @@ function createPatchRequest(body: unknown) {
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
+      Origin: "http://localhost:3000",
     },
   })
 }
@@ -100,3 +101,5 @@ describe("/api/admin/technicians/[id]", () => {
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
 })
+
+

@@ -46,6 +46,7 @@ function createPostRequest(body: unknown) {
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
+      Origin: "http://localhost:3000",
     },
   })
 }
@@ -135,3 +136,5 @@ describe("/api/payments/initiate", () => {
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
 })
+
+

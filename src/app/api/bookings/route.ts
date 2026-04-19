@@ -10,6 +10,7 @@ import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, createPaymentLink } from "@/lib/mercadopago"
 import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { assertTrustedOrigin } from "@/lib/security"
 
 export const dynamic = "force-dynamic"
 
@@ -24,6 +25,8 @@ export const GET = withErrorHandling(async () => {
 
 /** POST /api/bookings — create a new booking */
 export const POST = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) throw new AuthError()
 

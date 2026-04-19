@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session"
 import { getBookingById, updateBookingStatus } from "@/lib/db/bookings"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { assertTrustedOrigin } from "@/lib/security"
 import { z } from "zod"
 
 export const dynamic = "force-dynamic"
@@ -50,6 +51,8 @@ export const GET = withErrorHandling(async (_req: NextRequest, { params }: Route
 
 /** PATCH /api/bookings/[id] — update booking status with role-based transitions */
 export const PATCH = withErrorHandling(async (req: NextRequest, { params }: RouteParams) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) throw new AuthError()
 

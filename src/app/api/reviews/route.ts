@@ -6,6 +6,7 @@ import { createReview, getReviewByBooking, getReviewsByTechnician } from "@/lib/
 import { getBookingById } from "@/lib/db/bookings"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { assertTrustedOrigin } from "@/lib/security"
 
 export const dynamic = "force-dynamic"
 
@@ -21,6 +22,8 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 
 /** POST /api/reviews — submit a review for a completed booking */
 export const POST = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
   const session = await getSession()
   if (!session) throw new AuthError()
 
