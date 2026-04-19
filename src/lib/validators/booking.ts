@@ -5,7 +5,7 @@ export const createBookingSchema = z.object({
   serviceId: z.string().min(1),
   scooterModelId: z.string().min(1),
   scheduledDate: z.string().datetime({ message: "Fecha inválida" }),
-  notes: z.string().max(500).optional(),
+  notes: z.string().max(500).nullable().optional(),
   disclaimerAccepted: z.boolean().optional(),
 })
 

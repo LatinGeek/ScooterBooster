@@ -290,4 +290,57 @@ describe("/api/bookings", () => {
     expect(mocks.updateBookingPaymentLink).not.toHaveBeenCalled()
     expect(mocks.loggerError).toHaveBeenCalled()
   })
+
+  it("accepts empty notes when the client sends null", async () => {
+    mocks.getTechnicianById.mockResolvedValue({
+      id: "tech-1",
+      isApproved: true,
+      isActive: true,
+      services: ["service-1"],
+      pricing: { "service-1": { basePrice: 1800, currency: "UYU" } },
+    })
+    mocks.getServiceById.mockResolvedValue({
+      id: "service-1",
+      name: "Firmware",
+      isActive: true,
+      requiresDisclaimer: false,
+    })
+    mocks.getModelById.mockResolvedValue({
+      id: "model-1",
+      name: "Xiaomi 1S",
+      isActive: true,
+      compatibleServices: ["service-1"],
+    })
+    mocks.createBooking.mockResolvedValue({
+      id: "booking-1",
+      totalPrice: 1980,
+      notes: null,
+    })
+    mocks.createPaymentLink.mockResolvedValue({
+      preferenceId: "pref-1",
+      initPoint: "https://mp.test/pay/booking-1",
+    })
+
+    const response = await POST(
+      createJsonRequest({
+        technicianId: "tech-1",
+        serviceId: "service-1",
+        scooterModelId: "model-1",
+        scheduledDate: "2026-04-20T15:00:00.000Z",
+        notes: null,
+      })
+    )
+    const json = (await response.json()) as {
+      success: boolean
+      data: { booking: { id: string } }
+    }
+
+    expect(response.status).toBe(201)
+    expect(json.success).toBe(true)
+    expect(mocks.createBooking).toHaveBeenCalledWith(
+      expect.objectContaining({
+        notes: null,
+      })
+    )
+  })
 })
