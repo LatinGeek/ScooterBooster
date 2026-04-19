@@ -81,6 +81,13 @@
 - **Firestore config/global for platform settings:** Admin-configurable platform settings (service fee %) stored in `config/global` Firestore doc. Read via `GET /api/admin/settings`. The `mercadopago.ts` currently still reads from env var — wire to Firestore config before launch.
   - Affected files: `src/lib/mercadopago.ts`, `src/app/api/admin/settings/route.ts`
 
+## 2026-04-19
+
+- **`next.config.mjs` overrides `next.config.ts` on Vercel:** Next.js resolves config files in order — `.mjs` takes precedence over `.ts`. A stale `next.config.mjs` with `distDir: "/tmp/sb-fresh-*"` caused `routes-manifest.json not found` on Vercel (build output went to /tmp, not .next/). Always delete `next.config.mjs` artifacts before deploying.
+  - Fix: `rm next.config.mjs next.config.ts.bak` before `vercel --prod`
+
+- **Vercel prod URL:** https://scooter-booster.vercel.app (alias). Latest deploy: `scooter-booster-pqqqlt21r-latingeeks-projects.vercel.app`
+
 - **Next.js 16 page `searchParams` are promises:** Server pages should `await searchParams` instead of treating them as synchronous objects. That keeps new App Router pages aligned with request-time APIs and avoids future deprecation cleanup.
   - Affected files: `src/app/(main)/technicians/page.tsx`, `src/app/(main)/search/page.tsx`
 
