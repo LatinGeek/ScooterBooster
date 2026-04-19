@@ -95,3 +95,6 @@
 
 - **Booking rules are safer when extracted from route handlers:** Disclaimer enforcement and role-based booking status transitions were previously embedded inside route/UI code. Moving them into `src/lib/booking-rules.ts` makes the API route and booking wizard share the same decisions and gives Vitest a stable unit-test target.
   - Affected files: `src/lib/booking-rules.ts`, `src/app/api/bookings/route.ts`, `src/app/api/bookings/[id]/route.ts`, `src/app/(main)/booking/new/booking-wizard.tsx`
+
+- **Next route handlers are straightforward to unit test with direct imports plus mocked deps:** For App Router API coverage, importing the route module directly and mocking session/Firestore/payment modules with Vitest gives fast handler-level tests without spinning up Next dev server or Firebase emulators.
+  - Affected files: `src/app/api/bookings/route.test.ts`, `src/app/api/bookings/[id]/route.test.ts`

@@ -1,14 +1,14 @@
 # Tracker — Phase 17: Testing & QA
 
-> Status: PARTIAL - Vitest covers validators, pricing/helpers, and booking business rules
-> Last updated: 2026-04-18
+> Status: PARTIAL - Vitest now covers booking API routes plus core business rules
+> Last updated: 2026-04-19
 
 ## Tasks
 
 - [x] Install Vitest for unit tests
 - [x] Unit tests: validators, pricing logic, utility helpers
 - [ ] Firestore security rules tests
-- [ ] API route tests
+- [x] API route tests
 - [ ] Install Playwright for E2E
 - [ ] E2E: signup → book → pay flow
 - [ ] E2E: technician application + admin approval
@@ -23,3 +23,4 @@
 - Added `vitest.config.ts` with `@` alias resolution and env setup for unit tests
 - Current unit coverage includes shared validators plus `calculatePricing`, `formatPrice`, `formatWhatsAppLink`, and `cn`
 - Booking disclaimer enforcement and role-based status transitions now live in `src/lib/booking-rules.ts` with direct unit coverage
+- `/api/bookings` and `/api/bookings/[id]` now have mocked handler tests covering auth, validation, disclaimer enforcement, MercadoPago fallback, and role-based transitions

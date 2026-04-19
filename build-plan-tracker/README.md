@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-18
-- Completed: Phase 17 booking-rules slice - shared booking disclaimer/transition logic now has unit coverage
-- Next: Continue Phase 17 with API route tests, then Playwright setup
+- Completed: Phase 17 API test slice - booking route handlers now have Vitest coverage
+- Next: Continue Phase 17 with Firestore rules or Playwright setup, whichever unblocks launch QA faster

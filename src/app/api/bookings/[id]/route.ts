@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { ok, withErrorHandling } from "@/lib/api-response"
 import { canTransitionBookingStatus, canUserCancelBooking } from "@/lib/booking-rules"
 import { getSession } from "@/lib/session"
 import { getBookingById, updateBookingStatus } from "@/lib/db/bookings"
