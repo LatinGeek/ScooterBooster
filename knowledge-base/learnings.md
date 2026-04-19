@@ -98,3 +98,6 @@
 
 - **Next route handlers are straightforward to unit test with direct imports plus mocked deps:** For App Router API coverage, importing the route module directly and mocking session/Firestore/payment modules with Vitest gives fast handler-level tests without spinning up Next dev server or Firebase emulators.
   - Affected files: `src/app/api/bookings/route.test.ts`, `src/app/api/bookings/[id]/route.test.ts`
+
+- **Authenticated self-service API routes are good early handler-test targets:** Routes like `/api/technicians/me` are compact but high-value because they combine auth, role gating, validation, and mutation in one place. They give strong regression protection with minimal mock surface area.
+  - Affected files: `src/app/api/technicians/me/route.test.ts`

@@ -1,6 +1,6 @@
 # Tracker — Phase 17: Testing & QA
 
-> Status: PARTIAL - Vitest now covers booking API routes plus core business rules
+> Status: PARTIAL - Vitest covers booking flows and technician profile API handlers
 > Last updated: 2026-04-19
 
 ## Tasks
@@ -24,3 +24,4 @@
 - Current unit coverage includes shared validators plus `calculatePricing`, `formatPrice`, `formatWhatsAppLink`, and `cn`
 - Booking disclaimer enforcement and role-based status transitions now live in `src/lib/booking-rules.ts` with direct unit coverage
 - `/api/bookings` and `/api/bookings/[id]` now have mocked handler tests covering auth, validation, disclaimer enforcement, MercadoPago fallback, and role-based transitions
+- `/api/technicians/me` now has mocked handler tests for auth, role checks, validation, and successful profile updates

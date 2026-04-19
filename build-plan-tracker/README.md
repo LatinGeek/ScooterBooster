@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-18
-- Completed: Phase 17 API test slice - booking route handlers now have Vitest coverage
-- Next: Continue Phase 17 with Firestore rules or Playwright setup, whichever unblocks launch QA faster
+- Completed: Phase 17 technician API slice - `/api/technicians/me` now has Vitest coverage
+- Next: Continue Phase 17 with Firestore rules, review/user API tests, or Playwright setup depending on the fastest QA path

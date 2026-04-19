@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 import { z } from "zod"
-import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId, updateTechnicianProfile } from "@/lib/db/technicians"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
