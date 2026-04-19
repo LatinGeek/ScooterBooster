@@ -23,12 +23,32 @@ async function fetchRelated(bookings: Booking[]) {
 
   const services: Record<string, Service> = {}
   for (const snap of serviceSnaps) {
-    if (snap.exists) services[snap.id] = { id: snap.id, ...snap.data() } as unknown as Service
+    if (snap.exists) {
+      const data = snap.data() ?? {}
+      services[snap.id] = {
+        id: snap.id,
+        ...data,
+        createdAt:
+          typeof data["createdAt"] === "string"
+            ? data["createdAt"]
+            : data["createdAt"]?.toDate?.().toISOString() ?? "",
+      } as unknown as Service
+    }
   }
 
   const models: Record<string, ScooterModel> = {}
   for (const snap of modelSnaps) {
-    if (snap.exists) models[snap.id] = { id: snap.id, ...snap.data() } as unknown as ScooterModel
+    if (snap.exists) {
+      const data = snap.data() ?? {}
+      models[snap.id] = {
+        id: snap.id,
+        ...data,
+        createdAt:
+          typeof data["createdAt"] === "string"
+            ? data["createdAt"]
+            : data["createdAt"]?.toDate?.().toISOString() ?? "",
+      } as unknown as ScooterModel
+    }
   }
 
   return { services, models }

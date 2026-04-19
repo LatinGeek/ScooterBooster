@@ -145,3 +145,9 @@
 - **Client-side Firebase auth must be present for mutation-heavy E2E flows, not just server session cookies:** SSR dashboard pages were satisfied by server sessions, but the booking wizard still failed because `AuthProvider` clears the server cookie when browser Firebase auth is empty. A test-only custom-token helper exposed from `AuthProvider`, compiled through `npm run start:e2e`, keeps both layers in sync for authenticated browser tests.
   - Affected files: `src/providers/auth-provider.tsx`, `tests/e2e/support/auth.ts`, `tests/e2e/booking-flow.spec.ts`, `playwright.config.ts`, `package.json`
 
+- **Server-to-client props must strip Firestore `Timestamp` instances before interactive pages hydrate:** The technician bookings page passed raw service/model docs into a Client Component, which only broke once Playwright reached that route in production mode. Converting `createdAt` to ISO strings in the Server Component fixed the Next 16 serialization failure.
+  - Affected files: `src/app/dashboard/technician/bookings/page.tsx`
+
+- **Direct Firestore fixture seeding keeps workflow E2E coverage deterministic:** Admin moderation and technician booking-transition flows were easiest to test by inserting their prerequisite docs through Firebase Admin from Playwright support helpers, instead of depending on long UI setup chains. That pattern now powers seeded pending-tech and booking fixtures for the new E2E specs.
+  - Affected files: `tests/e2e/support/fixtures.ts`, `tests/e2e/admin-technician-approval.spec.ts`, `tests/e2e/technician-booking-management.spec.ts`
+
