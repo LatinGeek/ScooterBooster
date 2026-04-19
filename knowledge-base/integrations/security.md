@@ -50,6 +50,16 @@ Current sanitized inputs:
 
 These fields are stored as plain text, not rich HTML.
 
+## Data Export
+
+`GET /api/users/me/export` returns a user-owned export bundle with:
+- the user profile document
+- the user's bookings
+- the user's reviews
+- the linked technician profile when the signed-in account also has one
+
+This is the current privacy-export endpoint for account requests. The separate hard-delete/grace-period workflow is still pending.
+
 ## Why Webhooks Are Excluded From Origin Checks
 
 Server-to-server integrations such as `POST /api/payments/webhook` do not come from a browser, so they cannot rely on `Origin` the way app mutations do.

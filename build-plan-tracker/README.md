@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 19 input-sanitization slice. Review comments, technician replies, and technician bios now pass through `isomorphic-dompurify` before validation/persistence, with regression coverage in route tests and a shared sanitizer helper.
-- Next: Continue Phase 19 with CSP/header tightening or finish webhook/IP hardening, then return to the remaining observability and payment-confirmation follow-through.
+- Completed: Phase 19 privacy/export slice. `GET /api/users/me/export` now returns a GDPR-style export bundle for the signed-in user, including profile data, bookings, reviews, and any linked technician profile.
+- Next: Continue Phase 19 with hard-delete/grace-period handling plus CSP/header tightening, then return to the remaining observability and payment-confirmation follow-through.

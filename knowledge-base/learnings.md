@@ -181,3 +181,6 @@
 
 - **Sanitize before validating when a field should stay plain text:** For bios, review comments, and technician replies, stripping tags first with `isomorphic-dompurify` keeps the stored value safe and lets the existing Zod length rules run against the cleaned text instead of the attacker-controlled HTML shell.
   - Affected files: `src/lib/sanitize.ts`, `src/lib/sanitize.test.ts`, `src/app/api/reviews/route.ts`, `src/app/api/reviews/[id]/route.ts`, `src/app/api/technicians/me/route.ts`
+
+- **Privacy export endpoints can stay small if they only return user-owned records:** For this repo, `GET /api/users/me/export` is useful even before the full deletion workflow exists because it bundles the signed-in user's profile, bookings, reviews, and optional technician profile without exposing unrelated users' data.
+  - Affected files: `src/app/api/users/me/export/route.ts`, `src/app/api/users/me/export/route.test.ts`, `knowledge-base/integrations/security.md`
