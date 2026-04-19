@@ -1,4 +1,4 @@
-# Build Plan Tracker
+﻿# Build Plan Tracker
 
 Alan's execution log. Mirrors the phases in `build-plan/`.
 
@@ -42,5 +42,6 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 17 webhook/search API slice - payment webhook, search, technicians, payments base route, and review replies now have Vitest coverage
-- Next: Continue Phase 17 with Firestore rules tests, richer booking/admin E2E flows, and manual QA passes
+- Completed: Phase 04/17 Firestore rules scaffold - added `firestore.rules`, emulator-backed rules tests, and npm wiring for `test:rules`
+- Next: Install Java so the Firestore emulator can run, then resume rules-test execution and richer booking/admin E2E flows
+

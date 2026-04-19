@@ -1,4 +1,4 @@
-# Tracker — Phase 17: Testing & QA
+﻿# Tracker â€” Phase 17: Testing & QA
 
 > Status: PARTIAL - Vitest now covers most auth/admin/payment/review/booking handlers plus Playwright smoke checks
 > Last updated: 2026-04-19
@@ -7,10 +7,10 @@
 
 - [x] Install Vitest for unit tests
 - [x] Unit tests: validators, pricing logic, utility helpers
-- [ ] Firestore security rules tests
+- [ ] Firestore security rules tests (scaffolded, but blocked locally until Java is installed for the Firestore emulator)
 - [x] API route tests
 - [x] Install Playwright for E2E
-- [ ] E2E: signup → book → pay flow
+- [ ] E2E: signup â†’ book â†’ pay flow
 - [ ] E2E: technician application + admin approval
 - [ ] E2E: disclaimer modal enforcement
 - [x] E2E: auth redirect for protected routes
@@ -30,3 +30,6 @@
 - `/api/auth/session`, `/api/auth/signout`, `/api/admin/set-role`, and `/api/payments/initiate` now have mocked handler tests covering cookie/session behavior, role assignment, and payment-link recreation
 - `/api/payments/webhook`, `/api/payments`, `/api/search`, `/api/technicians`, and `/api/reviews/[id]` now have handler tests covering signature validation, idempotency, grouped search filters, placeholder application responses, technician replies, and payment route guidance
 - `@playwright/test` is installed with a production-style `playwright.config.ts` and Chromium smoke coverage for `/dashboard` auth redirect plus public booking/search/technician pages
+- `firestore.rules`, `tests/firestore.rules.test.ts`, and `npm run test:rules` are in place, but executing the suite currently fails before boot because `firebase emulators:exec` cannot spawn `java -version` on this workstation
+
+
