@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server"
 import { z } from "zod"
+import { revalidateTag } from "next/cache"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { getTechnicianById, setTechnicianApproval } from "@/lib/db/technicians"
@@ -34,6 +35,10 @@ export const PATCH = withErrorHandling(
 
     const isApproved = parsed.data.action === "approve"
     await setTechnicianApproval(id, isApproved)
+
+    // Bust cached technician lists so the listing pages reflect the new approval state
+    // Next.js 16 revalidateTag requires a second profile argument; expire: 0 = immediate
+    revalidateTag("technicians", { expire: 0 })
 
     logger.info(
       { adminUid: session.uid, technicianId: id, action: parsed.data.action },

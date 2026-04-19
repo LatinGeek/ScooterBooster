@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Star, MessageSquare, CheckCircle } from "lucide-react"
+import { toast } from "sonner"
+import { Star, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Review } from "@/types"
 
@@ -35,14 +36,10 @@ function ReviewCard({ review }: { review: Review }) {
   const [replyText, setReplyText] = useState(review.technicianReply ?? "")
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   async function handleReply() {
     if (!replyText.trim()) return
     setSaving(true)
-    setError(null)
-    setSaved(false)
     try {
       const res = await fetch(`/api/reviews/${review.id}`, {
         method: "PATCH",
@@ -51,14 +48,13 @@ function ReviewCard({ review }: { review: Review }) {
       })
       if (!res.ok) {
         const data = (await res.json()) as { error?: string }
-        setError(data.error ?? "Error al guardar la respuesta.")
+        toast.error(data.error ?? "Error al guardar la respuesta.")
         return
       }
-      setSaved(true)
+      toast.success("Respuesta guardada.")
       setEditing(false)
-      setTimeout(() => setSaved(false), 3000)
     } catch {
-      setError("Error de conexión.")
+      toast.error("Error de conexión. Intentá de nuevo.")
     } finally {
       setSaving(false)
     }
@@ -88,19 +84,6 @@ function ReviewCard({ review }: { review: Review }) {
           >
             Editar respuesta
           </button>
-        </div>
-      )}
-
-      {saved && (
-        <div className="mb-3 flex items-center gap-2 rounded-lg border border-[#a7f3d0] bg-[#d1fae5] px-3 py-2 text-xs text-[#065f46]">
-          <CheckCircle className="h-3.5 w-3.5" />
-          Respuesta guardada.
-        </div>
-      )}
-
-      {error && (
-        <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          {error}
         </div>
       )}
 

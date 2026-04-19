@@ -2,6 +2,7 @@
  * Firestore data access layer — services collection
  * Server-side only (uses Admin SDK)
  */
+import { unstable_cache as nextCache } from "next/cache"
 import { adminDb } from "@/lib/firebase-admin"
 import type { Service } from "@/types"
 
@@ -25,15 +26,19 @@ function docToService(id: string, data: FirebaseFirestore.DocumentData): Service
   }
 }
 
-/** Get all active services */
-export async function getActiveServices(): Promise<Service[]> {
-  const snap = await adminDb
-    .collection(COLLECTION)
-    .where("isActive", "==", true)
-    .orderBy("name")
-    .get()
-  return snap.docs.map((doc) => docToService(doc.id, doc.data()))
-}
+/** Get all active services — cached for 5 min, revalidated by 'services' tag */
+export const getActiveServices = nextCache(
+  async (): Promise<Service[]> => {
+    const snap = await adminDb
+      .collection(COLLECTION)
+      .where("isActive", "==", true)
+      .orderBy("name")
+      .get()
+    return snap.docs.map((doc) => docToService(doc.id, doc.data()))
+  },
+  ["services-active"],
+  { tags: ["services"], revalidate: 300 },
+)
 
 /** Get a single service by slug */
 export async function getServiceBySlug(slug: string): Promise<Service | null> {

@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   getTechnicianById: vi.fn(),
   setTechnicianApproval: vi.fn(),
   loggerInfo: vi.fn(),
+  revalidateTag: vi.fn(),
 }))
 
 vi.mock("@/lib/session", () => ({
@@ -21,6 +22,11 @@ vi.mock("@/lib/logger", () => ({
   default: {
     info: mocks.loggerInfo,
   },
+}))
+
+// next/cache is not available in the test environment
+vi.mock("next/cache", () => ({
+  revalidateTag: mocks.revalidateTag,
 }))
 
 import { PATCH } from "@/app/api/admin/technicians/[id]/route"

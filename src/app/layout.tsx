@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "@fontsource-variable/inter"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Toaster } from "sonner"
 import "./globals.css"
 import { AuthProvider } from "@/providers/auth-provider"
 
@@ -46,6 +47,16 @@ export default function RootLayout({
     <html lang="es" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
         <AuthProvider>{children}</AuthProvider>
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            classNames: {
+              toast: "font-sans text-sm",
+              success: "border-emerald-200 bg-emerald-50 text-emerald-900",
+              error: "border-red-200 bg-red-50 text-red-900",
+            },
+          }}
+        />
         {isVercelDeployment ? <Analytics /> : null}
         {isVercelDeployment ? <SpeedInsights /> : null}
       </body>

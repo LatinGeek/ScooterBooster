@@ -4,7 +4,13 @@ import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { getBookingsByTechnician } from "@/lib/db/bookings"
 import { adminDb } from "@/lib/firebase-admin"
 import type { Booking, Service, ScooterModel } from "@/types"
-import { EarningsClient } from "./earnings-client"
+import lazyLoad from "next/dynamic"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const EarningsClient = lazyLoad(
+  () => import("./earnings-client").then((m) => m.EarningsClient),
+  { loading: () => <Skeleton className="h-64 w-full rounded-xl" /> },
+)
 
 export const dynamic = "force-dynamic"
 

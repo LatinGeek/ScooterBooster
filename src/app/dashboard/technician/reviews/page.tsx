@@ -2,7 +2,13 @@ import { redirect } from "next/navigation"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { getReviewsByTechnician } from "@/lib/db/reviews"
-import { TechnicianReviewsClient } from "./reviews-client"
+import lazyLoad from "next/dynamic"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const TechnicianReviewsClient = lazyLoad(
+  () => import("./reviews-client").then((m) => m.TechnicianReviewsClient),
+  { loading: () => <Skeleton className="h-64 w-full rounded-xl" /> },
+)
 
 export const dynamic = "force-dynamic"
 

@@ -20,13 +20,20 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/technicians/$(technicianId)).data.userId == request.auth.uid;
     }
 
+    // Users: owner or admin can read; owners cannot read after soft-delete
+    // (deletedAt field set). Hard-delete happens via Admin SDK (bypasses rules).
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
+      allow read: if (isOwner(userId) && !("deletedAt" in resource.data)) || isAdmin();
       allow create: if isOwner(userId)
         && request.resource.data.role == "user"
         && request.resource.data.displayName is string
         && request.resource.data.email is string;
-      allow update: if isOwner(userId) || isAdmin();
+      // Owners can update profile fields; admins can update anything.
+      // Neither can directly set role or deletedAt — those go through API routes.
+      allow update: if (isOwner(userId)
+          && !("role" in request.resource.data.diff(resource.data).affectedKeys())
+          && !("deletedAt" in request.resource.data.diff(resource.data).affectedKeys()))
+        || isAdmin();
       allow delete: if isAdmin();
     }
 

@@ -27,19 +27,29 @@ export const GET = withErrorHandling(async () => {
   return ok({ uid: session.uid, ...snap.data() } as User)
 })
 
-// DELETE /api/users/me — soft-delete the account (sets deletedAt timestamp)
+// DELETE /api/users/me — soft-delete the account.
+// Sets deletedAt (now) + scheduledDeletionAt (30 days) and clears PII immediately.
+// Hard-purge is done by /api/admin/users/purge-deleted (cron, runs daily).
 export const DELETE = withErrorHandling(async (req: NextRequest) => {
   assertTrustedOrigin(req)
 
   const session = await getSession()
   if (!session) return fail("No autenticado", 401)
 
+  const now = new Date()
+  const scheduled = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+
   await adminDb.collection("users").doc(session.uid).update({
-    deletedAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    // Soft-delete markers
+    deletedAt: now.toISOString(),
+    scheduledDeletionAt: scheduled.toISOString(),
+    updatedAt: now.toISOString(),
+    // Clear PII immediately — phone is the only sensitive stored field
+    phone: null,
+    whatsappConsent: false,
   })
 
-  return ok({ message: "Cuenta eliminada" })
+  return ok({ message: "Cuenta eliminada. Tus datos serán borrados definitivamente en 30 días." })
 })
 
 // PATCH /api/users/me — update profile fields

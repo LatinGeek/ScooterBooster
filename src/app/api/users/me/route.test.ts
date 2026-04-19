@@ -150,11 +150,14 @@ describe("/api/users/me", () => {
 
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
-    expect(json.data.message).toBe("Cuenta eliminada")
+    expect(json.data.message).toContain("Cuenta eliminada")
     expect(mocks.doc.update).toHaveBeenCalledWith(
       expect.objectContaining({
         deletedAt: expect.any(String),
+        scheduledDeletionAt: expect.any(String),
         updatedAt: expect.any(String),
+        phone: null,
+        whatsappConsent: false,
       })
     )
   })

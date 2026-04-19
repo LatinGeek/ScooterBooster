@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import Link from "next/link"
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore"
 import { getFirebaseDb } from "@/lib/firebase"
@@ -123,7 +124,16 @@ export function TechnicianBookingsClient({ initialBookings, services, models, te
       })
       if (!res.ok) {
         const json = (await res.json()) as { error?: string }
-        alert(json.error ?? "No se pudo actualizar el estado.")
+        toast.error(json.error ?? "No se pudo actualizar el estado.")
+      } else {
+        const statusLabels: Partial<Record<BookingStatus, string>> = {
+          confirmed: "Reserva confirmada",
+          in_progress: "Servicio iniciado",
+          completed: "Servicio completado",
+          cancelled_by_technician: "Reserva cancelada",
+        }
+        const msg = statusLabels[nextStatus]
+        if (msg) toast.success(msg)
       }
     } finally {
       setTransitioning(null)

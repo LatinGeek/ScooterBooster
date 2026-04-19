@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import Link from "next/link"
 import {
   collection,
@@ -374,7 +375,7 @@ export function DashboardBookingsClient({
       })
       if (!res.ok) {
         const json = (await res.json()) as { error?: string }
-        alert(json.error ?? "No se pudo cancelar la reserva.")
+        toast.error(json.error ?? "No se pudo cancelar la reserva.")
       }
     } finally {
       setCancelling(null)

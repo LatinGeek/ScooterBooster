@@ -3,7 +3,13 @@ import { getSession } from "@/lib/session"
 import { getBookingsByUser } from "@/lib/db/bookings"
 import { adminDb } from "@/lib/firebase-admin"
 import type { Booking, Service, Technician, ScooterModel } from "@/types"
-import { DashboardBookingsClient } from "./dashboard-bookings-client"
+import lazyLoad from "next/dynamic"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const DashboardBookingsClient = lazyLoad(
+  () => import("./dashboard-bookings-client").then((m) => m.DashboardBookingsClient),
+  { loading: () => <Skeleton className="h-64 w-full rounded-xl" /> },
+)
 
 export const dynamic = "force-dynamic"
 

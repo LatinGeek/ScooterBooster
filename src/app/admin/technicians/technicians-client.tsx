@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import Link from "next/link"
 import { CheckCircle, XCircle, Clock, ExternalLink, Wrench, Star, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -39,9 +40,10 @@ export function AdminTechniciansClient({ technicians: initial }: Props) {
       })
       if (!res.ok) {
         const data = (await res.json()) as { error?: string }
-        alert(data.error ?? "Error al procesar la acción.")
+        toast.error(data.error ?? "Error al procesar la acción.")
         return
       }
+      toast.success(action === "approve" ? "Técnico aprobado." : "Técnico rechazado.")
       setTechnicians((prev) =>
         prev.map((t) =>
           t.id === techId

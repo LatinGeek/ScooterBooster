@@ -2,6 +2,7 @@
  * Firestore data access layer — scooterBrands collection
  * Server-side only (uses Admin SDK)
  */
+import { unstable_cache as nextCache } from "next/cache"
 import { adminDb } from "@/lib/firebase-admin"
 import type { ScooterBrand } from "@/types"
 
@@ -22,15 +23,19 @@ function docToScooterBrand(id: string, data: FirebaseFirestore.DocumentData): Sc
   }
 }
 
-/** Get all active brands */
-export async function getActiveBrands(): Promise<ScooterBrand[]> {
-  const snap = await adminDb
-    .collection(COLLECTION)
-    .where("isActive", "==", true)
-    .orderBy("name")
-    .get()
-  return snap.docs.map((doc) => docToScooterBrand(doc.id, doc.data()))
-}
+/** Get all active brands — cached for 5 min, revalidated by 'brands' tag */
+export const getActiveBrands = nextCache(
+  async (): Promise<ScooterBrand[]> => {
+    const snap = await adminDb
+      .collection(COLLECTION)
+      .where("isActive", "==", true)
+      .orderBy("name")
+      .get()
+    return snap.docs.map((doc) => docToScooterBrand(doc.id, doc.data()))
+  },
+  ["brands-active"],
+  { tags: ["brands"], revalidate: 300 },
+)
 
 /** Get a single brand by slug */
 export async function getBrandBySlug(slug: string): Promise<ScooterBrand | null> {

@@ -2,6 +2,7 @@
  * Firestore data access layer — technicians collection
  * Server-side only (uses Admin SDK)
  */
+import { unstable_cache as nextCache } from "next/cache"
 import { adminDb } from "@/lib/firebase-admin"
 import { getBrandById } from "@/lib/db/brands"
 import { getServicesByIds } from "@/lib/db/services"
@@ -69,8 +70,18 @@ export interface GetTechniciansOptions {
   sortBy?: "rating" | "reviewCount"
 }
 
-/** Get all approved + active technicians with optional filters */
-export async function getActiveTechnicians(
+/** Get all approved + active technicians with optional filters.
+ *  Cached per opts combination for 5 min; busted by 'technicians' tag. */
+export function getActiveTechnicians(opts: GetTechniciansOptions = {}): Promise<Technician[]> {
+  const cacheKey = `technicians-active-${opts.serviceId ?? ""}-${opts.brandId ?? ""}-${opts.sortBy ?? "rating"}-${opts.limit ?? 0}`
+  return nextCache(
+    async () => _getActiveTechnicians(opts),
+    [cacheKey],
+    { tags: ["technicians"], revalidate: 300 },
+  )()
+}
+
+async function _getActiveTechnicians(
   opts: GetTechniciansOptions = {}
 ): Promise<Technician[]> {
   let query = adminDb

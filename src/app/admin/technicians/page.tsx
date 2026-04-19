@@ -1,7 +1,13 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/session"
 import { getAllTechnicians } from "@/lib/db/technicians"
-import { AdminTechniciansClient } from "./technicians-client"
+import lazyLoad from "next/dynamic"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const AdminTechniciansClient = lazyLoad(
+  () => import("./technicians-client").then((m) => m.AdminTechniciansClient),
+  { loading: () => <Skeleton className="h-64 w-full rounded-xl" /> },
+)
 
 export const dynamic = "force-dynamic"
 
