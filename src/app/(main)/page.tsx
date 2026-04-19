@@ -88,11 +88,6 @@ export default function HomePage() {
 
         {/* Hero content */}
         <div className="relative z-10 mx-auto max-w-6xl px-4 py-24 text-center md:py-36">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/20 px-4 py-1.5 text-sm font-medium text-emerald-300 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Técnicos verificados en Uruguay
-          </span>
-
           <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white md:text-6xl lg:text-7xl">
             Potenciá tu{" "}
             <span className="bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent">
