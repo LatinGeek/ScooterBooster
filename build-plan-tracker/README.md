@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 19 CSRF/origin hardening slice. Browser-facing mutation routes now reject untrusted or missing `Origin` headers, tests cover the helper plus auth/session flows, and the trusted-origin policy is documented in `knowledge-base/integrations/security.md`.
+- Completed: Phase 19 dependency hygiene slice. `npm audit --omit=dev` is clean, Dependabot is configured for npm and GitHub Actions updates, and a weekly GitHub Actions security-audit workflow now enforces the production dependency audit in CI.
 - Next: Continue Phase 19 with rate limiting and CSP/header tightening, then return to the remaining observability and payment-confirmation follow-through.
