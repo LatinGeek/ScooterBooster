@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import "@fontsource-variable/inter"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { AuthProvider } from "@/providers/auth-provider"
 
@@ -38,10 +40,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const isVercelDeployment = process.env.VERCEL === "1"
+
   return (
     <html lang="es" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
         <AuthProvider>{children}</AuthProvider>
+        {isVercelDeployment ? <Analytics /> : null}
+        {isVercelDeployment ? <SpeedInsights /> : null}
       </body>
     </html>
   )

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import logger from "./logger"
 import { isAppError } from "./errors"
 
 export interface ApiResponse<T = unknown> {
@@ -17,6 +18,13 @@ export function fail(message: string, status = 500): NextResponse<ApiResponse<ne
   return NextResponse.json({ success: false, error: message }, { status })
 }
 
+function logAtLevel(level: "info" | "warn" | "error", payload: Record<string, unknown>, message: string) {
+  const loggerFn = logger[level]
+  if (typeof loggerFn === "function") {
+    loggerFn.call(logger, payload, message)
+  }
+}
+
 /**
  * Wrap an async API route handler with consistent error handling.
  * Catches AppErrors and returns the correct status + Spanish user message.
@@ -28,12 +36,60 @@ export function fail(message: string, status = 500): NextResponse<ApiResponse<ne
 export function withErrorHandling<T, Args extends unknown[]>(
   handler: (...args: Args) => Promise<NextResponse<ApiResponse<T>>>
 ): (...args: Args) => Promise<NextResponse<ApiResponse<T | never>>> {
-  return (...args: Args) =>
-    handler(...args).catch((err: unknown) => {
+  return async (...args: Args) => {
+    const startedAt = Date.now()
+    const maybeRequest = args[0]
+    const isRequestLike =
+      typeof maybeRequest === "object" &&
+      maybeRequest !== null &&
+      "method" in maybeRequest &&
+      "nextUrl" in maybeRequest
+    const req = isRequestLike ? (maybeRequest as { method: string; nextUrl: { pathname: string } }) : null
+
+    try {
+      const response = await handler(...args)
+      if (req) {
+        logAtLevel(
+          "info",
+          {
+            route: req.nextUrl.pathname,
+            method: req.method,
+            status: response.status,
+            durationMs: Date.now() - startedAt,
+          },
+          "API request completed"
+        )
+      }
+      return response
+    } catch (err: unknown) {
       if (isAppError(err)) {
+        if (req) {
+          logAtLevel(
+            "warn",
+            {
+              route: req.nextUrl.pathname,
+              method: req.method,
+              status: err.statusCode,
+              durationMs: Date.now() - startedAt,
+              error: err.userMessage,
+            },
+            "API request failed with handled error"
+          )
+        }
         return fail(err.userMessage, err.statusCode)
       }
-      console.error("Unhandled API error:", err)
+
+      logAtLevel(
+        "error",
+        {
+          route: req?.nextUrl.pathname,
+          method: req?.method,
+          durationMs: Date.now() - startedAt,
+          err,
+        },
+        "Unhandled API error"
+      )
       return fail("Error interno del servidor.", 500)
-    })
+    }
+  }
 }

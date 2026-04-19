@@ -1,4 +1,4 @@
-﻿# Build Plan Tracker
+# Build Plan Tracker
 
 Alan's execution log. Mirrors the phases in `build-plan/`.
 
@@ -33,7 +33,7 @@ At the start of every session: read this file to know where to resume.
 | 15    | Search, Filters & Discovery                  | PARTIAL     |
 | 16    | SEO, Metadata & Legal Pages                  | PARTIAL     |
 | 17    | Testing & QA                                 | PARTIAL     |
-| 18    | Observability                                | NOT STARTED |
+| 18    | Observability                                | PARTIAL     |
 | 19    | Security Hardening                           | PARTIAL     |
 | 20    | Performance & Polish                         | NOT STARTED |
 | 21    | Deployment (Vercel + Firebase Prod)          | NOT STARTED |
@@ -42,6 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 17 technician/admin workflow E2E slice - Playwright now covers admin technician approval and technician booking status transitions on top of the existing authenticated booking flow
-- Next: Continue Phase 17 with the remaining signup -> book -> pay flow coverage and broader manual QA passes
-
+- Completed: Phase 18 observability foundation slice - Vercel Analytics/Speed Insights are wired for real Vercel deployments, `/api/health` now checks Firestore, and request-based API routes log duration/status through pino.
+- Next: Continue the remaining observability/security work while keeping Phase 17 open for the real MercadoPago signup -> book -> pay flow once sandbox credentials exist.

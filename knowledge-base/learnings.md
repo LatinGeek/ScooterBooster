@@ -151,3 +151,12 @@
 - **Direct Firestore fixture seeding keeps workflow E2E coverage deterministic:** Admin moderation and technician booking-transition flows were easiest to test by inserting their prerequisite docs through Firebase Admin from Playwright support helpers, instead of depending on long UI setup chains. That pattern now powers seeded pending-tech and booking fixtures for the new E2E specs.
   - Affected files: `tests/e2e/support/fixtures.ts`, `tests/e2e/admin-technician-approval.spec.ts`, `tests/e2e/technician-booking-management.spec.ts`
 
+
+- **Vercel Analytics packages should only mount on real Vercel deployments in this repo:** Rendering `@vercel/analytics/next` and `@vercel/speed-insights/next` unconditionally caused local production Playwright runs to fetch missing `/_vercel/*` scripts and emit console errors. Guarding them behind `process.env.VERCEL === "1"` keeps local QA clean while preserving production instrumentation.
+  - Affected files: `src/app/layout.tsx`
+
+- **`withErrorHandling()` is a good central seam for API request telemetry:** Adding route/method/status/duration logging in `src/lib/api-response.ts` gave observability coverage to request-based handlers without touching every route file. Logger calls need to tolerate partially mocked logger objects in Vitest, so the wrapper now checks whether each log method exists before calling it.
+  - Affected files: `src/lib/api-response.ts`
+
+- **A lightweight `/api/health` endpoint can piggyback on an existing Firestore doc:** Checking `config/global` is enough to verify Firestore connectivity without inventing a dedicated collection. That gives uptime monitors a stable health probe while keeping the route simple to unit test.
+  - Affected files: `src/app/api/health/route.ts`, `src/app/api/health/route.test.ts`
