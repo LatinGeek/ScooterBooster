@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useCallback, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
@@ -146,8 +147,18 @@ function StepScooter({
               selected === m.id ? "border-[#10b981] bg-[#d1fae5]" : "border-[#e5e7eb] bg-white"
             }`}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f3f4f6]">
-              <Bike className="h-5 w-5 text-[#10b981]" />
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#f3f4f6]">
+              {m.imageURL ? (
+                <Image
+                  src={m.imageURL}
+                  alt={`Foto del ${m.name}`}
+                  width={112}
+                  height={112}
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <Bike className="h-5 w-5 text-[#10b981]" />
+              )}
             </div>
             <div>
               <p className="font-semibold text-[#111827]">{m.name}</p>

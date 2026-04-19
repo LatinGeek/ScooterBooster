@@ -29,6 +29,8 @@ export default defineConfig({
     env: {
       ...process.env,
       NEXT_PUBLIC_E2E_AUTH: "enabled",
+      NEXT_PUBLIC_SENTRY_DSN: "",
+      SENTRY_DSN: "",
       MERCADOPAGO_ACCESS_TOKEN: process.env.MERCADOPAGO_ACCESS_TOKEN ?? "",
       MERCADOPAGO_PUBLIC_KEY: process.env.MERCADOPAGO_PUBLIC_KEY ?? "",
       NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY: process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY ?? "",

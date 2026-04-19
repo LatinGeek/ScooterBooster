@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "sonner"
+import { CookieBanner } from "@/components/cookie-banner"
 import "./globals.css"
 import { AuthProvider } from "@/providers/auth-provider"
 
@@ -53,6 +54,7 @@ export default function RootLayout({
     <html lang="es" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AuthProvider>{children}</AuthProvider>
+        <CookieBanner />
         <Toaster
           position="bottom-right"
           toastOptions={{

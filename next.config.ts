@@ -22,6 +22,7 @@ const csp = [
     "https://*.firebaseio.com",
     "wss://*.firebaseio.com",
     "https://*.firebaseapp.com",
+    "https://*.sentry.io",
     "https://*.ingest.sentry.io",
     "https://www.google-analytics.com",
     "https://analytics.google.com",
@@ -67,10 +68,6 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
-  env: {
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN,
-  },
-
   // ── Image optimization ────────────────────────────────────────────────────
   images: {
     // AVIF first (best compression), WebP fallback

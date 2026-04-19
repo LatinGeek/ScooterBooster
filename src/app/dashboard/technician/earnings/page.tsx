@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { getBookingsByTechnician } from "@/lib/db/bookings"
 import { adminDb } from "@/lib/firebase-admin"
-import type { Booking, Service, ScooterModel } from "@/types"
+import type { Service, ScooterModel } from "@/types"
 import lazyLoad from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
 

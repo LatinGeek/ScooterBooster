@@ -159,7 +159,20 @@ export async function enforceIpRateLimit(
   policyName: Extract<PolicyName, "authIp">,
   req: NextRequest
 ): Promise<RateLimitResult> {
-  return enforceRateLimit(policyName, getRequestIp(req))
+  const requestIp = getRequestIp(req)
+
+  if (requestIp === "127.0.0.1" || requestIp === "::1") {
+    const policy = policies[policyName]
+
+    return {
+      success: true,
+      limit: policy.limit,
+      remaining: policy.limit,
+      reset: Math.ceil(Date.now() / 1000) + Math.ceil(policy.windowMs / 1000),
+    }
+  }
+
+  return enforceRateLimit(policyName, requestIp)
 }
 
 export function resetLocalRateLimits(): void {

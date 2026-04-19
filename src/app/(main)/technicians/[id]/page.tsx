@@ -68,6 +68,38 @@ export default async function TechnicianDetailPage({
     getReviewsByTechnician(technician.id, 10),
     getServicesByIds(technician.services),
   ])
+  const localBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: technician.displayName,
+    description: technician.bio,
+    areaServed: "Uruguay",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: technician.location,
+      addressCountry: "UY",
+    },
+    telephone: technician.phone,
+    url: `https://scooterbooster.uy/technicians/${technician.id}`,
+    image: technician.photoURL || undefined,
+    makesOffer: services.map((service) => ({
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: service.name,
+      },
+      priceCurrency: "UYU",
+      price: technician.pricing[service.id]?.basePrice ?? undefined,
+    })),
+    aggregateRating:
+      technician.reviewCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: technician.rating,
+            reviewCount: technician.reviewCount,
+          }
+        : undefined,
+  }
 
   const initials = technician.displayName
     .split(" ")
@@ -78,6 +110,11 @@ export default async function TechnicianDetailPage({
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
+
       {/* Breadcrumb */}
       <nav className="mb-6">
         <Link

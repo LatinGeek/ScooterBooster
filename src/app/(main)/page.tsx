@@ -60,8 +60,33 @@ const steps = [
 ]
 
 export default function HomePage() {
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "ScooterBooster",
+    url: "https://scooterbooster.uy",
+    logo: "https://scooterbooster.uy/icon.svg",
+    sameAs: ["https://www.scooterbooster.uy"],
+    areaServed: {
+      "@type": "Country",
+      name: "Uruguay",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: "soporte@scooterbooster.uy",
+      areaServed: "UY",
+      availableLanguage: "es",
+    },
+  }
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+
       {/* ── Hero Section — video background ─────────────────────────────── */}
       <section className="relative overflow-hidden" style={{ minHeight: "620px" }}>
         {/* Blurred video layer */}
@@ -271,6 +296,11 @@ export default function HomePage() {
                 <li>
                   <Link href="/legal/privacy" className="cursor-pointer transition-colors hover:text-white">
                     Política de privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/cookies" className="cursor-pointer transition-colors hover:text-white">
+                    Política de cookies
                   </Link>
                 </li>
                 <li>

@@ -3,6 +3,7 @@ import { AppError } from "./errors"
 
 const DEV_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 const CSRF_ERROR_MESSAGE = "La solicitud fue bloqueada por seguridad. Recarga la pagina e intenta de nuevo."
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1"])
 
 function normalizeOrigin(value: string | null | undefined): string | null {
   if (!value) return null
@@ -17,12 +18,13 @@ function normalizeOrigin(value: string | null | undefined): string | null {
 export function getTrustedOrigins(req: NextRequest): string[] {
   const trustedOrigins = new Set<string>()
   const configuredOrigin = normalizeOrigin(process.env.NEXT_PUBLIC_APP_URL)
+  const isLoopbackRequest = LOOPBACK_HOSTS.has(req.nextUrl.hostname)
 
   if (configuredOrigin) {
     trustedOrigins.add(configuredOrigin)
   }
 
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" || isLoopbackRequest) {
     trustedOrigins.add(req.nextUrl.origin)
 
     for (const origin of DEV_TRUSTED_ORIGINS) {
@@ -37,6 +39,10 @@ export function assertTrustedOrigin(req: NextRequest): void {
   const origin = normalizeOrigin(req.headers.get("origin"))
 
   if (!origin) {
+    if (LOOPBACK_HOSTS.has(req.nextUrl.hostname)) {
+      return
+    }
+
     throw new AppError("Missing Origin header", CSRF_ERROR_MESSAGE, 403)
   }
 

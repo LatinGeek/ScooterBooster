@@ -208,3 +208,9 @@
 
 - **Local production Lighthouse is stable enough to gate public-route polish work here:** Running `next build` + `next start` locally and auditing the public pages with headless Chrome gave repeatable mobile scores above the Phase 20 targets without needing a deployed preview. Capturing the route-by-route scores directly in the tracker makes the remaining gap obvious: authenticated dashboard and desktop audits still need a session-aware harness.
   - Affected files: `build-plan-tracker/20-performance.md`, `build-plan-tracker/README.md`
+
+- **Loopback production-mode auth needs request-aware cookie security, not a raw `NODE_ENV` check:** In local Playwright runs we still boot Next with `NODE_ENV=production`, but the browser talks to `http://127.0.0.1`. Tying `secure` cookies to `req.nextUrl.protocol === "https:"`, while also relaxing origin/rate-limit checks for loopback hosts only, restores realistic E2E coverage without weakening deployed traffic.
+  - Affected files: `src/app/api/auth/session/route.ts`, `src/app/api/auth/signout/route.ts`, `src/lib/security.ts`, `src/lib/security.test.ts`, `src/lib/ratelimit.ts`, `src/lib/ratelimit.test.ts`, `playwright.config.ts`
+
+- **Asset-backed seed catalogs make public QA far more trustworthy than placeholder text-only models:** Pointing seeded scooter models at real files under `public/assets/scooter-model-images` exposed the need to surface `imageURL` consistently in the catalog, booking wizard, and scooter detail pages. Once the seed script and UI both used the same image-backed records, the catalog became much easier to validate visually.
+  - Affected files: `scripts/seed.ts`, `src/components/scooter-card.tsx`, `src/app/(main)/booking/new/booking-wizard.tsx`, `src/app/(main)/scooters/[id]/page.tsx`, `build-plan-tracker/05-scooter-catalog.md`

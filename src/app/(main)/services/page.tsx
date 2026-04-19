@@ -28,9 +28,44 @@ const CATEGORY_PRICE_RANGES: Record<string, string> = {
 
 export default async function ServicesPage() {
   const services = await getActiveServices()
+  const servicesJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": services.map((service) => ({
+      "@type": "Service",
+      name: service.name,
+      description: service.description,
+      provider: {
+        "@type": "Organization",
+        name: "ScooterBooster",
+        url: "https://scooterbooster.uy",
+      },
+      areaServed: {
+        "@type": "Country",
+        name: "Uruguay",
+      },
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "UYU",
+        availability: "https://schema.org/InStock",
+        priceSpecification: {
+          "@type": "PriceSpecification",
+          priceCurrency: "UYU",
+          minPrice: CATEGORY_PRICE_RANGES[service.category]
+            ?.replace(/[^\d]/g, "")
+            ?.slice(0, 4),
+        },
+      },
+      url: `https://scooterbooster.uy/services/${service.slug}`,
+    })),
+  }
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(servicesJsonLd) }}
+      />
+
       {/* Hero */}
       <section className="bg-gradient-to-b from-[#f0fdf4] to-white px-4 py-14 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight text-[#111827] md:text-5xl">
@@ -96,18 +131,20 @@ export default async function ServicesPage() {
 
                   {/* CTA */}
                   <div className="mt-5 flex items-center justify-between">
-                    <Link
-                      href={`/scooters`}
-                      className="cursor-pointer text-sm text-[#6b7280] hover:text-[#10b981] hover:underline"
-                    >
-                      Ver scooters compatibles
-                    </Link>
-                    <Link
-                      href={`/booking?serviceId=${service.id}`}
-                      className="cursor-pointer rounded-lg bg-[#10b981] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
-                    >
-                      Reservar
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/services/${service.slug}`}
+                        className="cursor-pointer text-sm font-semibold text-[#10b981] hover:underline"
+                      >
+                        Ver detalle
+                      </Link>
+                      <Link
+                        href={`/booking?serviceId=${service.id}`}
+                        className="cursor-pointer rounded-lg bg-[#10b981] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
+                      >
+                        Reservar
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )

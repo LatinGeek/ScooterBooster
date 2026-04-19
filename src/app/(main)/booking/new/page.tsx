@@ -3,7 +3,6 @@ import { BookingWizard } from "./booking-wizard"
 import { getActiveModels } from "@/lib/db/models"
 import { getActiveServices } from "@/lib/db/services"
 import { getActiveTechnicians } from "@/lib/db/technicians"
-import type { ScooterModel, Service, Technician } from "@/types"
 
 export const dynamic = "force-dynamic"
 

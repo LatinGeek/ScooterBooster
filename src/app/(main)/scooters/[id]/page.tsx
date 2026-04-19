@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import {
   Zap,
@@ -53,9 +54,34 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
     getServicesByIds(model.compatibleServices),
     getActiveTechnicians({ brandId: model.brandId, limit: 6 }),
   ])
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: model.name,
+    brand: {
+      "@type": "Brand",
+      name: brand?.name ?? "Scooter",
+    },
+    category: "Electric Scooter",
+    image: model.imageURL ? [`https://scooterbooster.uy${model.imageURL}`] : undefined,
+    description: `Servicios de modificación, firmware y mantenimiento para ${model.name} en Uruguay.`,
+    additionalProperty: [
+      { "@type": "PropertyValue", name: "Velocidad máxima", value: `${model.specs.maxSpeed} km/h` },
+      { "@type": "PropertyValue", name: "Autonomía", value: `${model.specs.range} km` },
+      { "@type": "PropertyValue", name: "Batería", value: model.specs.battery },
+      { "@type": "PropertyValue", name: "Motor", value: model.specs.motor },
+      { "@type": "PropertyValue", name: "Peso", value: `${model.specs.weight} kg` },
+    ],
+    url: `https://scooterbooster.uy/scooters/${model.slug}`,
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+
       {/* Breadcrumb */}
       <nav className="mb-6">
         <Link
@@ -74,6 +100,21 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
         </p>
         <h1 className="mt-1 text-3xl font-extrabold text-[#111827] md:text-4xl">{model.name}</h1>
       </div>
+
+      {model.imageURL && (
+        <section className="mb-8 overflow-hidden rounded-3xl border border-[#e5e7eb] bg-[radial-gradient(circle_at_top,#ecfdf5,white_70%)] shadow-sm">
+          <div className="relative mx-auto max-w-4xl p-6">
+            <Image
+              src={model.imageURL}
+              alt={`Foto del ${model.name}`}
+              width={1400}
+              height={900}
+              className="h-auto w-full object-contain"
+              priority
+            />
+          </div>
+        </section>
+      )}
 
       {/* Specs grid */}
       <section className="mb-12 rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">

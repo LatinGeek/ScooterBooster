@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react"
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [role, setRole] = useState<"user" | "technician" | "admin" | null>(null)
+  const hadAuthenticatedSession = useRef(false)
 
   useEffect(() => {
     const auth = getFirebaseAuth()
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
+        hadAuthenticatedSession.current = true
         setFirebaseUser(fbUser)
 
         // Get role from custom claims
@@ -89,8 +91,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setFirebaseUser(null)
         setUser(null)
         setRole(null)
-        // Clear server session
-        await fetch("/api/auth/signout", { method: "POST" })
+
+        // Avoid noisy signout requests on the initial anonymous load.
+        if (hadAuthenticatedSession.current) {
+          await fetch("/api/auth/signout", { method: "POST" })
+          hadAuthenticatedSession.current = false
+        }
       }
       setLoading(false)
     })

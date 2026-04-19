@@ -13,6 +13,7 @@ const bodySchema = z.object({
 export const POST = withErrorHandling(async (req: NextRequest) => {
   assertTrustedOrigin(req)
   await enforceIpRateLimit("authIp", req)
+  const secureCookies = req.nextUrl.protocol === "https:"
 
   const body = (await req.json()) as unknown
   const parsed = bodySchema.safeParse(body)
@@ -25,7 +26,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
     maxAge: 14 * 24 * 60 * 60, // 14 days in seconds
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: secureCookies,
     sameSite: "lax",
     path: "/",
   })
@@ -38,7 +39,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   cookieStore.set("__role", role, {
     maxAge: 14 * 24 * 60 * 60,
     httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
+    secure: secureCookies,
     sameSite: "lax",
     path: "/",
   })

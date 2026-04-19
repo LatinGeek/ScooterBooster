@@ -49,6 +49,14 @@ describe("security origin checks", () => {
     expect(() => assertTrustedOrigin(request)).not.toThrow()
   })
 
+  it("accepts missing origin headers on loopback hosts for local browser flows", () => {
+    const request = new NextRequest("http://127.0.0.1:3000/api/auth/session", {
+      method: "POST",
+    })
+
+    expect(() => assertTrustedOrigin(request)).not.toThrow()
+  })
+
   it("rejects requests from untrusted origins", () => {
     const request = new NextRequest("https://scooterbooster.uy/api/bookings", {
       method: "POST",

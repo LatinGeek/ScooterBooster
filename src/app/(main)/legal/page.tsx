@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { FileText, Shield, HelpCircle } from "lucide-react"
+import { Cookie, FileText, HelpCircle, Shield } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Legal",
@@ -20,6 +20,12 @@ export default function LegalIndexPage() {
       icon: Shield,
       title: "Política de Privacidad",
       desc: "Cómo recopilamos, usamos y protegemos tus datos personales (Ley 18.331).",
+    },
+    {
+      href: "/legal/cookies",
+      icon: Cookie,
+      title: "Política de Cookies",
+      desc: "Qué cookies usamos para sesión, seguridad y analítica básica, y cómo podés gestionarlas.",
     },
     {
       href: "/legal/faq",

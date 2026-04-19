@@ -1,18 +1,20 @@
-# Tracker — Phase 16: SEO, Metadata & Legal Pages
+# Tracker - Phase 16: SEO, Metadata & Legal Pages
 
-> Status: ⬜ NOT STARTED
-> Last updated: 2026-04-17
+> Status: PARTIAL
+> Last updated: 2026-04-19
 
 ## Tasks
 
-- [ ] Per-page metadata (title, description, OG tags)
-- [ ] Sitemap.xml + robots.txt
-- [ ] JSON-LD schemas (Organization, Service, LocalBusiness, AggregateRating)
+- [x] Per-page metadata (title, description) across public marketing, catalog, legal, auth, and dashboard routes
+- [x] `sitemap.xml` + `robots.txt`
+- [x] JSON-LD schemas for Organization, Product, Service, LocalBusiness, FAQ, and AggregateRating when data exists
 - [ ] Google Search Console verification
-- [ ] Legal pages: Terms, Privacy Policy, Cookie Policy, FAQ
-- [ ] Cookie consent banner (GDPR-style, Ley 18.331 Uruguay)
+- [x] Legal pages: Terms, Privacy Policy, Cookie Policy, FAQ
+- [x] Cookie consent banner (local consent storage for dev/prototype flow)
+- [ ] Cookie banner persistence integrated with a future analytics preference system
 
 ## Notes
 
-- Ley 18.331 is Uruguay's data protection law — analogous to GDPR
-- Uruguay regulations documented in knowledge-base/regulations/uruguay-scooter-laws.md
+- JSON-LD now renders from live data on `/`, `/services`, `/scooters/[id]`, `/technicians/[id]`, and `/legal/faq`.
+- Cookie consent currently stores a local acceptance flag in the browser (`sb-cookie-consent`) so we can validate UX in dev before wiring optional analytics preferences.
+- Search Console and any production verification tags remain intentionally deferred while we stay in dev mode.

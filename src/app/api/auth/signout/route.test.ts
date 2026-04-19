@@ -44,9 +44,9 @@ describe("/api/auth/signout", () => {
     expect(mocks.cookieDelete).toHaveBeenNthCalledWith(2, "__role")
   })
 
-  it("rejects signout requests without an origin header", async () => {
+  it("rejects signout requests without an origin header on non-loopback hosts", async () => {
     const response = await POST(
-      new NextRequest("http://localhost:3000/api/auth/signout", {
+      new NextRequest("https://app.scooterbooster.test/api/auth/signout", {
         method: "POST",
       })
     )
@@ -55,5 +55,18 @@ describe("/api/auth/signout", () => {
     expect(response.status).toBe(403)
     expect(json.success).toBe(false)
     expect(json.error).toContain("bloqueada por seguridad")
+  })
+
+  it("allows missing origin headers on loopback hosts for local e2e flows", async () => {
+    const response = await POST(
+      new NextRequest("http://127.0.0.1:3000/api/auth/signout", {
+        method: "POST",
+      })
+    )
+    const json = (await response.json()) as { success: boolean; data: { message: string } }
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(json.data.message).toContain("cerrada")
   })
 })

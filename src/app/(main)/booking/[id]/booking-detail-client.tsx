@@ -157,9 +157,6 @@ function ActionBar({
 
   const { status } = booking
 
-  // WhatsApp link for technician contact
-  const whatsappTech = booking.technicianId // Will be resolved via prop if needed
-
   if (status === "pending") {
     return (
       <div className="flex flex-wrap gap-3">

@@ -129,7 +129,11 @@ export default function PrivacyPage() {
           <h2 className="text-lg font-semibold text-[#111827]">8. Cookies</h2>
           <p>
             Usamos cookies estrictamente necesarias para la autenticación (sesión segura). No
-            usamos cookies de rastreo publicitario de terceros.
+            usamos cookies de rastreo publicitario de terceros. Más detalle en nuestra{" "}
+            <Link href="/legal/cookies" className="text-[#10b981] hover:underline">
+              Política de cookies
+            </Link>
+            .
           </p>
         </section>
 

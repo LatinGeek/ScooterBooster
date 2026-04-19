@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight, Zap, Route, Battery } from "lucide-react"
 import type { ScooterModel } from "@/types"
@@ -14,6 +15,24 @@ export function ScooterCard({ model, brandName }: ScooterCardProps) {
     <Link href={`/scooters/${model.slug}`} className="block">
       <Card className="group cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
         <CardContent className="p-5">
+          <div className="relative mb-4 overflow-hidden rounded-xl border border-[#e5e7eb] bg-[radial-gradient(circle_at_top,#ecfdf5,white_70%)]">
+            {model.imageURL ? (
+              <Image
+                src={model.imageURL}
+                alt={`Foto del ${model.name}`}
+                width={640}
+                height={400}
+                className="h-44 w-full object-contain p-4 transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+            ) : (
+              <div className="flex h-44 items-center justify-center">
+                <div className="rounded-full bg-white/80 p-4 shadow-sm">
+                  <Zap className="h-8 w-8 text-[#10b981]" />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
             <div>

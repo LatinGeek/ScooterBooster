@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 20's public polish pass is in place — home/login/service microcopy is now consistent in Spanish, root typography moved to `next/font/google` with Latin subset + `display: "swap"`, and public mobile Lighthouse runs cleared the target bar (`/` 96/95/96/100, `/scooters` 94/95/96/100, `/services` 94/95/96/100, `/technicians` 93/95/96/100, `/booking/new` 94/95/96/100).
-- Next: Finish authenticated dashboard + desktop Lighthouse coverage, then move into Phase 21 production deployment work as soon as prod access/domain setup is available.
+- Completed: Dev-mode QA is now in a much healthier place - unit tests (`125`), Playwright E2E (`13`), lint, and build are all green locally; loopback auth/session handling is stable in production-mode Playwright; Phase 16 tracker drift was corrected with the cookie page/banner + JSON-LD work; and the Firestore seed catalog now includes the asset-backed Xiaomi, Atom, Joyor, MiStyle, and Navee models from `public/assets/scooter-model-images`.
+- Next: Keep iterating in dev mode on the remaining non-prod gaps - desktop/authenticated manual QA polish, technician application UX coverage, and any remaining admin/notification/catalog completeness items before we revisit Phase 21 production work.

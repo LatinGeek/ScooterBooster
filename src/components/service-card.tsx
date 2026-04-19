@@ -62,9 +62,17 @@ export function ServiceCard({ service, basePrice }: ServiceCardProps) {
           </p>
         )}
 
-        <Button asChild className="w-full">
-          <Link href={`/booking/new?service=${service.id}`}>Reservar servicio</Link>
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Link
+            href={`/services/${service.slug}`}
+            className="text-sm font-semibold text-[#10b981] transition-colors hover:text-[#059669] hover:underline"
+          >
+            Ver detalle del servicio
+          </Link>
+          <Button asChild className="w-full">
+            <Link href={`/booking/new?service=${service.id}`}>Reservar servicio</Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   )
