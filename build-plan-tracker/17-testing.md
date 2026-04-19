@@ -32,6 +32,7 @@
 - `@playwright/test` is installed with a production-style `playwright.config.ts` and Chromium smoke coverage for `/dashboard` auth redirect plus public booking/search/technician pages
 - `tests/e2e/booking-disclaimer.spec.ts` now confirms that speed-limit bookings cannot reach the confirmation step until the legal disclaimer modal is accepted
 - `tests/e2e/responsive-public-routes.spec.ts` now covers 375px mobile and landscape-mobile rendering for the booking wizard, technician listing, and search results
+- `tests/e2e/authenticated-dashboards.spec.ts` plus `tests/e2e/support/auth.ts` now create real session cookies from Firebase custom tokens so user, technician, and admin dashboards can be exercised in-browser without Google popup automation
 - `firestore.rules`, `tests/firestore.rules.test.ts`, and `npm run test:rules` are now wired and executable when Java is available for the Firestore emulator
 
 

@@ -42,6 +42,6 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 17 responsive public QA slice - mobile and landscape browser smoke checks now cover booking, technicians, and search
+- Completed: Phase 17 authenticated dashboard E2E slice - Playwright can now mint Firebase-backed sessions for user, technician, and admin dashboard coverage
 - Next: Continue Phase 17 with richer booking/admin E2E flows and broader manual QA passes
 

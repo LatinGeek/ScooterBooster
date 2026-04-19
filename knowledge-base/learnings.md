@@ -139,3 +139,6 @@
 - **Responsive smoke tests catch layout regressions without needing full auth fixtures:** A small Playwright slice at 375px portrait and landscape-mobile widths gives useful QA coverage for public flows while deeper authenticated scenarios still depend on test-session plumbing.
   - Affected files: `tests/e2e/responsive-public-routes.spec.ts`
 
+- **Firebase custom tokens are the cleanest bridge into authenticated Playwright coverage here:** Exchanging an Admin SDK custom token for an ID token and posting it to `/api/auth/session` gives us real session cookies for browser tests without automating the Google popup flow. That unlocks stable dashboard E2E coverage for user, technician, and admin roles.
+  - Affected files: `tests/e2e/support/auth.ts`, `tests/e2e/authenticated-dashboards.spec.ts`
+
