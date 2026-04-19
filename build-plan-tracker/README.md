@@ -41,6 +41,6 @@ At the start of every session: read this file to know where to resume.
 
 ## Last Session
 
-- Date: 2026-04-18
-- Completed: Phase 17 technician API slice - `/api/technicians/me` now has Vitest coverage
-- Next: Continue Phase 17 with Firestore rules, review/user API tests, or Playwright setup depending on the fastest QA path
+- Date: 2026-04-19
+- Completed: Phase 04 index-config slice - added `firestore.indexes.json` for current catalog/booking/review queries
+- Next: Deploy the Firestore indexes, then re-run smoke tests on booking/search/catalog pages

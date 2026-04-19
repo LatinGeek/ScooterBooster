@@ -108,3 +108,6 @@
 
 - **Authenticated self-service API routes are good early handler-test targets:** Routes like `/api/technicians/me` are compact but high-value because they combine auth, role gating, validation, and mutation in one place. They give strong regression protection with minimal mock surface area.
   - Affected files: `src/app/api/technicians/me/route.test.ts`
+
+- **Missing Firestore composite indexes can make completed pages fail only at runtime:** The catalog and discovery pages built cleanly and passed unit tests, but production smoke testing exposed `FAILED_PRECONDITION` errors from Firestore for active+sorted queries. The fix belongs in repo config (`firestore.indexes.json`), not in the page code itself.
+  - Affected files: `firestore.indexes.json`, `src/lib/db/brands.ts`, `src/lib/db/models.ts`, `src/lib/db/services.ts`, `src/lib/db/technicians.ts`, `src/lib/db/reviews.ts`, `src/lib/db/bookings.ts`

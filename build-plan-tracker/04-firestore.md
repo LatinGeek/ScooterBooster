@@ -1,12 +1,12 @@
 # Tracker — Phase 04: Firestore Schema, Rules & Seed Data
 
-> Status: 🔶 PARTIAL — DAL done, rules/indexes pending Firebase access
-> Last updated: 2026-04-18
+> Status: PARTIAL - composite indexes defined in repo, rules/deploy still pending Firebase access
+> Last updated: 2026-04-19
 
 ## Tasks
 
 - [ ] Write final Firestore security rules (firestore.rules) — needs Firebase CLI access
-- [ ] Write Firestore composite indexes (firestore.indexes.json) — needs Firebase CLI access
+- [x] Write Firestore composite indexes (firestore.indexes.json)
 - [x] Typed data access layer — src/lib/db/{brands,models,services,technicians,bookings,reviews}.ts
 - [x] Seed script — scripts/seed.ts (7 brands, 23 models, 4 services, 3 demo technicians)
 - [x] tsx + dotenv installed for running seed script (`npm run seed`)
@@ -20,3 +20,4 @@
 - Run seed: `npm run seed` — requires .env.local with FIREBASE*ADMIN*\* vars set.
 - `getServicesByIds` uses Firestore `__name__ in [...]` for batch fetching (chunked to 10 per query limit).
 - DAL functions for technicians support optional filtering by serviceId and brandId for catalog display.
+- `firestore.indexes.json` now covers the composite queries used by catalog, booking, reviews, and technician discovery pages.
