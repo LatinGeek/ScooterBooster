@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -62,9 +63,11 @@ export default function TechnicianDashboardLayout({ children }: { children: Reac
               <div className="mb-6 rounded-xl border border-[#e5e7eb] bg-white p-3">
                 <div className="flex items-center gap-3">
                   {user.photoURL ? (
-                    <img
+                    <Image
                       src={user.photoURL}
                       alt={user.displayName}
+                      width={40}
+                      height={40}
                       className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (

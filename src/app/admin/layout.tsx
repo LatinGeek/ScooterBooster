@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Users, Wrench, Settings, LogOut, Bike, ShieldCheck } from "lucide-react"
@@ -50,7 +51,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="mb-6 rounded-xl border border-[#e5e7eb] bg-white p-3">
                 <div className="flex items-center gap-3">
                   {user.photoURL ? (
-                    <img src={user.photoURL} alt={user.displayName} className="h-9 w-9 rounded-full object-cover" />
+                    <Image
+                      src={user.photoURL}
+                      alt={user.displayName}
+                      width={36}
+                      height={36}
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
                   ) : (
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 font-semibold text-amber-700">
                       {user.displayName?.charAt(0)?.toUpperCase() ?? "A"}

@@ -107,6 +107,33 @@ export async function upsertPendingTechnicianFixture(input: {
     })
 }
 
+export async function upsertUserFixture(input: {
+  userId: string
+  displayName: string
+  email: string
+  phone?: string | null
+  role?: "user" | "technician" | "admin"
+}) {
+  const db = getAdminDb()
+  const timestamp = nowIso()
+
+  await db
+    .collection("users")
+    .doc(input.userId)
+    .set(
+      {
+        displayName: input.displayName,
+        email: input.email,
+        photoURL: null,
+        role: input.role ?? "user",
+        phone: input.phone ?? null,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      },
+      { merge: true }
+    )
+}
+
 export async function createTechnicianBookingFixture(input: {
   bookingId: string
   userId: string

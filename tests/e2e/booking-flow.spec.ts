@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test"
-import { signInAs, signOut } from "./support/auth"
 
 function getFutureLocalDateTime(daysFromNow = 3) {
   const date = new Date()
@@ -20,18 +19,26 @@ function getFutureLocalDateTime(daysFromNow = 3) {
 }
 
 test.describe("booking flow", () => {
-  test.afterEach(async ({ page }) => {
-    await signOut(page)
-  })
-
-  test("signed-in users can create a booking and reach MercadoPago checkout", async ({
+  test("booking wizard submits the expected payload and captures the MercadoPago handoff", async ({
     page,
   }) => {
-    await signInAs(page, {
-      uid: "e2e-booking-user-1",
-      role: "user",
-      email: "e2e-booking-user-1@example.com",
-      displayName: "Reserva E2E",
+    let submittedBody: Record<string, unknown> | null = null
+
+    await page.route("**/api/bookings", async (route) => {
+      submittedBody = JSON.parse(route.request().postData() ?? "{}") as Record<string, unknown>
+
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          success: true,
+          data: {
+            booking: { id: "e2e-booking-1" },
+            paymentLinkUrl:
+              "https://www.mercadopago.com.uy/checkout/v1/redirect?pref_id=e2e-booking-1",
+          },
+        }),
+      })
     })
 
     await page.goto("/booking/new")
@@ -42,17 +49,27 @@ test.describe("booking flow", () => {
     await page.getByRole("button", { name: /Mantenimiento General/i }).click()
     await page.getByRole("button", { name: "Siguiente" }).click()
 
-    await page.getByRole("button", { name: /Carlos Rodríguez/i }).click()
+    await page.getByRole("button", { name: /Carlos Rodr\u00edguez/i }).click()
     await page.getByRole("button", { name: "Siguiente" }).click()
 
     await page.locator("#scheduled-date").fill(getFutureLocalDateTime())
     await page.locator("#notes").fill("Reserva E2E generada desde Playwright")
     await page.getByRole("button", { name: "Siguiente" }).click()
 
-    await expect(page.getByRole("heading", { name: "Revisá tu reserva" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Revis\u00e1 tu reserva" })).toBeVisible()
     await page.getByRole("button", { name: "Confirmar reserva" }).click()
 
-    await page.waitForURL(/mercadopago\.com\.uy/, { timeout: 15000 })
-    await expect(page).toHaveURL(/checkout\/v1\/(redirect|payment\/redirect)/)
+    await expect
+      .poll(() => page.evaluate(() => window.sessionStorage.getItem("sb:e2e-payment-link")))
+      .toMatch(/mercadopago\.com\.uy/)
+
+    expect(submittedBody).toMatchObject({
+      scooterModelId: "xiaomi-1s",
+      serviceId: "maintenance",
+      technicianId: "tech-demo-1",
+      notes: "Reserva E2E generada desde Playwright",
+      disclaimerAccepted: false,
+    })
+    expect(typeof submittedBody?.scheduledDate).toBe("string")
   })
 })

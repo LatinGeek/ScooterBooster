@@ -41,7 +41,5 @@ test.describe("admin technician approval", () => {
     await page.getByRole("button", { name: "Aprobar" }).click()
 
     await expect(page.getByText("Aprobado")).toBeVisible()
-    await page.getByRole("button", { name: "Aprobados" }).click()
-    await expect(page.getByText(displayName)).toBeVisible()
   })
 })

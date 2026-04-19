@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Dev-mode QA is now in a much healthier place - unit tests (`125`), Playwright E2E (`13`), lint, and build are all green locally; loopback auth/session handling is stable in production-mode Playwright; Phase 16 tracker drift was corrected with the cookie page/banner + JSON-LD work; and the Firestore seed catalog now includes the asset-backed Xiaomi, Atom, Joyor, MiStyle, and Navee models from `public/assets/scooter-model-images`.
-- Next: Keep iterating in dev mode on the remaining non-prod gaps - desktop/authenticated manual QA polish, technician application UX coverage, and any remaining admin/notification/catalog completeness items before we revisit Phase 21 production work.
+- Completed: Dev mode is now greener across the board - `npm test` (`129`), `npm run test:e2e` (`14`), `npm run lint`, and `npm run build` all pass locally. We now have a real technician application flow (`/technicians/apply` + `/api/technicians/apply`), custom-claim updates on admin approval, deterministic booking-handoff E2E coverage, image-backed scooter catalog seeding, and the remaining dashboard/admin avatar warnings are gone.
+- Next: Keep closing partial build-plan items that do not depend on prod access - richer technician dashboard/profile tooling, notification depth, admin CRUD/audit visibility, and broader manual QA before we touch Phase 21 again.

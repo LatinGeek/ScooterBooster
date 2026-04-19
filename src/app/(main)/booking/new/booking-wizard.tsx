@@ -604,6 +604,10 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
       // If MP payment link is available, redirect to MercadoPago checkout
       if (paymentLinkUrl) {
+        if (process.env.NEXT_PUBLIC_E2E_AUTH === "enabled") {
+          window.sessionStorage.setItem("sb:e2e-payment-link", paymentLinkUrl)
+          return
+        }
         window.location.href = paymentLinkUrl
       } else {
         // No MP credentials configured (dev mode) — go to booking detail

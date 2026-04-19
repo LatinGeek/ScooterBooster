@@ -150,6 +150,65 @@ export interface UpdateTechnicianInput {
   isActive?: boolean
 }
 
+export interface CreateTechnicianApplicationInput {
+  id: string
+  userId: string
+  displayName: string
+  bio: string
+  photoURL: string
+  phone: string
+  whatsappNumber: string
+  location: string
+  services: string[]
+  supportedBrands: string[]
+  pricing: Technician["pricing"]
+  availability: Technician["availability"]
+}
+
+export async function createTechnicianApplication(
+  input: CreateTechnicianApplicationInput
+): Promise<Technician> {
+  const serviceDocs = await getServicesByIds(input.services)
+  const brandDocs = await Promise.all(
+    input.supportedBrands.map((brandId) => getBrandById(brandId))
+  )
+  const timestamp = new Date().toISOString()
+
+  await adminDb
+    .collection(COLLECTION)
+    .doc(input.id)
+    .set({
+      userId: input.userId,
+      displayName: input.displayName,
+      bio: input.bio,
+      photoURL: input.photoURL,
+      phone: input.phone,
+      whatsappNumber: input.whatsappNumber,
+      location: input.location,
+      services: input.services,
+      supportedBrands: input.supportedBrands,
+      availability: input.availability,
+      pricing: input.pricing,
+      rating: 0,
+      reviewCount: 0,
+      isApproved: false,
+      isActive: true,
+      normalizedLocation: normalizeSearchText(input.location),
+      searchTokens: buildSearchTokens(
+        input.displayName,
+        input.bio,
+        input.location,
+        ...serviceDocs.map((service) => service.name),
+        ...brandDocs.map((brand) => brand?.name)
+      ),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    })
+
+  const created = await adminDb.collection(COLLECTION).doc(input.id).get()
+  return docToTechnician(created.id, created.data()!)
+}
+
 /** Update a technician's own profile fields */
 export async function updateTechnicianProfile(
   id: string,

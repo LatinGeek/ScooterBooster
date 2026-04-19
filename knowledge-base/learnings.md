@@ -214,3 +214,9 @@
 
 - **Asset-backed seed catalogs make public QA far more trustworthy than placeholder text-only models:** Pointing seeded scooter models at real files under `public/assets/scooter-model-images` exposed the need to surface `imageURL` consistently in the catalog, booking wizard, and scooter detail pages. Once the seed script and UI both used the same image-backed records, the catalog became much easier to validate visually.
   - Affected files: `scripts/seed.ts`, `src/components/scooter-card.tsx`, `src/app/(main)/booking/new/booking-wizard.tsx`, `src/app/(main)/scooters/[id]/page.tsx`, `build-plan-tracker/05-scooter-catalog.md`
+
+- **Technician onboarding got much simpler once we reused the existing technician document shape instead of inventing a second application model:** A pending application can live in the same `technicians` collection with `isApproved: false` and `isActive: true`, which means the public listing naturally excludes it while admin moderation and future profile editing keep working on the same record.
+  - Affected files: `src/app/(main)/technicians/apply/page.tsx`, `src/app/(main)/technicians/apply/apply-form.tsx`, `src/app/api/technicians/apply/route.ts`, `src/lib/db/technicians.ts`
+
+- **Cross-site checkout navigation is a bad source of truth for local Playwright reliability:** For dev-mode E2E, it is much more stable to capture the generated MercadoPago handoff URL behind an E2E-only branch than to depend on the browser successfully leaving the app during the assertion. We still keep the real provider integration in normal runtime paths, but tests now assert the handoff deterministically.
+  - Affected files: `src/app/(main)/booking/new/booking-wizard.tsx`, `src/lib/mercadopago.ts`, `src/app/api/bookings/route.ts`, `playwright.config.ts`, `tests/e2e/booking-flow.spec.ts`

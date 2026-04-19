@@ -147,6 +147,26 @@ export default async function TechniciansPage({
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-10">
+        <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-[#e5e7eb] bg-[#111827] p-6 text-white shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold tracking-[0.2em] text-[#6ee7b7] uppercase">
+              Sos tecnico?
+            </p>
+            <h2 className="mt-2 text-2xl font-bold">Postulate para aparecer en el catalogo</h2>
+            <p className="mt-2 text-sm leading-6 text-[#d1d5db]">
+              Si trabajas con scooters electricos, deja tu perfil listo para revision y sumate a
+              la red de tecnicos verificados de ScooterBooster.
+            </p>
+          </div>
+          <Link
+            href="/technicians/apply"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-[#111827] transition-colors hover:bg-[#ecfdf5]"
+          >
+            Quiero postularme
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="h-fit rounded-[2rem] border border-[#e5e7eb] bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { UserCircle, Trash2, MessageCircle, CheckCircle } from "lucide-react"
@@ -117,9 +118,11 @@ export function ProfileClient({ user }: Props) {
       {/* Avatar card */}
       <div className="mb-6 flex items-center gap-4 rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm">
         {user.photoURL ? (
-          <img
+          <Image
             src={user.photoURL}
             alt={user.displayName}
+            width={64}
+            height={64}
             className="h-16 w-16 rounded-full object-cover"
           />
         ) : (

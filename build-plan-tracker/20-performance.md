@@ -15,6 +15,7 @@
 - [x] Error states — `error.tsx` boundary for `(main)` and dashboard; branded `not-found.tsx` + `global-error.tsx`
 - [x] Toasts — sonner v2 installed; Toaster mounted in root layout with emerald success / red error palette; all `alert()` calls replaced
 - [x] Microcopy review — public home/login/services copy now uses consistent Spanish labels (`Deslimitación`, `Control de crucero`, legal links under `/legal/*`, sentence-case headings)
+- [x] Avatar/media lint cleanup — remaining dashboard/admin avatar warnings were migrated from raw `<img>` to `next/image`
 - [ ] Lighthouse audit — public mobile targets are green; authenticated dashboard + desktop pass still pending
 
 ## Notes

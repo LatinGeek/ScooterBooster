@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/session"
 import { adminDb } from "@/lib/firebase-admin"
@@ -87,9 +88,11 @@ export default async function AdminUsersPage() {
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       {user.photoURL ? (
-                        <img
+                        <Image
                           src={user.photoURL}
                           alt={user.displayName}
+                          width={32}
+                          height={32}
                           className="h-8 w-8 rounded-full object-cover"
                         />
                       ) : (

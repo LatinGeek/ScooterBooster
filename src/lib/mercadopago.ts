@@ -13,6 +13,13 @@ interface CreatePaymentLinkParams {
 }
 
 export async function createPaymentLink(params: CreatePaymentLinkParams): Promise<PaymentLink> {
+  if (process.env.E2E_MOCK_MERCADOPAGO === "1") {
+    return {
+      preferenceId: `e2e-${params.bookingId}`,
+      initPoint: `https://www.mercadopago.com.uy/checkout/v1/redirect?pref_id=e2e-${params.bookingId}`,
+    }
+  }
+
   const preference = new Preference(client)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://scooterbooster.uy"
 

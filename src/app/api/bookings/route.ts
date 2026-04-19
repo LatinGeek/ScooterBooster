@@ -112,7 +112,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   // Generate MercadoPago payment link (skip gracefully if MP not configured in dev)
   let paymentLinkUrl: string | null = null
-  if (process.env.MERCADOPAGO_ACCESS_TOKEN) {
+  if (process.env.MERCADOPAGO_ACCESS_TOKEN || process.env.E2E_MOCK_MERCADOPAGO === "1") {
     try {
       const { preferenceId, initPoint } = await createPaymentLink({
         bookingId: booking.id,

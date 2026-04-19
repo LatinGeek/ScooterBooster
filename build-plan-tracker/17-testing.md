@@ -1,6 +1,6 @@
 # Tracker - Phase 17: Testing & QA
 
-> Status: PARTIAL - Vitest, Firestore rules, and Playwright are green in dev mode; the remaining gap is full hosted payment confirmation back into ScooterBooster
+> Status: PARTIAL - Vitest, Firestore rules, and Playwright are green in dev mode; the main remaining gap is a true externally confirmed payment loop and a few broader manual QA passes
 > Last updated: 2026-04-19
 
 ## Tasks
@@ -24,4 +24,5 @@
 - `npm run test:rules` is wired through the Firestore emulator and has been verified with the Java-backed local setup.
 - `npm run test:e2e` is green in local production mode after stabilizing loopback auth cookies, trusted-origin checks, and rate-limit exceptions for local E2E traffic.
 - Playwright coverage now includes auth redirects, disclaimer enforcement, public responsive checks, authenticated dashboards, admin technician approval, technician booking management, and MercadoPago checkout handoff.
+- The booking-payment handoff assertion is now deterministic in Playwright by capturing the generated checkout URL in an E2E-only branch instead of relying on flaky cross-site navigation during the test run.
 - The remaining payment gap is true confirmation back into ScooterBooster after the hosted MercadoPago flow, which still needs a publicly reachable callback/webhook target.

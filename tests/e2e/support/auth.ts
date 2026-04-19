@@ -12,6 +12,7 @@ interface SignInOptions {
   role: "user" | "technician" | "admin"
   email: string
   displayName: string
+  phone?: string | null
 }
 
 function getAdminSdk() {
@@ -35,21 +36,23 @@ async function exchangeCustomTokenForIdToken(customToken: string): Promise<strin
   return customToken
 }
 
-async function upsertUserProfile({ uid, role, email, displayName }: SignInOptions) {
+async function upsertUserProfile({ uid, role, email, displayName, phone }: SignInOptions) {
   const { adminDb } = getAdminSdk()
 
-  await adminDb.collection("users").doc(uid).set(
-    {
-      displayName,
-      email,
-      photoURL: null,
-      role,
-      phone: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    { merge: true }
-  )
+  const payload: Record<string, unknown> = {
+    displayName,
+    email,
+    photoURL: null,
+    role,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+
+  if (phone !== undefined) {
+    payload["phone"] = phone
+  }
+
+  await adminDb.collection("users").doc(uid).set(payload, { merge: true })
 }
 
 export async function signInAs(page: Page, options: SignInOptions) {
@@ -68,6 +71,10 @@ export async function signInAs(page: Page, options: SignInOptions) {
     await window.__scooterboosterE2EAuth?.signInWithCustomToken(value)
   }, token)
   await page.waitForFunction(() => document.cookie.includes("__role="))
+  await page.waitForFunction(async () => {
+    const response = await fetch("/api/auth/me")
+    return response.ok
+  })
 }
 
 export async function signOut(page: Page) {
@@ -77,4 +84,8 @@ export async function signOut(page: Page) {
     await window.__scooterboosterE2EAuth?.signOut()
   })
   await page.waitForFunction(() => !document.cookie.includes("__role="))
+  await page.waitForFunction(async () => {
+    const response = await fetch("/api/auth/me")
+    return response.status === 401
+  })
 }

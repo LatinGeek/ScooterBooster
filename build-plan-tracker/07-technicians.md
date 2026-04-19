@@ -1,23 +1,23 @@
-# Tracker — Phase 07: Technicians (Onboarding, Profiles, Approval)
+# Tracker - Phase 07: Technicians (Onboarding, Profiles, Approval)
 
-> Status: 🔶 PARTIAL — public pages done, technician onboarding/apply pending
-> Last updated: 2026-04-18
+> Status: PARTIAL - public discovery, application flow, and admin approval are live; photo uploads and deeper profile editing still remain
+> Last updated: 2026-04-19
 
 ## Tasks
 
-- [x] Public /technicians listing — sorted by rating, approved+active only, CTA to apply
-- [x] Public technician profile page (/technicians/[id]) — availability, pricing, reviews, services, WhatsApp CTA
-- [ ] /technicians/apply — application form (Phase 07 next priority)
-- [ ] Pending approval state for new technicians
-- [ ] Admin approval/rejection flow — deferred to Phase 13
-- [ ] Technician profile editing (dashboard) — deferred to Phase 12
-- [ ] Availability management with date overrides — deferred to Phase 12
-- [ ] Photo upload with resizing — deferred to Phase 12
+- [x] Public `/technicians` listing - sorted, filterable, and proximity-aware
+- [x] Public technician profile page (`/technicians/[id]`) - availability, pricing, reviews, brands, WhatsApp CTA
+- [x] `/technicians/apply` - application form for logged-in users
+- [x] Pending approval state for new technicians
+- [x] Admin approval flow - approve/reject in admin panel, with custom claim updated on approval/revocation
+- [x] Technician profile editing basics via `/api/technicians/me`
+- [x] Availability management baseline in `/dashboard/technician/availability`
+- [ ] Dedicated technician profile edit screen in dashboard
+- [ ] Photo upload with resizing
+- [ ] Rich rejection / request-changes workflow
 
 ## Notes
 
-- Listings query: isApproved=true + isActive=true, sorted by rating desc
-- TechnicianCard shows initials avatar (no photoURL storage yet), location, rating, bio, services, WhatsApp button
-- Technician detail page shows weekly availability, pricing per service, reviews, supported brands
-- Brand IDs in profile use seed format: "brand-xiaomi" — detail page strips "brand-" prefix for display
-- getActiveTechnicians supports optional serviceId + brandId array-contains filters
+- Technician applications now create pending documents in Firestore, seed an initial price matrix from a single base price, and log an `auditLog` event for admin visibility.
+- Pending applications stay visible on the apply page so the applicant always sees their current status instead of re-submitting blindly.
+- The admin moderation route now updates Firebase custom claims when a technician is approved or revoked, which closes one of the most important lifecycle gaps from the original plan.

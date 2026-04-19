@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getTechnicianById: vi.fn(),
   setTechnicianApproval: vi.fn(),
+  setCustomUserClaims: vi.fn(),
   loggerInfo: vi.fn(),
   revalidateTag: vi.fn(),
 }))
@@ -16,6 +17,12 @@ vi.mock("@/lib/session", () => ({
 vi.mock("@/lib/db/technicians", () => ({
   getTechnicianById: mocks.getTechnicianById,
   setTechnicianApproval: mocks.setTechnicianApproval,
+}))
+
+vi.mock("@/lib/firebase-admin", () => ({
+  adminAuth: {
+    setCustomUserClaims: mocks.setCustomUserClaims,
+  },
 }))
 
 vi.mock("@/lib/logger", () => ({
@@ -90,7 +97,7 @@ describe("/api/admin/technicians/[id]", () => {
 
   it("approves a technician profile", async () => {
     mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
-    mocks.getTechnicianById.mockResolvedValue({ id: "tech-1" })
+    mocks.getTechnicianById.mockResolvedValue({ id: "tech-1", userId: "user-1" })
 
     const response = await PATCH(createPatchRequest({ action: "approve" }), {
       params: Promise.resolve({ id: "tech-1" }),
@@ -104,8 +111,8 @@ describe("/api/admin/technicians/[id]", () => {
     expect(json.success).toBe(true)
     expect(json.data).toEqual({ id: "tech-1", isApproved: true })
     expect(mocks.setTechnicianApproval).toHaveBeenCalledWith("tech-1", true)
+    expect(mocks.setCustomUserClaims).toHaveBeenCalledWith("user-1", { role: "technician" })
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
 })
-
 
