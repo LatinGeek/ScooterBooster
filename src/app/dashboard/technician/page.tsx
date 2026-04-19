@@ -163,8 +163,9 @@ export default async function TechnicianOverviewPage() {
       </div>
 
       {/* Quick links */}
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
+          { href: "/dashboard/technician/profile", label: "Perfil profesional" },
           { href: "/dashboard/technician/bookings", label: "Gestionar reservas" },
           { href: "/dashboard/technician/availability", label: "Mi disponibilidad" },
           { href: "/dashboard/technician/services", label: "Servicios y precios" },

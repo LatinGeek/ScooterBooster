@@ -115,6 +115,24 @@ describe("/api/technicians/me", () => {
     expect(mocks.updateTechnicianProfile).toHaveBeenCalledWith("tech-1", payload)
   })
 
+  it("accepts public photo urls when technicians refresh their public profile", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "tech-user-1", role: "technician" })
+    mocks.getTechnicianByUserId.mockResolvedValue({ id: "tech-1" })
+    mocks.updateTechnicianProfile.mockResolvedValue({
+      id: "tech-1",
+      photoURL: "https://storage.googleapis.com/scooterbooster/tech-1/profile.jpg",
+    })
+
+    const payload = {
+      photoURL: "https://storage.googleapis.com/scooterbooster/tech-1/profile.jpg",
+    }
+
+    const response = await PATCH(createPatchRequest(payload))
+
+    expect(response.status).toBe(200)
+    expect(mocks.updateTechnicianProfile).toHaveBeenCalledWith("tech-1", payload)
+  })
+
   it("sanitizes technician bios before persisting them", async () => {
     mocks.getSession.mockResolvedValue({ uid: "tech-user-1", role: "technician" })
     mocks.getTechnicianByUserId.mockResolvedValue({ id: "tech-1" })

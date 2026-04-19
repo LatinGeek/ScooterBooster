@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Dev mode is now greener across the board - `npm test` (`129`), `npm run test:e2e` (`14`), `npm run lint`, and `npm run build` all pass locally. We now have a real technician application flow (`/technicians/apply` + `/api/technicians/apply`), custom-claim updates on admin approval, deterministic booking-handoff E2E coverage, image-backed scooter catalog seeding, and the remaining dashboard/admin avatar warnings are gone.
-- Next: Keep closing partial build-plan items that do not depend on prod access - richer technician dashboard/profile tooling, notification depth, admin CRUD/audit visibility, and broader manual QA before we touch Phase 21 again.
+- Completed: Dev mode remains fully green - `npm test` (`130`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build` all pass locally. Technician applications and approvals are now fully covered in Playwright, and technicians have a dedicated `/dashboard/technician/profile` editor with public-profile preview plus a basic Firebase Storage photo upload path.
+- Next: Keep closing partial build-plan items that do not depend on prod access - deeper notification/reminder flows, admin CRUD/audit visibility, richer moderation tooling, and broader manual QA before we touch Phase 21 again.

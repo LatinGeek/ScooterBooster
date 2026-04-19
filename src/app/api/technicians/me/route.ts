@@ -16,6 +16,7 @@ const dayAvailabilitySchema = z.object({
 const patchSchema = z.object({
   displayName: z.string().min(2).max(100).optional(),
   bio: z.string().max(500).optional(),
+  photoURL: z.union([z.string().url("La foto debe ser una URL valida"), z.literal("")]).optional(),
   phone: z
     .string()
     .regex(/^\+598\d{8}$/, "El teléfono debe tener formato +598XXXXXXXX")

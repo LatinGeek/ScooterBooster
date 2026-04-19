@@ -140,6 +140,7 @@ export async function setTechnicianApproval(id: string, isApproved: boolean): Pr
 export interface UpdateTechnicianInput {
   displayName?: string
   bio?: string
+  photoURL?: string
   phone?: string
   whatsappNumber?: string
   location?: string
@@ -218,6 +219,7 @@ export async function updateTechnicianProfile(
   const fields = [
     "displayName",
     "bio",
+    "photoURL",
     "phone",
     "whatsappNumber",
     "location",

@@ -37,7 +37,8 @@ test("search results page renders for a basic query", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Encontrá scooters, servicios y técnicos en un solo paso" })
   ).toBeVisible()
-  await expect(page.getByText("Resultados para")).toBeVisible()
+  await expect(page.getByText("Resultados para").first()).toBeVisible()
   await expect(page.getByRole("heading", { name: "This page couldn’t load" })).toHaveCount(0)
   expect(errors).toEqual([])
 })
+

@@ -12,12 +12,14 @@ import {
   Star,
   LogOut,
   Bike,
+  UserRound,
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 
 const NAV_ITEMS = [
   { href: "/dashboard/technician", label: "Resumen", icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/technician/profile", label: "Perfil", icon: UserRound, exact: false },
   { href: "/dashboard/technician/bookings", label: "Reservas", icon: CalendarDays, exact: false },
   {
     href: "/dashboard/technician/availability",

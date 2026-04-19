@@ -220,3 +220,9 @@
 
 - **Cross-site checkout navigation is a bad source of truth for local Playwright reliability:** For dev-mode E2E, it is much more stable to capture the generated MercadoPago handoff URL behind an E2E-only branch than to depend on the browser successfully leaving the app during the assertion. We still keep the real provider integration in normal runtime paths, but tests now assert the handoff deterministically.
   - Affected files: `src/app/(main)/booking/new/booking-wizard.tsx`, `src/lib/mercadopago.ts`, `src/app/api/bookings/route.ts`, `playwright.config.ts`, `tests/e2e/booking-flow.spec.ts`
+
+- **Local Playwright is more reliable in this repo with one worker than with fully parallel browser workers:** Several authenticated flows share the same Firebase-backed bootstrap assumptions, so running the suite serially in dev mode removes flaky sign-in and moderation collisions without affecting CI retry behavior.
+  - Affected files: `playwright.config.ts`
+
+- **Technician profile management is easier to QA when the form owns a live public preview:** A dedicated `/dashboard/technician/profile` page that edits bio, location, contact details, active status, and photo URL/upload in one place closes a real product gap and gives Playwright a stable end-to-end target for technician-facing profile changes.
+  - Affected files: `src/app/dashboard/technician/profile/page.tsx`, `src/app/dashboard/technician/profile/profile-client.tsx`, `src/app/api/technicians/me/route.ts`, `src/lib/db/technicians.ts`, `tests/e2e/technician-profile.spec.ts`

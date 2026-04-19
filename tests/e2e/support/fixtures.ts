@@ -107,6 +107,72 @@ export async function upsertPendingTechnicianFixture(input: {
     })
 }
 
+export async function upsertApprovedTechnicianFixture(input: {
+  technicianId: string
+  userId: string
+  displayName: string
+  email: string
+  photoURL?: string | null
+  location?: string
+}) {
+  const db = getAdminDb()
+  const timestamp = nowIso()
+  const location = input.location ?? "Centro, Montevideo"
+  const photoURL = input.photoURL ?? null
+
+  await db
+    .collection("users")
+    .doc(input.userId)
+    .set(
+      {
+        displayName: input.displayName,
+        email: input.email,
+        photoURL,
+        role: "technician",
+        phone: "+59899116666",
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      },
+      { merge: true }
+    )
+
+  await db
+    .collection("technicians")
+    .doc(input.technicianId)
+    .set({
+      userId: input.userId,
+      displayName: input.displayName,
+      bio: "Tecnico E2E especializado en mantenimiento preventivo, firmware Xiaomi y diagnostico en Montevideo.",
+      photoURL: photoURL ?? "",
+      phone: "+59899116666",
+      whatsappNumber: "59899116666",
+      location,
+      services: ["maintenance", "firmware"],
+      supportedBrands: ["brand-xiaomi", "brand-segway"],
+      availability: {
+        monday: { start: "09:00", end: "18:00", isAvailable: true },
+        tuesday: { start: "09:00", end: "18:00", isAvailable: true },
+        wednesday: { start: "09:00", end: "18:00", isAvailable: true },
+        thursday: { start: "09:00", end: "18:00", isAvailable: true },
+        friday: { start: "09:00", end: "18:00", isAvailable: true },
+        saturday: { start: "10:00", end: "14:00", isAvailable: true },
+        sunday: { start: "00:00", end: "00:00", isAvailable: false },
+      },
+      pricing: {
+        maintenance: { basePrice: 1100, currency: "UYU" },
+        firmware: { basePrice: 1400, currency: "UYU" },
+      },
+      rating: 4.8,
+      reviewCount: 12,
+      isApproved: true,
+      isActive: true,
+      normalizedLocation: location.toLowerCase(),
+      searchTokens: buildSearchTokens(input.displayName, location, "mantenimiento firmware segway xiaomi"),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    })
+}
+
 export async function upsertUserFixture(input: {
   userId: string
   displayName: string
