@@ -54,7 +54,9 @@ describe("firestore.rules", () => {
   })
 
   afterAll(async () => {
-    await testEnv.cleanup()
+    if (testEnv) {
+      await testEnv.cleanup()
+    }
   })
 
   it("allows users to create and read their own profile, but not elevate their role", async () => {

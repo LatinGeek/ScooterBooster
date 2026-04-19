@@ -11,7 +11,8 @@ export default defineConfig({
     environment: "node",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
+    exclude: ["**/node_modules/**", "**/.git/**", "tests/firestore.rules.test.ts"],
     coverage: {
       reporter: ["text", "html"],
     },
