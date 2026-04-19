@@ -42,6 +42,7 @@ function verifyMpSignature(req: NextRequest, body: MpWebhookBody): boolean {
   const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
 
   const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex")
+  if (expected.length !== v1.length) return false
 
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1))
 }

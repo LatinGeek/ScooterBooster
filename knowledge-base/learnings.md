@@ -123,3 +123,9 @@
 
 - **Cookie-based auth routes are easy to regression-test with a mocked `next/headers` store:** For `auth/session` and `auth/signout`, mocking the cookie store directly lets us verify httpOnly/session-role cookie behavior without spinning up middleware or a browser.
   - Affected files: `src/app/api/auth/session/route.test.ts`, `src/app/api/auth/signout/route.test.ts`
+
+- **Webhook signature checks should reject mismatched digest lengths before `timingSafeEqual`:** The MercadoPago webhook handler was throwing a `RangeError` on malformed `v1` digests instead of returning `401`. A quick length guard keeps the verification path safe and lets tests exercise invalid signatures deterministically.
+  - Affected files: `src/app/api/payments/webhook/route.ts`, `src/app/api/payments/webhook/route.test.ts`
+
+- **Search/filter route tests are a good place to enforce Spanish validation text:** Query-string validation comes from Zod too, so public API routes need explicit localized messages if we want consistent UX outside forms. Adding handler tests for `/api/search` and `/api/technicians` caught lingering English defaults right away.
+  - Affected files: `src/app/api/search/route.ts`, `src/app/api/search/route.test.ts`, `src/app/api/technicians/route.ts`, `src/app/api/technicians/route.test.ts`

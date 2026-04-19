@@ -5,15 +5,27 @@ import { searchTechnicians } from "@/lib/search"
 import type { ApiResponse } from "@/types"
 
 const technicianSearchQuerySchema = z.object({
-  q: z.string().trim().max(100).optional(),
+  q: z.string().trim().max(100, "La búsqueda no puede superar los 100 caracteres").optional(),
   service: z.array(z.string().trim().min(1)).default([]),
   brand: z.string().trim().min(1).optional(),
-  location: z.string().trim().max(100).optional(),
-  minRating: z.coerce.number().min(0).max(5).optional(),
-  minPrice: z.coerce.number().min(0).optional(),
-  maxPrice: z.coerce.number().min(0).optional(),
-  lat: z.coerce.number().min(-90).max(90).optional(),
-  lng: z.coerce.number().min(-180).max(180).optional(),
+  location: z.string().trim().max(100, "La ubicación no puede superar los 100 caracteres").optional(),
+  minRating: z.coerce
+    .number()
+    .min(0, "La calificación mínima debe estar entre 0 y 5")
+    .max(5, "La calificación mínima debe estar entre 0 y 5")
+    .optional(),
+  minPrice: z.coerce.number().min(0, "El precio mínimo no puede ser negativo").optional(),
+  maxPrice: z.coerce.number().min(0, "El precio máximo no puede ser negativo").optional(),
+  lat: z.coerce
+    .number()
+    .min(-90, "La latitud debe estar entre -90 y 90")
+    .max(90, "La latitud debe estar entre -90 y 90")
+    .optional(),
+  lng: z.coerce
+    .number()
+    .min(-180, "La longitud debe estar entre -180 y 180")
+    .max(180, "La longitud debe estar entre -180 y 180")
+    .optional(),
 })
 
 export const dynamic = "force-dynamic"

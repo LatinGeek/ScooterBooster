@@ -4,8 +4,13 @@ import { fail, ok } from "@/lib/api-response"
 import { searchPlatform } from "@/lib/search"
 
 const searchQuerySchema = z.object({
-  q: z.string().trim().max(100),
-  limit: z.coerce.number().int().min(1).max(12).default(6),
+  q: z.string().trim().max(100, "La búsqueda no puede superar los 100 caracteres"),
+  limit: z.coerce
+    .number()
+    .int("El límite debe ser un número entero")
+    .min(1, "El límite debe ser al menos 1")
+    .max(12, "El límite no puede superar 12 resultados")
+    .default(6),
 })
 
 export const dynamic = "force-dynamic"

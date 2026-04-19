@@ -28,4 +28,5 @@
 - `/api/users/me` and `/api/reviews` now have mocked handler tests covering auth, validation, data ownership, duplicate protection, and successful mutations
 - `/api/admin/settings`, `/api/admin/technicians/[id]`, and `/api/auth/me` now have mocked handler tests; admin validation messages were also localized to Spanish
 - `/api/auth/session`, `/api/auth/signout`, `/api/admin/set-role`, and `/api/payments/initiate` now have mocked handler tests covering cookie/session behavior, role assignment, and payment-link recreation
+- `/api/payments/webhook`, `/api/payments`, `/api/search`, `/api/technicians`, and `/api/reviews/[id]` now have handler tests covering signature validation, idempotency, grouped search filters, placeholder application responses, technician replies, and payment route guidance
 - `@playwright/test` is installed with a production-style `playwright.config.ts` and Chromium smoke coverage for `/dashboard` auth redirect plus public booking/search/technician pages
