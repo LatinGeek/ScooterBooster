@@ -42,6 +42,6 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 17 disclaimer E2E slice - the booking wizard now has browser coverage for mandatory legal-disclaimer enforcement
-- Next: Continue Phase 17 with richer booking/admin E2E flows and manual QA passes
+- Completed: Phase 17 responsive public QA slice - mobile and landscape browser smoke checks now cover booking, technicians, and search
+- Next: Continue Phase 17 with richer booking/admin E2E flows and broader manual QA passes
 

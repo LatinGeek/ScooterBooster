@@ -31,6 +31,7 @@
 - `/api/payments/webhook`, `/api/payments`, `/api/search`, `/api/technicians`, and `/api/reviews/[id]` now have handler tests covering signature validation, idempotency, grouped search filters, placeholder application responses, technician replies, and payment route guidance
 - `@playwright/test` is installed with a production-style `playwright.config.ts` and Chromium smoke coverage for `/dashboard` auth redirect plus public booking/search/technician pages
 - `tests/e2e/booking-disclaimer.spec.ts` now confirms that speed-limit bookings cannot reach the confirmation step until the legal disclaimer modal is accepted
+- `tests/e2e/responsive-public-routes.spec.ts` now covers 375px mobile and landscape-mobile rendering for the booking wizard, technician listing, and search results
 - `firestore.rules`, `tests/firestore.rules.test.ts`, and `npm run test:rules` are now wired and executable when Java is available for the Firestore emulator
 
 

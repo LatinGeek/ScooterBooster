@@ -136,3 +136,6 @@
 - **Seed data is a prerequisite for meaningful public-flow E2E checks:** The booking wizard rendered correctly but had no selectable scooter models until the deterministic seed script was re-run. Public booking/disclaimer browser tests are reliable once `npm run seed` has repopulated the dev Firestore dataset.
   - Affected files: `scripts/seed.ts`, `tests/e2e/booking-disclaimer.spec.ts`
 
+- **Responsive smoke tests catch layout regressions without needing full auth fixtures:** A small Playwright slice at 375px portrait and landscape-mobile widths gives useful QA coverage for public flows while deeper authenticated scenarios still depend on test-session plumbing.
+  - Affected files: `tests/e2e/responsive-public-routes.spec.ts`
+
