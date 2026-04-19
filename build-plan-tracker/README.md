@@ -32,7 +32,7 @@ At the start of every session: read this file to know where to resume.
 | 14    | Notifications & WhatsApp                     | PARTIAL     |
 | 15    | Search, Filters & Discovery                  | PARTIAL     |
 | 16    | SEO, Metadata & Legal Pages                  | PARTIAL     |
-| 17    | Testing & QA                                 | NOT STARTED |
+| 17    | Testing & QA                                 | PARTIAL     |
 | 18    | Observability                                | NOT STARTED |
 | 19    | Security Hardening                           | PARTIAL     |
 | 20    | Performance & Polish                         | NOT STARTED |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 04 index-config slice - added `firestore.indexes.json` for current catalog/booking/review queries
-- Next: Deploy the Firestore indexes, then re-run smoke tests on booking/search/catalog pages
+- Completed: Phase 17 Playwright setup slice - auth redirect and public route smoke tests now run in Chromium
+- Next: Continue Phase 17 with user/review API coverage, richer booking E2E, and manual QA passes

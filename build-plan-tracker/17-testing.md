@@ -1,6 +1,6 @@
 # Tracker — Phase 17: Testing & QA
 
-> Status: PARTIAL - Vitest covers booking flows and technician profile API handlers
+> Status: PARTIAL - Vitest plus Playwright smoke coverage are now in place
 > Last updated: 2026-04-19
 
 ## Tasks
@@ -9,11 +9,11 @@
 - [x] Unit tests: validators, pricing logic, utility helpers
 - [ ] Firestore security rules tests
 - [x] API route tests
-- [ ] Install Playwright for E2E
+- [x] Install Playwright for E2E
 - [ ] E2E: signup → book → pay flow
 - [ ] E2E: technician application + admin approval
 - [ ] E2E: disclaimer modal enforcement
-- [ ] E2E: auth redirect for protected routes
+- [x] E2E: auth redirect for protected routes
 - [ ] Manual QA on mobile (375px) and desktop
 
 ## Notes
@@ -25,3 +25,4 @@
 - Booking disclaimer enforcement and role-based status transitions now live in `src/lib/booking-rules.ts` with direct unit coverage
 - `/api/bookings` and `/api/bookings/[id]` now have mocked handler tests covering auth, validation, disclaimer enforcement, MercadoPago fallback, and role-based transitions
 - `/api/technicians/me` now has mocked handler tests for auth, role checks, validation, and successful profile updates
+- `@playwright/test` is installed with a production-style `playwright.config.ts` and Chromium smoke coverage for `/dashboard` auth redirect plus public booking/search/technician pages

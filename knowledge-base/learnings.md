@@ -111,3 +111,6 @@
 
 - **Missing Firestore composite indexes can make completed pages fail only at runtime:** The catalog and discovery pages built cleanly and passed unit tests, but production smoke testing exposed `FAILED_PRECONDITION` errors from Firestore for active+sorted queries. The fix belongs in repo config (`firestore.indexes.json`), not in the page code itself.
   - Affected files: `firestore.indexes.json`, `src/lib/db/brands.ts`, `src/lib/db/models.ts`, `src/lib/db/services.ts`, `src/lib/db/technicians.ts`, `src/lib/db/reviews.ts`, `src/lib/db/bookings.ts`
+
+- **Playwright can cover route health before full seeded E2E fixtures exist:** The first stable browser checks here are protected-route redirects and public-page smoke assertions that ensure pages render without the Next.js server-error fallback. That gives runtime regression coverage while fixture/seeding strategy for full booking flows is still being defined.
+  - Affected files: `playwright.config.ts`, `tests/e2e/auth-redirect.spec.ts`, `tests/e2e/public-routes.spec.ts`
