@@ -10,6 +10,7 @@ import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, createPaymentLink } from "@/lib/mercadopago"
 import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { enforceRateLimit } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
 
 export const dynamic = "force-dynamic"
@@ -29,6 +30,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   const session = await getSession()
   if (!session) throw new AuthError()
+  await enforceRateLimit("bookingUser", session.uid)
 
   const body: unknown = await req.json()
   const parsed = createBookingSchema.safeParse(body)

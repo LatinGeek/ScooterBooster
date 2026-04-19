@@ -7,6 +7,7 @@ import { getModelById } from "@/lib/db/models"
 import { createPaymentLink } from "@/lib/mercadopago"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { enforceRateLimit } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
 import { z } from "zod"
 
@@ -26,6 +27,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   const session = await getSession()
   if (!session) throw new AuthError()
+  await enforceRateLimit("paymentUser", session.uid)
 
   const body: unknown = await req.json()
   const parsed = schema.safeParse(body)

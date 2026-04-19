@@ -26,17 +26,31 @@ This policy is currently enforced on:
 - `PATCH /api/admin/settings`
 - `PATCH /api/admin/technicians/[id]`
 
-## Why Webhooks Are Excluded
+## Rate Limiting
+
+The shared limiter lives in `src/lib/ratelimit.ts`.
+
+- When `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are present, the app uses `@upstash/ratelimit` with `@upstash/redis`.
+- Without those variables, the app falls back to a process-local in-memory limiter so local development, tests, and Playwright can still exercise the protected routes.
+
+Current limits:
+- auth session/signout: 10 requests per minute per IP
+- booking creation: 30 requests per minute per user
+- payment initiation: 10 requests per minute per user
+- review creation: 10 requests per day per user
+
+## Why Webhooks Are Excluded From Origin Checks
 
 Server-to-server integrations such as `POST /api/payments/webhook` do not come from a browser, so they cannot rely on `Origin` the way app mutations do.
 
 Those endpoints should be protected with provider-specific verification instead:
 - MercadoPago webhook signature validation
-- Rate limiting
-- Provider allowlisting where possible
+- rate limiting
+- provider allowlisting where possible
 
 ## Operational Notes
 
 - Keep `NEXT_PUBLIC_APP_URL` aligned with the primary deployed domain.
 - If preview domains need write access later, extend the trusted-origin helper deliberately instead of disabling the check.
 - SameSite cookies are the baseline protection layer, but origin validation gives us an explicit server-side CSRF guard on top.
+- Add the Upstash Redis env vars before expecting distributed rate-limit enforcement in deployed environments.

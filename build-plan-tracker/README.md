@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 19 dependency hygiene slice. `npm audit --omit=dev` is clean, Dependabot is configured for npm and GitHub Actions updates, and a weekly GitHub Actions security-audit workflow now enforces the production dependency audit in CI.
-- Next: Continue Phase 19 with rate limiting and CSP/header tightening, then return to the remaining observability and payment-confirmation follow-through.
+- Completed: Phase 19 rate-limiting foundation slice. Core auth, booking, payment, and review mutations now use a shared limiter with Upstash support plus a local-memory fallback for dev/test, and the security tracker documents the current protected routes plus the remaining MercadoPago webhook gap.
+- Next: Continue Phase 19 with CSP/header tightening or finish webhook/IP hardening, then return to the remaining observability and payment-confirmation follow-through.

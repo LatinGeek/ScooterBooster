@@ -175,3 +175,6 @@
 
 - **Dependabot plus a tiny audit workflow covers the low-friction dependency hygiene loop:** This repo only needed `.github/dependabot.yml` for npm/GitHub Actions and a weekly `npm audit --omit=dev` workflow to satisfy the Phase 19 dependency-audit requirement once the local audit was already clean.
   - Affected files: `.github/dependabot.yml`, `.github/workflows/security-audit.yml`, `build-plan-tracker/19-security.md`
+
+- **A local-memory fallback keeps Upstash-style rate limiting testable before infra is wired:** `@upstash/ratelimit` + `@upstash/redis` can back the real production limits, but a tiny process-local windowed fallback lets route tests and local development keep exercising the same guardrails before Redis credentials exist. Keep that limitation documented so nobody mistakes local fallback behavior for true distributed enforcement.
+  - Affected files: `src/lib/ratelimit.ts`, `src/lib/ratelimit.test.ts`, `src/app/api/auth/session/route.ts`, `src/app/api/auth/signout/route.ts`, `src/app/api/bookings/route.ts`, `src/app/api/payments/initiate/route.ts`, `src/app/api/reviews/route.ts`, `knowledge-base/integrations/security.md`

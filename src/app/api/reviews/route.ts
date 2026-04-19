@@ -6,6 +6,7 @@ import { createReview, getReviewByBooking, getReviewsByTechnician } from "@/lib/
 import { getBookingById } from "@/lib/db/bookings"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { enforceRateLimit } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
 
 export const dynamic = "force-dynamic"
@@ -26,6 +27,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   const session = await getSession()
   if (!session) throw new AuthError()
+  await enforceRateLimit("reviewUser", session.uid)
 
   const body: unknown = await req.json()
   const parsed = createReviewSchema.safeParse(body)

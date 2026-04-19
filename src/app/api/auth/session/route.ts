@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 import { z } from "zod"
 import { createSessionCookie, SESSION_COOKIE_NAME } from "@/lib/session"
 import { ok, fail, withErrorHandling } from "@/lib/api-response"
+import { enforceIpRateLimit } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
 
 const bodySchema = z.object({
@@ -11,6 +12,7 @@ const bodySchema = z.object({
 
 export const POST = withErrorHandling(async (req: NextRequest) => {
   assertTrustedOrigin(req)
+  await enforceIpRateLimit("authIp", req)
 
   const body = (await req.json()) as unknown
   const parsed = bodySchema.safeParse(body)
