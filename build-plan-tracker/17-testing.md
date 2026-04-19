@@ -1,6 +1,6 @@
 # Tracker — Phase 17: Testing & QA
 
-> Status: PARTIAL - Vitest covers booking, user, technician, and review handlers plus Playwright smoke checks
+> Status: PARTIAL - Vitest now covers booking, user, technician, review, admin, and auth handlers plus Playwright smoke checks
 > Last updated: 2026-04-19
 
 ## Tasks
@@ -26,4 +26,5 @@
 - `/api/bookings` and `/api/bookings/[id]` now have mocked handler tests covering auth, validation, disclaimer enforcement, MercadoPago fallback, and role-based transitions
 - `/api/technicians/me` now has mocked handler tests for auth, role checks, validation, and successful profile updates
 - `/api/users/me` and `/api/reviews` now have mocked handler tests covering auth, validation, data ownership, duplicate protection, and successful mutations
+- `/api/admin/settings`, `/api/admin/technicians/[id]`, and `/api/auth/me` now have mocked handler tests; admin validation messages were also localized to Spanish
 - `@playwright/test` is installed with a production-style `playwright.config.ts` and Chromium smoke coverage for `/dashboard` auth redirect plus public booking/search/technician pages

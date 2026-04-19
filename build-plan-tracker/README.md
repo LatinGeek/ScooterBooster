@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 17 API expansion slice - `/api/users/me` and `/api/reviews` now have Vitest coverage
+- Completed: Phase 17 admin/auth API slice - `/api/admin/settings`, `/api/admin/technicians/[id]`, and `/api/auth/me` now have Vitest coverage
 - Next: Continue Phase 17 with richer booking E2E, Firestore rules tests, and manual QA passes

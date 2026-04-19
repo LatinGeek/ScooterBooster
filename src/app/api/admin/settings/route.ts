@@ -9,7 +9,11 @@ import logger from "@/lib/logger"
 const CONFIG_DOC = adminDb.collection("config").doc("global")
 
 const patchSchema = z.object({
-  serviceFeePercentage: z.number().int().min(0).max(50),
+  serviceFeePercentage: z
+    .number()
+    .int("El porcentaje debe ser un número entero")
+    .min(0, "El porcentaje debe estar entre 0 y 50")
+    .max(50, "El porcentaje debe estar entre 0 y 50"),
 })
 
 /** GET /api/admin/settings — read global platform settings */

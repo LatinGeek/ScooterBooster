@@ -7,7 +7,7 @@ import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib
 import logger from "@/lib/logger"
 
 const patchSchema = z.object({
-  action: z.enum(["approve", "reject"]),
+  action: z.enum(["approve", "reject"], { error: "Acción inválida" }),
   reason: z.string().max(500).optional(),
 })
 

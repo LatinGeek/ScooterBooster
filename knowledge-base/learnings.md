@@ -117,3 +117,6 @@
 
 - **Mocked route tests scale well for auth-heavy handlers:** `users/me` and `reviews` followed the same direct-import Vitest pattern as bookings/technicians. Mocking only session, DAL, and logger dependencies keeps route coverage fast while still exercising real validation and error handling branches.
   - Affected files: `src/app/api/users/me/route.test.ts`, `src/app/api/reviews/route.test.ts`
+
+- **Admin-facing validation still needs explicit Spanish messages:** Zod's default messages are English, so admin routes should provide localized validation text explicitly instead of surfacing raw parser output. We fixed this for technician approval actions and platform settings updates while adding handler tests.
+  - Affected files: `src/app/api/admin/technicians/[id]/route.ts`, `src/app/api/admin/settings/route.ts`
