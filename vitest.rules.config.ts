@@ -1,12 +1,19 @@
-import baseConfig from "./vitest.config"
-import { defineConfig, mergeConfig } from "vitest/config"
+import { fileURLToPath } from "node:url"
+import { defineConfig } from "vitest/config"
 
-export default mergeConfig(
-  baseConfig,
-  defineConfig({
-    test: {
-      include: ["tests/firestore.rules.test.ts"],
-      exclude: ["**/node_modules/**", "**/.git/**"],
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-  })
-)
+  },
+  test: {
+    environment: "node",
+    globals: true,
+    include: ["tests/firestore.rules.test.ts"],
+    exclude: ["**/node_modules/**", "**/.git/**"],
+    coverage: {
+      enabled: false,
+    },
+  },
+})

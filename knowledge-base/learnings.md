@@ -199,3 +199,6 @@
 
 - **CSP `frame-ancestors 'none'` supersedes `X-Frame-Options: DENY` for modern browsers** — set both for maximum compatibility. `upgrade-insecure-requests` should be in the CSP, not as a separate header. Next.js App Router hydration requires `unsafe-inline` on `script-src` until nonce infrastructure is added.
   - Affected files: `next.config.ts`
+
+- **Vitest rules config must not merge the main exclude list if the rules suite lives under `tests/`:** Merging the default config kept `tests/firestore.rules.test.ts` excluded, so the emulator command silently ran the regular unit suite instead of the Firestore rules checks. The dedicated `vitest.rules.config.ts` now stands alone and only includes the emulator-only rules file.
+  - Affected files: `vitest.rules.config.ts`, `tests/firestore.rules.test.ts`

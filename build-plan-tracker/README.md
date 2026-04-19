@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 19 COMPLETE (CSP header, hard-delete grace period + daily purge cron, Firestore rules tightening). Phase 20 major slice: branded 404/500/error pages, loading.tsx skeletons for all routes, next/dynamic lazy loading on all 6 heavy dashboard clients, AVIF+WebP image config, unstable_cache on brands/services/technicians reads (5min, tag-busted), sonner toasts replacing all alert() calls.
-- Next: Phase 20 remaining — Lighthouse audit (mobile Perf ≥ 90, A11y ≥ 95, SEO ≥ 95), microcopy review. Then Phase 21 (Deployment to Firebase Prod + real domain).
+- Completed: Firestore rules test runner is fixed so `npm run test:rules` now targets the emulator-only suite instead of the regular unit tests, and Phase 19's purge route now has explicit regression coverage for cron auth, no-op runs, and full hard-delete behavior.
+- Next: Continue Phase 20 remaining work - Lighthouse audit (mobile Perf >= 90, A11y >= 95, SEO >= 95) and microcopy review. Then Phase 21 (Deployment to Firebase Prod + real domain).
