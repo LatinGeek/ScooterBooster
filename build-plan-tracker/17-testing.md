@@ -33,9 +33,10 @@
 - `tests/e2e/booking-disclaimer.spec.ts` now confirms that speed-limit bookings cannot reach the confirmation step until the legal disclaimer modal is accepted
 - `tests/e2e/responsive-public-routes.spec.ts` now covers 375px mobile and landscape-mobile rendering for the booking wizard, technician listing, and search results
 - `tests/e2e/authenticated-dashboards.spec.ts` plus `tests/e2e/support/auth.ts` now create real session cookies from Firebase custom tokens so user, technician, and admin dashboards can be exercised in-browser without Google popup automation
-- `tests/e2e/booking-flow.spec.ts` now covers authenticated booking creation end-to-end in the browser; Playwright boots the app via `npm run start:e2e` so the test-only auth helper is compiled in and MercadoPago is disabled for deterministic in-app completion
+- `tests/e2e/booking-flow.spec.ts` now covers authenticated booking creation through the real MercadoPago checkout handoff in the browser; `playwright.config.ts` explicitly loads `.env.local` so the web server inherits payment credentials during `npm run start:e2e`
 - `tests/e2e/admin-technician-approval.spec.ts` now covers the admin moderation half of the technician onboarding workflow by seeding a pending technician request and approving it from `/admin/technicians`
 - `tests/e2e/technician-booking-management.spec.ts` now covers the technician-side booking operations flow from confirmed to in-progress to completed
 - `firestore.rules`, `tests/firestore.rules.test.ts`, and `npm run test:rules` are now wired and executable when Java is available for the Firestore emulator
+- The remaining gap in the full pay-flow scenario is payment confirmation back into ScooterBooster: local Playwright can reach MercadoPago checkout, but confirming the payment end-to-end still needs a publicly reachable callback/webhook target (preview or prod domain) plus sandbox buyer credentials/cards
 
 

@@ -1,4 +1,8 @@
+import { resolve } from "node:path"
 import { defineConfig, devices } from "@playwright/test"
+import dotenv from "dotenv"
+
+dotenv.config({ path: resolve(process.cwd(), ".env.local") })
 
 const baseURL = "http://127.0.0.1:3000"
 
@@ -25,8 +29,9 @@ export default defineConfig({
     env: {
       ...process.env,
       NEXT_PUBLIC_E2E_AUTH: "enabled",
-      MERCADOPAGO_ACCESS_TOKEN: "",
-      MERCADOPAGO_PUBLIC_KEY: "",
+      MERCADOPAGO_ACCESS_TOKEN: process.env.MERCADOPAGO_ACCESS_TOKEN ?? "",
+      MERCADOPAGO_PUBLIC_KEY: process.env.MERCADOPAGO_PUBLIC_KEY ?? "",
+      NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY: process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY ?? "",
     },
     url: baseURL,
     reuseExistingServer: false,

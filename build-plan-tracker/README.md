@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 18 observability foundation slice - Vercel Analytics/Speed Insights are wired for real Vercel deployments, `/api/health` now checks Firestore, and request-based API routes log duration/status through pino.
-- Next: Continue the remaining observability/security work while keeping Phase 17 open for the real MercadoPago signup -> book -> pay flow once sandbox credentials exist.
+- Completed: Phase 18 Sentry foundation slice and real MercadoPago checkout handoff coverage - the app now has Sentry SDK wiring across client/server/edge, a dev-only Sentry verification route, and Playwright reaches MercadoPago checkout with real credentials.
+- Next: Finish the remaining payment confirmation path on a publicly reachable preview/prod domain, then continue the remaining observability and security hardening work.

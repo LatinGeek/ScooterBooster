@@ -24,7 +24,7 @@ test.describe("booking flow", () => {
     await signOut(page)
   })
 
-  test("signed-in users can create a booking and land on the booking detail page", async ({
+  test("signed-in users can create a booking and reach MercadoPago checkout", async ({
     page,
   }) => {
     await signInAs(page, {
@@ -52,10 +52,7 @@ test.describe("booking flow", () => {
     await expect(page.getByRole("heading", { name: "Revisá tu reserva" })).toBeVisible()
     await page.getByRole("button", { name: "Confirmar reserva" }).click()
 
-    await expect(page).toHaveURL(/\/booking\/.+$/)
-    await expect(page.getByRole("heading", { name: "Detalle de Reserva" })).toBeVisible()
-    await expect(page.getByText("Mantenimiento General")).toBeVisible()
-    await expect(page.getByText("Pendiente de pago")).toBeVisible()
-    await expect(page.getByText("Reserva E2E generada desde Playwright")).toBeVisible()
+    await page.waitForURL(/mercadopago\.com\.uy/, { timeout: 15000 })
+    await expect(page).toHaveURL(/checkout\/v1\/(redirect|payment\/redirect)/)
   })
 })

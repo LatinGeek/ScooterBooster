@@ -160,3 +160,12 @@
 
 - **A lightweight `/api/health` endpoint can piggyback on an existing Firestore doc:** Checking `config/global` is enough to verify Firestore connectivity without inventing a dedicated collection. That gives uptime monitors a stable health probe while keeping the route simple to unit test.
   - Affected files: `src/app/api/health/route.ts`, `src/app/api/health/route.test.ts`
+
+- **Playwright's `webServer.env` does not automatically inherit `.env.local` unless the config loads it first:** The booking flow kept falling back to the internal detail page because the spawned Next server never received the MercadoPago credentials. Loading `.env.local` inside `playwright.config.ts` fixed the handoff and let the browser reach real MercadoPago checkout.
+  - Affected files: `playwright.config.ts`, `tests/e2e/booking-flow.spec.ts`
+
+- **Local MercadoPago E2E can reach hosted checkout, but full payment confirmation still needs a public callback target:** Using the app's production URL for `back_urls` and webhook endpoints lets local tests create preferences and hand off into MercadoPago, but the final success/webhook confirmation path cannot be verified purely against `127.0.0.1`. That last step needs a publicly reachable preview or prod deployment plus sandbox buyer credentials/cards.
+  - Affected files: `src/lib/mercadopago.ts`, `tests/e2e/booking-flow.spec.ts`
+
+- **Sentry's modern Next.js setup for App Router spans multiple files, not just `next.config.ts`:** The current manual integration needs `src/instrumentation.ts`, `src/instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, and `src/app/global-error.tsx`, with `withSentryConfig()` wrapping `next.config.ts`. Without exporting `onRouterTransitionStart` from `instrumentation-client`, the SDK warns that navigation tracing is incomplete.
+  - Affected files: `src/instrumentation.ts`, `src/instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `src/app/global-error.tsx`, `next.config.ts`

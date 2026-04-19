@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
 
 const securityHeaders = [
@@ -18,6 +19,9 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN,
+  },
   async headers() {
     return [
       {
@@ -28,4 +32,10 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG || "german-lamela",
+  project: process.env.SENTRY_PROJECT || "javascript-nextjs",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+})
