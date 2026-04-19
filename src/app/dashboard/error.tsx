@@ -9,6 +9,8 @@ interface ErrorProps {
 }
 
 export default function DashboardError({ error: _error, reset }: ErrorProps) {
+  void _error
+
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
       <p className="text-sm font-semibold uppercase tracking-widest text-red-500">Error</p>

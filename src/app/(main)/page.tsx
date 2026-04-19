@@ -97,7 +97,7 @@ export default function HomePage() {
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-white/80 md:text-xl">
             Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay.
-            Velocidad, firmware, cruise control y mantenimiento.
+            Deslimitación, firmware, control de crucero y mantenimiento.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -121,7 +121,7 @@ export default function HomePage() {
       {/* ── Services Section ──────────────────────────────────────────────── */}
       <section className="bg-white px-4 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-3xl font-bold text-gray-900">Nuestros Servicios</h2>
+          <h2 className="text-center text-3xl font-bold text-gray-900">Nuestros servicios</h2>
           <p className="mx-auto mt-4 max-w-2xl text-center text-gray-500">
             Todo lo que necesitás para tu scooter eléctrico, en un solo lugar.
           </p>
@@ -220,7 +220,7 @@ export default function HomePage() {
               <ul className="mt-2 space-y-2 text-sm text-gray-400">
                 <li>
                   <Link href="/services" className="cursor-pointer transition-colors hover:text-white">
-                    Límite de velocidad
+                    Deslimitación
                   </Link>
                 </li>
                 <li>
@@ -230,7 +230,7 @@ export default function HomePage() {
                 </li>
                 <li>
                   <Link href="/services" className="cursor-pointer transition-colors hover:text-white">
-                    Cruise control
+                    Control de crucero
                   </Link>
                 </li>
                 <li>

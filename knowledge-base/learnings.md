@@ -202,3 +202,9 @@
 
 - **Vitest rules config must not merge the main exclude list if the rules suite lives under `tests/`:** Merging the default config kept `tests/firestore.rules.test.ts` excluded, so the emulator command silently ran the regular unit suite instead of the Firestore rules checks. The dedicated `vitest.rules.config.ts` now stands alone and only includes the emulator-only rules file.
   - Affected files: `vitest.rules.config.ts`, `tests/firestore.rules.test.ts`
+
+- **`next/font/google` is the cleanest way to close the Phase 20 font-loading checklist in Next.js 16:** Swapping the root `@fontsource-variable/inter` import for `Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" })` trims the manual package dependency, keeps preload behavior aligned with the framework, and still feeds Tailwind's `--font-sans` token cleanly through the app shell.
+  - Affected files: `src/app/layout.tsx`, `src/app/globals.css`, `package.json`
+
+- **Local production Lighthouse is stable enough to gate public-route polish work here:** Running `next build` + `next start` locally and auditing the public pages with headless Chrome gave repeatable mobile scores above the Phase 20 targets without needing a deployed preview. Capturing the route-by-route scores directly in the tracker makes the remaining gap obvious: authenticated dashboard and desktop audits still need a session-aware harness.
+  - Affected files: `build-plan-tracker/20-performance.md`, `build-plan-tracker/README.md`

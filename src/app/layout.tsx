@@ -1,10 +1,16 @@
 import type { Metadata } from "next"
-import "@fontsource-variable/inter"
+import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "sonner"
 import "./globals.css"
 import { AuthProvider } from "@/providers/auth-provider"
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://scooterbooster.uy"),
@@ -13,12 +19,12 @@ export const metadata: Metadata = {
     template: "%s | ScooterBooster",
   },
   description:
-    "Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay. Eliminación de límite de velocidad, firmware, cruise control y mantenimiento.",
+    "Conectamos dueños de scooters eléctricos con técnicos verificados de Uruguay. Deslimitación, firmware, control de crucero y mantenimiento.",
   keywords: ["scooter eléctrico", "Uruguay", "técnicos", "mantenimiento", "firmware", "velocidad"],
   authors: [{ name: "ScooterBooster", url: "https://scooterbooster.uy" }],
   openGraph: {
     title: "ScooterBooster — Potenciá tu scooter",
-    description: "Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay.",
+    description: "Conectamos dueños de scooters eléctricos con técnicos verificados de Uruguay.",
     url: "https://scooterbooster.uy",
     siteName: "ScooterBooster",
     locale: "es_UY",
@@ -27,7 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ScooterBooster — Potenciá tu scooter",
-    description: "Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay.",
+    description: "Conectamos dueños de scooters eléctricos con técnicos verificados de Uruguay.",
   },
   robots: {
     index: true,
@@ -44,7 +50,7 @@ export default function RootLayout({
   const isVercelDeployment = process.env.VERCEL === "1"
 
   return (
-    <html lang="es" className="h-full antialiased">
+    <html lang="es" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AuthProvider>{children}</AuthProvider>
         <Toaster
@@ -63,3 +69,6 @@ export default function RootLayout({
     </html>
   )
 }
+
+
+

@@ -1,21 +1,21 @@
-# Tracker — Phase 20: Performance & Polish
+﻿# Tracker — Phase 20: Performance & Polish
 
-> Status: PARTIAL — major infra slice done; Lighthouse audit and microcopy pass remain
+> Status: PARTIAL — public polish is done; authenticated dashboard/desktop Lighthouse coverage still remains
 > Last updated: 2026-04-19
 
 ## Tasks
 
-- [x] Image optimization — AVIF+WebP formats, remotePatterns for Firebase/Google, deviceSizes configured in next.config.ts
-- [ ] Font loading — using @fontsource-variable/inter; variable fonts handle display:swap natively. Subset pending.
-- [x] Route splitting — next/dynamic (aliased as `lazyLoad`) on all 6 heavy dashboard client components
-- [x] Caching — unstable_cache on getActiveBrands, getActiveServices, getActiveTechnicians (5 min, tag-based); revalidateTag on admin technician approval
-- [x] Skeleton states — loading.tsx for (main), scooters, technicians, services, user dashboard, technician dashboard, admin
-- [ ] Animations — prefers-reduced-motion already covered via Tailwind; no framer-motion needed for MVP
+- [x] Image optimization — AVIF+WebP formats, remotePatterns for Firebase/Google, deviceSizes configured in `next.config.ts`
+- [x] Font loading — migrated root typography to `next/font/google` `Inter` with `display: "swap"`, Latin subset, and variable preload only at the app shell
+- [x] Route splitting — `next/dynamic` (aliased as `lazyLoad`) on all 6 heavy dashboard client components
+- [x] Caching — `unstable_cache` on `getActiveBrands`, `getActiveServices`, `getActiveTechnicians` (5 min, tag-based); `revalidateTag` on admin technician approval
+- [x] Skeleton states — `loading.tsx` for `(main)`, scooters, technicians, services, user dashboard, technician dashboard, admin
+- [ ] Animations — `prefers-reduced-motion` is covered globally; no additional motion layer has been added for MVP
 - [x] Empty states — present in all client components (star, calendar icons + helper text)
-- [x] Error states — error.tsx boundary for (main) and dashboard; branded not-found.tsx + global error.tsx
-- [x] Toasts — sonner v2 installed; Toaster mounted in root layout with emerald success / red error palette; all alert() calls replaced
-- [ ] Microcopy review — Spanish tone pass not yet done
-- [ ] Lighthouse audit — targets: mobile Perf ≥ 90, A11y ≥ 95, SEO ≥ 95
+- [x] Error states — `error.tsx` boundary for `(main)` and dashboard; branded `not-found.tsx` + `global-error.tsx`
+- [x] Toasts — sonner v2 installed; Toaster mounted in root layout with emerald success / red error palette; all `alert()` calls replaced
+- [x] Microcopy review — public home/login/services copy now uses consistent Spanish labels (`Deslimitación`, `Control de crucero`, legal links under `/legal/*`, sentence-case headings)
+- [ ] Lighthouse audit — public mobile targets are green; authenticated dashboard + desktop pass still pending
 
 ## Notes
 
@@ -25,3 +25,9 @@
   Solution: alias the next/dynamic import as `lazyLoad` in all dashboard page files.
 - `getActiveTechnicians` is parameterized — cache key encodes opts combo to prevent stale cross-filter hits.
 - Sonner v2 classNames API: pass per-toast type styles via `toastOptions.classNames`.
+- Public mobile Lighthouse run on 2026-04-19 against a local production server:
+  - `/`: Perf 96, A11y 95, Best Practices 96, SEO 100
+  - `/scooters`: Perf 94, A11y 95, Best Practices 96, SEO 100
+  - `/services`: Perf 94, A11y 95, Best Practices 96, SEO 100
+  - `/technicians`: Perf 93, A11y 95, Best Practices 96, SEO 100
+  - `/booking/new`: Perf 94, A11y 95, Best Practices 96, SEO 100

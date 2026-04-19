@@ -74,12 +74,12 @@ function LoginForm() {
 
       <p className="mt-6 text-center text-xs text-[#9ca3af]">
         Al continuar, aceptás nuestros{" "}
-        <a href="/terminos" className="cursor-pointer text-[#10b981] hover:underline">
-          Términos de Servicio
+        <a href="/legal/terms" className="cursor-pointer text-[#10b981] hover:underline">
+          Términos y condiciones
         </a>{" "}
         y{" "}
-        <a href="/privacidad" className="cursor-pointer text-[#10b981] hover:underline">
-          Política de Privacidad
+        <a href="/legal/privacy" className="cursor-pointer text-[#10b981] hover:underline">
+          Política de privacidad
         </a>
         .
       </p>
@@ -118,3 +118,4 @@ export default function LoginPage() {
     </main>
   )
 }
+

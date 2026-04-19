@@ -1,4 +1,4 @@
-# Build Plan Tracker
+﻿# Build Plan Tracker
 
 Alan's execution log. Mirrors the phases in `build-plan/`.
 
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Firestore rules test runner is fixed so `npm run test:rules` now targets the emulator-only suite instead of the regular unit tests, and Phase 19's purge route now has explicit regression coverage for cron auth, no-op runs, and full hard-delete behavior.
-- Next: Continue Phase 20 remaining work - Lighthouse audit (mobile Perf >= 90, A11y >= 95, SEO >= 95) and microcopy review. Then Phase 21 (Deployment to Firebase Prod + real domain).
+- Completed: Phase 20's public polish pass is in place — home/login/service microcopy is now consistent in Spanish, root typography moved to `next/font/google` with Latin subset + `display: "swap"`, and public mobile Lighthouse runs cleared the target bar (`/` 96/95/96/100, `/scooters` 94/95/96/100, `/services` 94/95/96/100, `/technicians` 93/95/96/100, `/booking/new` 94/95/96/100).
+- Next: Finish authenticated dashboard + desktop Lighthouse coverage, then move into Phase 21 production deployment work as soon as prod access/domain setup is available.

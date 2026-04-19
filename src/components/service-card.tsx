@@ -13,9 +13,9 @@ const categoryIcons = {
 } as const
 
 const categoryLabels = {
-  "speed-limit": "Límite de velocidad",
+  "speed-limit": "Deslimitación",
   firmware: "Firmware",
-  "cruise-control": "Cruise control",
+  "cruise-control": "Control de crucero",
   maintenance: "Mantenimiento",
 } as const
 
@@ -69,3 +69,4 @@ export function ServiceCard({ service, basePrice }: ServiceCardProps) {
     </Card>
   )
 }
+
