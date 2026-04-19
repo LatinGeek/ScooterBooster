@@ -62,27 +62,60 @@ const steps = [
 export default function HomePage() {
   return (
     <main>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-emerald-50 to-blue-50 px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-6xl text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 md:text-6xl">
-            Potenciá tu <span className="text-emerald-500">scooter eléctrico</span>
+      {/* ── Hero Section — video background ─────────────────────────────── */}
+      <section className="relative overflow-hidden" style={{ minHeight: "620px" }}>
+        {/* Blurred video layer */}
+        <video
+          className="absolute inset-0 h-full w-full scale-105 object-cover"
+          style={{ filter: "blur(3px)" }}
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+        >
+          <source src="/assets/video/Hero-video.mp4" type="video/mp4" />
+        </video>
+
+        {/* Dark gradient overlay — improves text contrast */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.45) 60%, rgba(5,150,105,0.25) 100%)",
+          }}
+        />
+
+        {/* Hero content */}
+        <div className="relative z-10 mx-auto max-w-6xl px-4 py-24 text-center md:py-36">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/20 px-4 py-1.5 text-sm font-medium text-emerald-300 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Técnicos verificados en Uruguay
+          </span>
+
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white md:text-6xl lg:text-7xl">
+            Potenciá tu{" "}
+            <span className="bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent">
+              scooter eléctrico
+            </span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 md:text-xl">
-            Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay. Velocidad,
-            firmware, cruise control y mantenimiento.
+
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/80 md:text-xl">
+            Conectamos dueños de scooters eléctricos con los mejores técnicos de Uruguay.
+            Velocidad, firmware, cruise control y mantenimiento.
           </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+
+          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/services"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-500 px-8 py-4 font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-lg"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-500 px-8 py-4 font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-emerald-400/40"
             >
               Ver servicios
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               href="/technicians"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-emerald-500 bg-white px-8 py-4 font-semibold text-emerald-600 transition-all duration-200 hover:bg-emerald-50"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/20"
             >
               Encontrar técnicos
             </Link>
@@ -90,7 +123,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* ── Services Section ──────────────────────────────────────────────── */}
       <section className="bg-white px-4 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
           <h2 className="text-center text-3xl font-bold text-gray-900">Nuestros Servicios</h2>
@@ -113,7 +146,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* ── How It Works ─────────────────────────────────────────────────── */}
       <section className="bg-gray-50 px-4 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
           <h2 className="text-center text-3xl font-bold text-gray-900">¿Cómo funciona?</h2>
@@ -131,7 +164,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trust Signals Section */}
+      {/* ── Trust Signals ────────────────────────────────────────────────── */}
       <section className="bg-white px-4 py-16 md:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -160,7 +193,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ── CTA Section ──────────────────────────────────────────────────── */}
       <section className="bg-emerald-500 px-4 py-16">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-bold text-white">¿Listo para potenciar tu scooter?</h2>
@@ -177,7 +210,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="bg-gray-900 px-4 py-12">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
@@ -191,34 +224,22 @@ export default function HomePage() {
               <h4 className="font-semibold text-white">Servicios</h4>
               <ul className="mt-2 space-y-2 text-sm text-gray-400">
                 <li>
-                  <Link
-                    href="/services"
-                    className="cursor-pointer transition-colors hover:text-white"
-                  >
+                  <Link href="/services" className="cursor-pointer transition-colors hover:text-white">
                     Límite de velocidad
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/services"
-                    className="cursor-pointer transition-colors hover:text-white"
-                  >
+                  <Link href="/services" className="cursor-pointer transition-colors hover:text-white">
                     Firmware
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/services"
-                    className="cursor-pointer transition-colors hover:text-white"
-                  >
+                  <Link href="/services" className="cursor-pointer transition-colors hover:text-white">
                     Cruise control
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/services"
-                    className="cursor-pointer transition-colors hover:text-white"
-                  >
+                  <Link href="/services" className="cursor-pointer transition-colors hover:text-white">
                     Mantenimiento
                   </Link>
                 </li>
@@ -228,18 +249,12 @@ export default function HomePage() {
               <h4 className="font-semibold text-white">Plataforma</h4>
               <ul className="mt-2 space-y-2 text-sm text-gray-400">
                 <li>
-                  <Link
-                    href="/scooters"
-                    className="cursor-pointer transition-colors hover:text-white"
-                  >
+                  <Link href="/scooters" className="cursor-pointer transition-colors hover:text-white">
                     Scooters
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/technicians"
-                    className="cursor-pointer transition-colors hover:text-white"
-                  >
+                  <Link href="/technicians" className="cursor-pointer transition-colors hover:text-white">
                     Técnicos
                   </Link>
                 </li>
@@ -254,10 +269,19 @@ export default function HomePage() {
               <h4 className="font-semibold text-white">Legal</h4>
               <ul className="mt-2 space-y-2 text-sm text-gray-400">
                 <li>
-                  <span className="text-gray-500">Términos y condiciones</span>
+                  <Link href="/legal/terms" className="cursor-pointer transition-colors hover:text-white">
+                    Términos y condiciones
+                  </Link>
                 </li>
                 <li>
-                  <span className="text-gray-500">Política de privacidad</span>
+                  <Link href="/legal/privacy" className="cursor-pointer transition-colors hover:text-white">
+                    Política de privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/faq" className="cursor-pointer transition-colors hover:text-white">
+                    Preguntas frecuentes
+                  </Link>
                 </li>
               </ul>
             </div>
