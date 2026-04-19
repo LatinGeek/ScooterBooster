@@ -42,6 +42,6 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-19
-- Completed: Phase 17 authenticated dashboard E2E slice - Playwright can now mint Firebase-backed sessions for user, technician, and admin dashboard coverage
-- Next: Continue Phase 17 with richer booking/admin E2E flows and broader manual QA passes
+- Completed: Phase 17 authenticated booking E2E slice - Playwright now signs into Firebase with custom tokens and can create bookings through the real browser flow
+- Next: Continue Phase 17 with technician/admin workflow E2E coverage and broader manual QA passes
 

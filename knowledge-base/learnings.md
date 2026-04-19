@@ -142,3 +142,6 @@
 - **Firebase custom tokens are the cleanest bridge into authenticated Playwright coverage here:** Exchanging an Admin SDK custom token for an ID token and posting it to `/api/auth/session` gives us real session cookies for browser tests without automating the Google popup flow. That unlocks stable dashboard E2E coverage for user, technician, and admin roles.
   - Affected files: `tests/e2e/support/auth.ts`, `tests/e2e/authenticated-dashboards.spec.ts`
 
+- **Client-side Firebase auth must be present for mutation-heavy E2E flows, not just server session cookies:** SSR dashboard pages were satisfied by server sessions, but the booking wizard still failed because `AuthProvider` clears the server cookie when browser Firebase auth is empty. A test-only custom-token helper exposed from `AuthProvider`, compiled through `npm run start:e2e`, keeps both layers in sync for authenticated browser tests.
+  - Affected files: `src/providers/auth-provider.tsx`, `tests/e2e/support/auth.ts`, `tests/e2e/booking-flow.spec.ts`, `playwright.config.ts`, `package.json`
+

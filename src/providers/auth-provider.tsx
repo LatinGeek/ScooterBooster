@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import {
   onAuthStateChanged,
   signInWithPopup,
+  signInWithCustomToken,
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   type User as FirebaseUser,
@@ -21,6 +22,15 @@ interface AuthContextValue {
   role: "user" | "technician" | "admin" | null
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
+}
+
+declare global {
+  interface Window {
+    __scooterboosterE2EAuth?: {
+      signInWithCustomToken: (token: string) => Promise<void>
+      signOut: () => Promise<void>
+    }
+  }
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -94,6 +104,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     await firebaseSignOut(getFirebaseAuth())
+  }, [])
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_E2E_AUTH !== "enabled") return
+
+    window.__scooterboosterE2EAuth = {
+      signInWithCustomToken: async (token: string) => {
+        await signInWithCustomToken(getFirebaseAuth(), token)
+      },
+      signOut: async () => {
+        await firebaseSignOut(getFirebaseAuth())
+      },
+    }
+
+    return () => {
+      delete window.__scooterboosterE2EAuth
+    }
   }, [])
 
   return (

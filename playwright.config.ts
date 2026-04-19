@@ -21,9 +21,15 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run start -- --hostname 127.0.0.1 --port 3000",
+    command: "npm run start:e2e",
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_E2E_AUTH: "enabled",
+      MERCADOPAGO_ACCESS_TOKEN: "",
+      MERCADOPAGO_PUBLIC_KEY: "",
+    },
     url: baseURL,
-    reuseExistingServer: true,
+    reuseExistingServer: false,
     timeout: 120000,
   },
 })
