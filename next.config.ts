@@ -18,10 +18,6 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
-  // distDir points outside the FUSE mount to avoid EPERM on sandbox cleanup.
-  // REVERT to default before deploying to Vercel.
-  distDir: "/tmp/sb-build",
-
   async headers() {
     return [
       {
