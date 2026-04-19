@@ -1,6 +1,6 @@
 # Tracker — Phase 17: Testing & QA
 
-> Status: PARTIAL - Vitest plus Playwright smoke coverage are now in place
+> Status: PARTIAL - Vitest covers booking, user, technician, and review handlers plus Playwright smoke checks
 > Last updated: 2026-04-19
 
 ## Tasks
@@ -25,4 +25,5 @@
 - Booking disclaimer enforcement and role-based status transitions now live in `src/lib/booking-rules.ts` with direct unit coverage
 - `/api/bookings` and `/api/bookings/[id]` now have mocked handler tests covering auth, validation, disclaimer enforcement, MercadoPago fallback, and role-based transitions
 - `/api/technicians/me` now has mocked handler tests for auth, role checks, validation, and successful profile updates
+- `/api/users/me` and `/api/reviews` now have mocked handler tests covering auth, validation, data ownership, duplicate protection, and successful mutations
 - `@playwright/test` is installed with a production-style `playwright.config.ts` and Chromium smoke coverage for `/dashboard` auth redirect plus public booking/search/technician pages

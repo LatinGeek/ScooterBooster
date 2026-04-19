@@ -6,7 +6,6 @@ import { createReview, getReviewByBooking, getReviewsByTechnician } from "@/lib/
 import { getBookingById } from "@/lib/db/bookings"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
 import logger from "@/lib/logger"
-import { z } from "zod"
 
 export const dynamic = "force-dynamic"
 

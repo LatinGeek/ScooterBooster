@@ -114,3 +114,6 @@
 
 - **Playwright can cover route health before full seeded E2E fixtures exist:** The first stable browser checks here are protected-route redirects and public-page smoke assertions that ensure pages render without the Next.js server-error fallback. That gives runtime regression coverage while fixture/seeding strategy for full booking flows is still being defined.
   - Affected files: `playwright.config.ts`, `tests/e2e/auth-redirect.spec.ts`, `tests/e2e/public-routes.spec.ts`
+
+- **Mocked route tests scale well for auth-heavy handlers:** `users/me` and `reviews` followed the same direct-import Vitest pattern as bookings/technicians. Mocking only session, DAL, and logger dependencies keeps route coverage fast while still exercising real validation and error handling branches.
+  - Affected files: `src/app/api/users/me/route.test.ts`, `src/app/api/reviews/route.test.ts`
