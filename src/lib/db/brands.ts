@@ -4,6 +4,7 @@
  */
 import { unstable_cache as nextCache } from "next/cache"
 import { adminDb } from "@/lib/firebase-admin"
+import { slugify } from "@/lib/slugs"
 import type { ScooterBrand } from "@/types"
 
 const COLLECTION = "scooterBrands"
@@ -51,4 +52,57 @@ export async function getBrandById(id: string): Promise<ScooterBrand | null> {
   const doc = await adminDb.collection(COLLECTION).doc(id).get()
   if (!doc.exists) return null
   return docToScooterBrand(doc.id, doc.data()!)
+}
+
+export async function getAllBrands(): Promise<ScooterBrand[]> {
+  const snap = await adminDb.collection(COLLECTION).orderBy("name").get()
+  return snap.docs.map((doc) => docToScooterBrand(doc.id, doc.data()))
+}
+
+export async function createBrand(input: {
+  name: string
+  logoURL?: string | null
+  isActive: boolean
+}): Promise<ScooterBrand> {
+  const createdAt = new Date().toISOString()
+  const ref = adminDb.collection(COLLECTION).doc()
+  const data = {
+    name: input.name,
+    slug: slugify(input.name),
+    logoURL: input.logoURL ?? null,
+    isActive: input.isActive,
+    searchTokens: slugify(input.name).split("-"),
+    createdAt,
+    updatedAt: createdAt,
+  }
+
+  await ref.set(data)
+  return docToScooterBrand(ref.id, data)
+}
+
+export async function updateBrand(
+  id: string,
+  input: {
+    name?: string
+    logoURL?: string | null
+    isActive?: boolean
+  },
+): Promise<ScooterBrand> {
+  const current = await getBrandById(id)
+  if (!current) throw new Error("BRAND_NOT_FOUND")
+
+  const name = input.name ?? current.name
+  const updates: Record<string, unknown> = {
+    updatedAt: new Date().toISOString(),
+    slug: slugify(name),
+    searchTokens: slugify(name).split("-"),
+  }
+
+  if (input.name !== undefined) updates["name"] = input.name
+  if (input.logoURL !== undefined) updates["logoURL"] = input.logoURL
+  if (input.isActive !== undefined) updates["isActive"] = input.isActive
+
+  await adminDb.collection(COLLECTION).doc(id).update(updates)
+  const updated = await adminDb.collection(COLLECTION).doc(id).get()
+  return docToScooterBrand(updated.id, updated.data()!)
 }
