@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-20
-- Completed: Admin finance operations are now live in dev. We added `/admin/bookings`, `GET/PATCH /api/admin/bookings`, and `POST /api/payments/[id]/refund`, plus persisted `paymentId` on booking documents during webhook reconciliation so refunds can target the exact MercadoPago payment. Full verification is green: `npm test` (`152`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases - admin polish against the stretch goals, richer authenticated desktop/manual QA for Phase 20, and any remaining Firestore/rules polish before production-focused Phase 21 work resumes.
+- Completed: Admin user operations are now much closer to the Phase 13 goal. `/admin/users` now supports search, profile drill-in, role updates, and suspend/restore controls backed by `PATCH /api/admin/users` plus stronger `POST /api/admin/set-role` syncing. Verification is green: `npm test` (`160`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases - Phase 13 analytics/override polish, richer authenticated desktop/manual QA for Phase 20, and any remaining Firestore/rules polish before production-focused Phase 21 work resumes.

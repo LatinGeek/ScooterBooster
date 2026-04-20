@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   setCustomUserClaims: vi.fn(),
+  updateUserRole: vi.fn(),
+  addAuditLogEntry: vi.fn(),
 }))
 
 vi.mock("@/lib/session", () => ({
@@ -14,6 +16,14 @@ vi.mock("@/lib/firebase-admin", () => ({
   adminAuth: {
     setCustomUserClaims: mocks.setCustomUserClaims,
   },
+}))
+
+vi.mock("@/lib/db/users", () => ({
+  updateUserRole: mocks.updateUserRole,
+}))
+
+vi.mock("@/lib/db/audit-log", () => ({
+  addAuditLogEntry: mocks.addAuditLogEntry,
 }))
 
 import { POST } from "@/app/api/admin/set-role/route"
@@ -78,6 +88,20 @@ describe("/api/admin/set-role", () => {
     expect(json.success).toBe(true)
     expect(json.data.message).toContain("technician")
     expect(mocks.setCustomUserClaims).toHaveBeenCalledWith("user-1", { role: "technician" })
+    expect(mocks.updateUserRole).toHaveBeenCalledWith("user-1", "technician")
+    expect(mocks.addAuditLogEntry).toHaveBeenCalled()
+  })
+
+  it("prevents an admin from removing their own admin role", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
+
+    const response = await POST(createPostRequest({ uid: "admin-1", role: "user" }))
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(400)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("No podés quitarte")
+    expect(mocks.setCustomUserClaims).not.toHaveBeenCalled()
   })
 })
 

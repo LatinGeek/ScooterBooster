@@ -51,3 +51,41 @@ export async function getLatestUsers(limit = 100): Promise<User[]> {
   const snap = await adminDb.collection("users").orderBy("createdAt", "desc").limit(limit).get()
   return snap.docs.map((doc) => docToUser(doc.id, doc.data()))
 }
+
+export async function updateUserRole(uid: string, role: User["role"]): Promise<User> {
+  const updatedAt = new Date().toISOString()
+  await adminDb.collection("users").doc(uid).update({
+    role,
+    updatedAt,
+  })
+
+  const snap = await adminDb.collection("users").doc(uid).get()
+  return docToUser(snap.id, snap.data()!)
+}
+
+export async function adminSoftDeleteUser(uid: string): Promise<User> {
+  const now = new Date()
+  const scheduled = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+  await adminDb.collection("users").doc(uid).update({
+    deletedAt: now.toISOString(),
+    scheduledDeletionAt: scheduled.toISOString(),
+    updatedAt: now.toISOString(),
+    phone: null,
+    whatsappConsent: false,
+  })
+
+  const snap = await adminDb.collection("users").doc(uid).get()
+  return docToUser(snap.id, snap.data()!)
+}
+
+export async function adminRestoreUser(uid: string): Promise<User> {
+  const updatedAt = new Date().toISOString()
+  await adminDb.collection("users").doc(uid).update({
+    deletedAt: null,
+    scheduledDeletionAt: null,
+    updatedAt,
+  })
+
+  const snap = await adminDb.collection("users").doc(uid).get()
+  return docToUser(snap.id, snap.data()!)
+}

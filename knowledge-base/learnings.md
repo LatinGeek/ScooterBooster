@@ -243,3 +243,9 @@
 
 - **Admin refunds become much simpler once webhook reconciliation stores the MercadoPago payment id on the booking itself:** The booking record already sits at the center of support workflows, so persisting `paymentId` during webhook processing avoids a second lookup step later and lets `/admin/bookings` trigger exact refunds through `/api/payments/[id]/refund` without opening MercadoPago manually.
   - Affected files: `src/lib/db/bookings.ts`, `src/app/api/payments/webhook/route.ts`, `src/app/api/payments/[id]/refund/route.ts`, `src/app/admin/bookings/page.tsx`, `src/app/admin/bookings/bookings-client.tsx`, `build-plan-tracker/09-payments.md`, `build-plan-tracker/13-admin-panel.md`
+
+- **Admin role changes should update both Firebase custom claims and the mirrored Firestore user doc in the same flow:** If the dashboard reads `users.role` but the auth layer reads custom claims, changing only one source leaves the panel visually stale and creates weird authorization drift. Syncing both, and audit-logging the change, keeps the admin UI and route guards aligned.
+  - Affected files: `src/app/api/admin/set-role/route.ts`, `src/lib/db/users.ts`, `src/app/admin/users/page.tsx`, `src/app/admin/users/users-client.tsx`, `build-plan-tracker/13-admin-panel.md`
+
+- **Admin suspension works best as a soft-delete plus Firebase Auth disable, not as an immediate hard delete:** Marking `deletedAt`/`scheduledDeletionAt`, disabling the auth user, and then letting the existing purge cron finish the 30-day grace period gives support a safe restore path while still taking the account offline instantly.
+  - Affected files: `src/app/api/admin/users/route.ts`, `src/lib/db/users.ts`, `src/app/admin/users/users-client.tsx`, `src/app/api/admin/users/purge-deleted/route.ts`, `knowledge-base/learnings.md`
