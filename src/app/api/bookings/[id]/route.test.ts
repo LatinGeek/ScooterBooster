@@ -14,7 +14,14 @@ const mocks = vi.hoisted(() => ({
   getBookingById: vi.fn(),
   updateBookingStatus: vi.fn(),
   getTechnicianByUserId: vi.fn(),
+  getTechnicianById: vi.fn(),
+  getServiceById: vi.fn(),
+  getUserById: vi.fn(),
   notify: vi.fn(),
+  addAuditLogEntry: vi.fn(),
+  sendBookingConfirmedEmail: vi.fn(),
+  sendBookingCompletedEmail: vi.fn(),
+  sendBookingCancelledEmail: vi.fn(),
 }))
 
 vi.mock("@/lib/session", () => ({
@@ -28,10 +35,29 @@ vi.mock("@/lib/db/bookings", () => ({
 
 vi.mock("@/lib/db/technicians", () => ({
   getTechnicianByUserId: mocks.getTechnicianByUserId,
+  getTechnicianById: mocks.getTechnicianById,
+}))
+
+vi.mock("@/lib/db/services", () => ({
+  getServiceById: mocks.getServiceById,
+}))
+
+vi.mock("@/lib/db/users", () => ({
+  getUserById: mocks.getUserById,
+}))
+
+vi.mock("@/lib/db/audit-log", () => ({
+  addAuditLogEntry: mocks.addAuditLogEntry,
 }))
 
 vi.mock("@/lib/notifications", () => ({
   notify: mocks.notify,
+}))
+
+vi.mock("@/lib/notification-emails", () => ({
+  sendBookingConfirmedEmail: mocks.sendBookingConfirmedEmail,
+  sendBookingCompletedEmail: mocks.sendBookingCompletedEmail,
+  sendBookingCancelledEmail: mocks.sendBookingCancelledEmail,
 }))
 
 import { GET, PATCH } from "@/app/api/bookings/[id]/route"
@@ -59,6 +85,9 @@ describe("/api/bookings/[id]", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.getBookingById.mockResolvedValue(bookingFixture)
+    mocks.getTechnicianById.mockResolvedValue({ id: "tech-1", displayName: "Carlos" })
+    mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware" })
+    mocks.getUserById.mockResolvedValue({ uid: "user-1", email: "user@example.com" })
   })
 
   it("lets the booking owner fetch their booking", async () => {

@@ -5,6 +5,11 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getTechnicianById: vi.fn(),
   setTechnicianApproval: vi.fn(),
+  getUserById: vi.fn(),
+  getServiceById: vi.fn(),
+  addAuditLogEntry: vi.fn(),
+  sendTechnicianApprovedEmail: vi.fn(),
+  sendTechnicianRejectedEmail: vi.fn(),
   setCustomUserClaims: vi.fn(),
   loggerInfo: vi.fn(),
   revalidateTag: vi.fn(),
@@ -17,6 +22,23 @@ vi.mock("@/lib/session", () => ({
 vi.mock("@/lib/db/technicians", () => ({
   getTechnicianById: mocks.getTechnicianById,
   setTechnicianApproval: mocks.setTechnicianApproval,
+}))
+
+vi.mock("@/lib/db/users", () => ({
+  getUserById: mocks.getUserById,
+}))
+
+vi.mock("@/lib/db/services", () => ({
+  getServiceById: mocks.getServiceById,
+}))
+
+vi.mock("@/lib/db/audit-log", () => ({
+  addAuditLogEntry: mocks.addAuditLogEntry,
+}))
+
+vi.mock("@/lib/notification-emails", () => ({
+  sendTechnicianApprovedEmail: mocks.sendTechnicianApprovedEmail,
+  sendTechnicianRejectedEmail: mocks.sendTechnicianRejectedEmail,
 }))
 
 vi.mock("@/lib/firebase-admin", () => ({
@@ -52,6 +74,8 @@ function createPatchRequest(body: unknown) {
 describe("/api/admin/technicians/[id]", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mocks.getUserById.mockResolvedValue({ uid: "user-1", email: "tech@example.com" })
+    mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Mantenimiento" })
   })
 
   it("requires an authenticated admin", async () => {
@@ -97,7 +121,7 @@ describe("/api/admin/technicians/[id]", () => {
 
   it("approves a technician profile", async () => {
     mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
-    mocks.getTechnicianById.mockResolvedValue({ id: "tech-1", userId: "user-1" })
+    mocks.getTechnicianById.mockResolvedValue({ id: "tech-1", userId: "user-1", displayName: "Carlos", services: ["service-1"] })
 
     const response = await PATCH(createPatchRequest({ action: "approve" }), {
       params: Promise.resolve({ id: "tech-1" }),
@@ -115,4 +139,3 @@ describe("/api/admin/technicians/[id]", () => {
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
 })
-

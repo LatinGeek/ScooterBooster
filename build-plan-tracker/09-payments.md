@@ -20,6 +20,7 @@
 - [x] Return pages: /booking/[id]?status=success|failure|pending (banner in BookingDetailClient)
 - [x] Fee calculation server-side only (calculatePricing in mercadopago.ts)
 - [x] Wizard redirects to MP initPoint after booking creation
+- [x] Payment webhooks audit-log each processed event and trigger user-facing confirmation/cancellation notifications
 - [ ] Refund endpoint POST /api/payments/[id]/refund (admin only) — deferred to Phase 13 admin panel
 - [ ] Test with sandbox credentials — needs MERCADOPAGO_ACCESS_TOKEN in .env.local
 - [ ] Webhook secret setup — needs MERCADOPAGO_WEBHOOK_SECRET after registering webhook URL in MP panel

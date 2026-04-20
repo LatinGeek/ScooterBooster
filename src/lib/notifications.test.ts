@@ -34,7 +34,7 @@ describe("notify", () => {
     )
   })
 
-  it("creates a confirmation notification for supported booking status transitions", async () => {
+  it("creates a completion notification for supported booking status transitions", async () => {
     await notify({
       type: "bookingStatusChanged",
       userId: "user-2",
@@ -46,16 +46,35 @@ describe("notify", () => {
       userId: "user-2",
       type: "booking_completed",
       title: "Servicio completado",
-      body: "Tu reserva fue completada. Si queres, ya podes dejar una reseña.",
+      body: "Tu reserva fue completada. Si querés, ya podés dejar una reseña.",
       href: "/booking/booking-2",
+    })
+  })
+
+  it("creates a reminder notification when asked", async () => {
+    await notify({
+      type: "bookingReminder",
+      userId: "user-3",
+      bookingId: "booking-3",
+      serviceName: "Mantenimiento",
+      technicianName: "Carlos",
+      scheduledDateLabel: "martes 21 de abril, 10:00",
+    })
+
+    expect(mocks.createUserNotification).toHaveBeenCalledWith({
+      userId: "user-3",
+      type: "booking_reminder",
+      title: "Recordatorio de reserva",
+      body: "Mañana martes 21 de abril, 10:00 tenés Mantenimiento con Carlos.",
+      href: "/booking/booking-3",
     })
   })
 
   it("skips unsupported status changes", async () => {
     await notify({
       type: "bookingStatusChanged",
-      userId: "user-3",
-      bookingId: "booking-3",
+      userId: "user-4",
+      bookingId: "booking-4",
       newStatus: "cancelled_by_user",
     })
 

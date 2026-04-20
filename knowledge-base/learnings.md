@@ -231,3 +231,9 @@
 
 - **`after()` is great in real route handlers but needs explicit mocking in Vitest:** Route-unit tests do not run inside a real Next request scope, so any handler that calls `after()` will throw unless the test suite mocks it from `next/server`. The safest test pattern here is to keep the real `NextRequest` export and stub only `after`.
   - Affected files: `src/app/api/bookings/route.test.ts`, `src/app/api/bookings/[id]/route.test.ts`
+
+- **Uruguay-morning reminder cron timing belongs in UTC inside `vercel.json`:** A daily reminder job intended for `09:00` Montevideo should be scheduled at `12:00 UTC` in Vercel cron syntax, then the route can compute the "tomorrow" booking window and mark `reminderSentAt` on each booking to prevent duplicate sends.
+  - Affected files: `vercel.json`, `src/app/api/cron/booking-reminders/route.ts`, `src/app/api/cron/booking-reminders/route.test.ts`, `src/lib/db/bookings.ts`
+
+- **Audit visibility becomes much more useful once writes normalize around a shared `auditLog` shape:** Converting ad hoc action writes into `{ action, actorUid, targetType, targetId, metadata, createdAt }` makes it straightforward to power a single `/admin/audit` viewer that can filter technician moderation, booking lifecycle changes, disclaimer acceptance, reminder runs, and payment webhooks in one place.
+  - Affected files: `src/lib/db/audit-log.ts`, `src/app/admin/audit/page.tsx`, `src/app/api/bookings/route.ts`, `src/app/api/bookings/[id]/route.ts`, `src/app/api/payments/webhook/route.ts`, `src/app/api/admin/technicians/[id]/route.ts`

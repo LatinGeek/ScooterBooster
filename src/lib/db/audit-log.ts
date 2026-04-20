@@ -33,6 +33,13 @@ export interface CreateAuditLogEntryInput {
   metadata?: Record<string, unknown>
 }
 
+export interface AuditLogFilters {
+  action?: string
+  actorUid?: string
+  targetType?: string
+  limit?: number
+}
+
 export async function addAuditLogEntry(input: CreateAuditLogEntryInput): Promise<AuditLogEntry> {
   const createdAt = new Date().toISOString()
   const ref = await adminDb.collection("auditLog").add({
@@ -57,5 +64,24 @@ export async function addAuditLogEntry(input: CreateAuditLogEntryInput): Promise
 
 export async function getLatestAuditEntries(limit = 200): Promise<AuditLogEntry[]> {
   const snap = await adminDb.collection("auditLog").orderBy("createdAt", "desc").limit(limit).get()
+  return snap.docs.map((doc) => docToAuditLogEntry(doc.id, doc.data()))
+}
+
+export async function getAuditEntries(filters: AuditLogFilters = {}): Promise<AuditLogEntry[]> {
+  let query: FirebaseFirestore.Query = adminDb.collection("auditLog")
+
+  if (filters.action) {
+    query = query.where("action", "==", filters.action)
+  }
+
+  if (filters.actorUid) {
+    query = query.where("actorUid", "==", filters.actorUid)
+  }
+
+  if (filters.targetType) {
+    query = query.where("targetType", "==", filters.targetType)
+  }
+
+  const snap = await query.orderBy("createdAt", "desc").limit(filters.limit ?? 200).get()
   return snap.docs.map((doc) => docToAuditLogEntry(doc.id, doc.data()))
 }

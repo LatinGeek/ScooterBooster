@@ -21,6 +21,13 @@ const mocks = vi.hoisted(() => {
     paymentGet: vi.fn(),
     getBookingByExternalReference: vi.fn(),
     updateBookingPaymentStatus: vi.fn(),
+    getServiceById: vi.fn(),
+    getTechnicianById: vi.fn(),
+    getUserById: vi.fn(),
+    notify: vi.fn(),
+    addAuditLogEntry: vi.fn(),
+    sendBookingConfirmedEmail: vi.fn(),
+    sendBookingCancelledEmail: vi.fn(),
     loggerInfo: vi.fn(),
     loggerWarn: vi.fn(),
     loggerError: vi.fn(),
@@ -41,6 +48,31 @@ vi.mock("mercadopago", () => ({
 vi.mock("@/lib/db/bookings", () => ({
   getBookingByExternalReference: mocks.getBookingByExternalReference,
   updateBookingPaymentStatus: mocks.updateBookingPaymentStatus,
+}))
+
+vi.mock("@/lib/db/services", () => ({
+  getServiceById: mocks.getServiceById,
+}))
+
+vi.mock("@/lib/db/technicians", () => ({
+  getTechnicianById: mocks.getTechnicianById,
+}))
+
+vi.mock("@/lib/db/users", () => ({
+  getUserById: mocks.getUserById,
+}))
+
+vi.mock("@/lib/db/audit-log", () => ({
+  addAuditLogEntry: mocks.addAuditLogEntry,
+}))
+
+vi.mock("@/lib/notifications", () => ({
+  notify: mocks.notify,
+}))
+
+vi.mock("@/lib/notification-emails", () => ({
+  sendBookingConfirmedEmail: mocks.sendBookingConfirmedEmail,
+  sendBookingCancelledEmail: mocks.sendBookingCancelledEmail,
 }))
 
 vi.mock("@/lib/logger", () => ({
@@ -82,6 +114,9 @@ describe("/api/payments/webhook", () => {
     mocks.clearProcessedEvents()
     process.env.MERCADOPAGO_WEBHOOK_SECRET = "webhook-secret"
     process.env.MERCADOPAGO_ACCESS_TOKEN = "mp-access-token"
+    mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware" })
+    mocks.getTechnicianById.mockResolvedValue({ id: "tech-1", displayName: "Carlos" })
+    mocks.getUserById.mockResolvedValue({ uid: "user-1", email: "user@example.com" })
   })
 
   it("rejects invalid signatures when a webhook secret is configured", async () => {

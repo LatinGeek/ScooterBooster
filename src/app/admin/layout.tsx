@@ -2,15 +2,15 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, Wrench, Settings, LogOut, Bike, ShieldCheck } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Activity, Bike, LayoutDashboard, LogOut, Settings, ShieldCheck, Users, Wrench } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
-import { useRouter } from "next/navigation"
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard, exact: true },
   { href: "/admin/technicians", label: "Técnicos", icon: Wrench, exact: false },
   { href: "/admin/users", label: "Usuarios", icon: Users, exact: false },
+  { href: "/admin/audit", label: "Auditoría", icon: Activity, exact: false },
   { href: "/admin/settings", label: "Configuración", icon: Settings, exact: false },
 ]
 
@@ -32,7 +32,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="mx-auto flex max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
-        {/* Sidebar */}
         <aside className="hidden w-60 shrink-0 md:block">
           <div className="sticky top-24">
             <Link
@@ -47,7 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="text-xs font-semibold text-amber-700">Panel Admin</span>
             </div>
 
-            {user && (
+            {user ? (
               <div className="mb-6 rounded-xl border border-[#e5e7eb] bg-white p-3">
                 <div className="flex items-center gap-3">
                   {user.photoURL ? (
@@ -69,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </div>
                 </div>
               </div>
-            )}
+            ) : null}
 
             <nav className="flex flex-col gap-1">
               {NAV_ITEMS.map((item) => {
@@ -79,7 +78,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     key={item.href}
                     href={item.href}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
-                      active ? "bg-amber-50 text-amber-700" : "text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
+                      active
+                        ? "bg-amber-50 text-amber-700"
+                        : "text-[#6b7280] hover:bg-[#f3f4f6] hover:text-[#111827]"
                     }`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
@@ -101,7 +102,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="min-w-0 flex-1 pb-24 md:pb-0">{children}</main>
       </div>
 
-      {/* Mobile tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5e7eb] bg-white md:hidden">
         <div className="flex">
           {NAV_ITEMS.map((item) => {

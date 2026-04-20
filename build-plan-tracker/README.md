@@ -29,7 +29,7 @@ At the start of every session: read this file to know where to resume.
 | 11    | User Dashboard                               | COMPLETE    |
 | 12    | Technician Dashboard                         | COMPLETE    |
 | 13    | Admin Panel                                  | PARTIAL     |
-| 14    | Notifications & WhatsApp                     | PARTIAL     |
+| 14    | Notifications & WhatsApp                     | COMPLETE    |
 | 15    | Search, Filters & Discovery                  | PARTIAL     |
 | 16    | SEO, Metadata & Legal Pages                  | PARTIAL     |
 | 17    | Testing & QA                                 | PARTIAL     |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-20
-- Completed: Dev mode is still fully green - `npm test` (`133`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build` all pass locally. Phase 14 now has real product surface area: users have an in-app notification bell with unread badge, a `/dashboard/notifications` center, Firestore-backed notification documents, and booking lifecycle triggers for pending-payment / confirmation / in-progress / completion / technician cancellation updates.
-- Next: Keep closing partial build-plan items that do not depend on prod access - WhatsApp deep-link cleanup, reminder automation/email depth, admin CRUD/audit visibility, and broader manual QA before we touch Phase 21 again.
+- Completed: Phase 14 is now functionally complete in dev. `npm test` (`138`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build` all pass. We now have: Resend-backed React Email templates, WhatsApp deep-link cleanup across user + technician surfaces, `/api/cron/booking-reminders` with `reminderSentAt` dedupe, payment/admin audit logging, and a read-only `/admin/audit` viewer for admins.
+- Next: Keep closing remaining partial phases that are still local/dev-addressable - admin catalog/review/payment operations, richer authenticated desktop/manual QA for Phase 20, and any remaining Firestore/rules polish before production-focused Phase 21 work resumes.

@@ -1,12 +1,16 @@
 import { NextRequest } from "next/server"
-import { z } from "zod"
 import { revalidateTag } from "next/cache"
+import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
-import { adminAuth } from "@/lib/firebase-admin"
-import { getSession } from "@/lib/session"
+import { getServiceById } from "@/lib/db/services"
+import { addAuditLogEntry } from "@/lib/db/audit-log"
 import { getTechnicianById, setTechnicianApproval } from "@/lib/db/technicians"
+import { getUserById } from "@/lib/db/users"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { adminAuth } from "@/lib/firebase-admin"
 import logger from "@/lib/logger"
+import { sendTechnicianApprovedEmail, sendTechnicianRejectedEmail } from "@/lib/notification-emails"
+import { getSession } from "@/lib/session"
 import { assertTrustedOrigin } from "@/lib/security"
 
 const patchSchema = z.object({
@@ -14,7 +18,6 @@ const patchSchema = z.object({
   reason: z.string().max(500).optional(),
 })
 
-/** PATCH /api/admin/technicians/[id] — approve or reject a technician */
 export const PATCH = withErrorHandling(
   async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
     assertTrustedOrigin(req)
@@ -24,7 +27,6 @@ export const PATCH = withErrorHandling(
     if (session.role !== "admin") throw new ForbiddenError()
 
     const { id } = await ctx.params
-
     const tech = await getTechnicianById(id)
     if (!tech) throw new NotFoundError("Técnico no encontrado")
 
@@ -35,11 +37,10 @@ export const PATCH = withErrorHandling(
     }
 
     const isApproved = parsed.data.action === "approve"
+    const rejectionReason = parsed.data.reason?.trim() || "Necesitamos revisar algunos datos antes de aprobar tu perfil."
+
     await setTechnicianApproval(id, isApproved)
     await adminAuth.setCustomUserClaims(tech.userId, { role: isApproved ? "technician" : "user" })
-
-    // Bust cached technician lists so the listing pages reflect the new approval state
-    // Next.js 16 revalidateTag requires a second profile argument; expire: 0 = immediate
     revalidateTag("technicians", { expire: 0 })
 
     logger.info(
@@ -47,6 +48,41 @@ export const PATCH = withErrorHandling(
       "Admin technician approval action",
     )
 
+    const [user, serviceNames] = await Promise.all([
+      getUserById(tech.userId),
+      Promise.all(tech.services.map(async (serviceId) => (await getServiceById(serviceId))?.name ?? serviceId)),
+    ])
+
+    await Promise.allSettled([
+      addAuditLogEntry({
+        action: isApproved ? "technician_approved" : "technician_rejected",
+        actorUid: session.uid,
+        targetType: "technician",
+        targetId: id,
+        metadata: {
+          userId: tech.userId,
+          reason: isApproved ? null : rejectionReason,
+          services: serviceNames,
+        },
+      }),
+      ...(user?.email
+        ? isApproved
+          ? [
+              sendTechnicianApprovedEmail({
+                to: user.email,
+                technicianName: tech.displayName,
+              }),
+            ]
+          : [
+              sendTechnicianRejectedEmail({
+                to: user.email,
+                technicianName: tech.displayName,
+                reason: rejectionReason,
+              }),
+            ]
+        : []),
+    ])
+
     return ok({ id, isApproved })
-  }
+  },
 )

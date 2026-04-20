@@ -15,11 +15,14 @@ const mocks = vi.hoisted(() => ({
   getTechnicianById: vi.fn(),
   getServiceById: vi.fn(),
   getModelById: vi.fn(),
+  getUserById: vi.fn(),
   createBooking: vi.fn(),
   updateBookingPaymentLink: vi.fn(),
   calculatePricing: vi.fn(),
   createPaymentLink: vi.fn(),
   notify: vi.fn(),
+  addAuditLogEntry: vi.fn(),
+  sendBookingCreatedEmail: vi.fn(),
   loggerInfo: vi.fn(),
   loggerError: vi.fn(),
 }))
@@ -46,6 +49,14 @@ vi.mock("@/lib/db/models", () => ({
   getModelById: mocks.getModelById,
 }))
 
+vi.mock("@/lib/db/users", () => ({
+  getUserById: mocks.getUserById,
+}))
+
+vi.mock("@/lib/db/audit-log", () => ({
+  addAuditLogEntry: mocks.addAuditLogEntry,
+}))
+
 vi.mock("@/lib/mercadopago", () => ({
   calculatePricing: mocks.calculatePricing,
   createPaymentLink: mocks.createPaymentLink,
@@ -53,6 +64,10 @@ vi.mock("@/lib/mercadopago", () => ({
 
 vi.mock("@/lib/notifications", () => ({
   notify: mocks.notify,
+}))
+
+vi.mock("@/lib/notification-emails", () => ({
+  sendBookingCreatedEmail: mocks.sendBookingCreatedEmail,
 }))
 
 vi.mock("@/lib/logger", () => ({
@@ -90,6 +105,10 @@ describe("/api/bookings", () => {
     mocks.getSession.mockResolvedValue({
       uid: "user-1",
       role: "user",
+    })
+    mocks.getUserById.mockResolvedValue({
+      uid: "user-1",
+      email: "user@example.com",
     })
   })
 
