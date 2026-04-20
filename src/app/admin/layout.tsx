@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/admin/users", label: "Usuarios", icon: Users, exact: false },
   { href: "/admin/scooters", label: "Scooters", icon: Bike, exact: false },
   { href: "/admin/services", label: "Servicios", icon: Wrench, exact: false },
+  { href: "/admin/reviews", label: "Reseñas", icon: Activity, exact: false },
   { href: "/admin/audit", label: "Auditoría", icon: Activity, exact: false },
   { href: "/admin/settings", label: "Configuración", icon: Settings, exact: false },
 ]

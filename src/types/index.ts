@@ -135,6 +135,9 @@ export interface Review {
   technicianId: string
   rating: number
   comment: string
+  isHidden?: boolean
+  moderatedAt?: string | null
+  moderatedBy?: string | null
   technicianReply: string | null
   technicianRepliedAt: string | null
   createdAt: string

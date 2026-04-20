@@ -1,24 +1,26 @@
-# Tracker — Phase 10: Reviews & Ratings
+# Tracker - Phase 10: Reviews & Ratings
 
-> Status: ✅ COMPLETE (core flow done; admin moderation + review notification deferred)
-> Last updated: 2026-04-18
+> Status: COMPLETE - public review flow, rating aggregation, and admin moderation are now live in dev
+> Last updated: 2026-04-20
 
 ## Tasks
 
-- [x] Review form — src/components/review-form.tsx (only shows after booking status=completed, no existing review)
-- [x] Rating aggregation — precomputed on technician doc via Firestore transaction in createReview()
-- [x] Review display on technician profiles — already implemented in Phase 07 (ReviewCard component)
-- [x] API route /api/reviews fully implemented
+- [x] Review form - `src/components/review-form.tsx` (only shows after booking `status=completed`, no existing review)
+- [x] Rating aggregation - precomputed on technician doc via Firestore transaction in `createReview()`
+- [x] Review display on technician profiles - already implemented in Phase 07 (`ReviewCard` component)
+- [x] API route `/api/reviews` fully implemented
   - POST: auth, ownership, completed status gate, duplicate prevention, rating aggregation
-  - GET: fetch by technicianId query param
-- [x] ReviewForm wired into booking detail page with hasReview server-side check
-- [ ] Edit window: 48h — deferred, immutable reviews simpler for MVP
-- [ ] Admin moderation (flag/hide) — Phase 13
-- [ ] Review-request notification via WhatsApp 24h after completion — Phase 14
+  - GET: fetch by `technicianId` query param
+- [x] Review form wired into booking detail page with `hasReview` server-side check
+- [x] Admin moderation (flag/hide)
+  - `/admin/reviews` lists the full review stream with search plus visible/hidden filters
+  - `/api/admin/reviews` lets admins hide or restore a review and records audit-log entries
+- [ ] Edit window: 48h - deferred, immutable reviews are simpler for MVP
+- [ ] Review-request notification via WhatsApp 24h after completion - still deferred
 
 ## Notes
 
-- Rating aggregation: rolling average in Firestore transaction (no Cloud Functions needed for MVP)
-- Reviews are immutable for users — admin can soft-delete via hidden field (Phase 13)
-- Duplicate prevention: getReviewByBooking() check before createReview()
-- FUSE null-byte corruption fixed: bookings.ts and webhook/route.ts rewritten to clean state
+- Rating aggregation uses a rolling average in a Firestore transaction, so we do not need Cloud Functions for MVP.
+- Reviews are immutable for users; admin moderation now uses a soft-hide field so public listings can exclude problematic content without deleting the original record.
+- Duplicate prevention is enforced with `getReviewByBooking()` before a new review is written.
+- Public review queries now exclude hidden reviews by default, while the admin moderation view can opt in to the full dataset.

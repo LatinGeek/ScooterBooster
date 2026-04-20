@@ -237,3 +237,6 @@
 
 - **Audit visibility becomes much more useful once writes normalize around a shared `auditLog` shape:** Converting ad hoc action writes into `{ action, actorUid, targetType, targetId, metadata, createdAt }` makes it straightforward to power a single `/admin/audit` viewer that can filter technician moderation, booking lifecycle changes, disclaimer acceptance, reminder runs, and payment webhooks in one place.
   - Affected files: `src/lib/db/audit-log.ts`, `src/app/admin/audit/page.tsx`, `src/app/api/bookings/route.ts`, `src/app/api/bookings/[id]/route.ts`, `src/app/api/payments/webhook/route.ts`, `src/app/api/admin/technicians/[id]/route.ts`
+
+- **Soft-hiding reviews preserves trust signals better than deleting them outright in an admin moderation flow:** Keeping the original review document and excluding `isHidden` records from public queries lets admins reverse a moderation call, maintains rating-history context, and gives the audit log enough metadata to explain why a comment disappeared from technician profiles.
+  - Affected files: `src/lib/db/reviews.ts`, `src/app/api/admin/reviews/route.ts`, `src/app/admin/reviews/page.tsx`, `src/app/admin/reviews/reviews-client.tsx`, `build-plan-tracker/10-reviews.md`, `build-plan-tracker/13-admin-panel.md`

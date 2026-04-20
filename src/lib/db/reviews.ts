@@ -24,6 +24,9 @@ function docToReview(id: string, data: FirebaseFirestore.DocumentData): Review {
     technicianId: data["technicianId"] as string,
     rating: data["rating"] as number,
     comment: data["comment"] as string,
+    isHidden: Boolean(data["isHidden"]),
+    moderatedAt: toIso(data["moderatedAt"]),
+    moderatedBy: (data["moderatedBy"] as string | null) ?? null,
     technicianReply: (data["technicianReply"] as string | null) ?? null,
     technicianRepliedAt: toIso(data["technicianRepliedAt"]),
     createdAt: toIso(data["createdAt"]) ?? "",
@@ -34,14 +37,18 @@ function docToReview(id: string, data: FirebaseFirestore.DocumentData): Review {
 /** Get reviews for a technician (sorted by newest first) */
 export async function getReviewsByTechnician(
   technicianId: string,
-  limitCount = 20
+  limitCount = 20,
+  options: { includeHidden?: boolean } = {},
 ): Promise<Review[]> {
-  const snap = await adminDb
+  let query: FirebaseFirestore.Query = adminDb
     .collection(COLLECTION)
     .where("technicianId", "==", technicianId)
-    .orderBy("createdAt", "desc")
-    .limit(limitCount)
-    .get()
+
+  if (!options.includeHidden) {
+    query = query.where("isHidden", "==", false)
+  }
+
+  const snap = await query.orderBy("createdAt", "desc").limit(limitCount).get()
   return snap.docs.map((doc) => docToReview(doc.id, doc.data()))
 }
 
@@ -88,6 +95,9 @@ export async function createReview(input: CreateReviewInput): Promise<Review> {
     technicianId: input.technicianId,
     rating: input.rating,
     comment: input.comment,
+    isHidden: false,
+    moderatedAt: null,
+    moderatedBy: null,
     technicianReply: null,
     technicianRepliedAt: null,
     createdAt: now,
@@ -119,6 +129,25 @@ export async function setTechnicianReply(reviewId: string, reply: string): Promi
   await adminDb.collection(COLLECTION).doc(reviewId).update({
     technicianReply: reply,
     technicianRepliedAt: now,
+    updatedAt: now,
+  })
+}
+
+export async function getAllReviews(limitCount = 200): Promise<Review[]> {
+  const snap = await adminDb.collection(COLLECTION).orderBy("createdAt", "desc").limit(limitCount).get()
+  return snap.docs.map((doc) => docToReview(doc.id, doc.data()))
+}
+
+export async function setReviewHidden(
+  reviewId: string,
+  isHidden: boolean,
+  moderatedBy: string,
+): Promise<void> {
+  const now = new Date().toISOString()
+  await adminDb.collection(COLLECTION).doc(reviewId).update({
+    isHidden,
+    moderatedAt: now,
+    moderatedBy,
     updatedAt: now,
   })
 }

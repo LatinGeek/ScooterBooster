@@ -1,4 +1,4 @@
-﻿# Build Plan Tracker
+# Build Plan Tracker
 
 Alan's execution log. Mirrors the phases in `build-plan/`.
 
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-20
-- Completed: Phase 14 is now functionally complete in dev. `npm test` (`138`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build` all pass. We now have: Resend-backed React Email templates, WhatsApp deep-link cleanup across user + technician surfaces, `/api/cron/booking-reminders` with `reminderSentAt` dedupe, payment/admin audit logging, and a read-only `/admin/audit` viewer for admins.
-- Next: Keep closing remaining partial phases that are still local/dev-addressable - admin catalog/review/payment operations, richer authenticated desktop/manual QA for Phase 20, and any remaining Firestore/rules polish before production-focused Phase 21 work resumes.
+- Completed: Admin capabilities expanded again in dev. We now have `/admin/scooters` + `/admin/services` catalog CRUD, plus `/admin/reviews` for review moderation with audit logging. Full verification is green: `npm test` (`147`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases - admin payment/refund operations, richer authenticated desktop/manual QA for Phase 20, and any remaining Firestore/rules polish before production-focused Phase 21 work resumes.

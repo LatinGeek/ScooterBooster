@@ -159,6 +159,7 @@ export default async function AdminOverviewPage() {
           { href: "/admin/users", label: "Gestionar usuarios" },
           { href: "/admin/scooters", label: "Gestionar scooters" },
           { href: "/admin/services", label: "Gestionar servicios" },
+          { href: "/admin/reviews", label: "Moderar reseñas" },
           { href: "/admin/audit", label: "Ver auditoría", icon: Activity },
           { href: "/admin/settings", label: "Configuración" },
         ].map((link) => (
