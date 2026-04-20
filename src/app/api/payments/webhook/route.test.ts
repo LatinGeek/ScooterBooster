@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => {
     processedEvents,
     paymentGet: vi.fn(),
     getBookingByExternalReference: vi.fn(),
+    setBookingPaymentReference: vi.fn(),
     updateBookingPaymentStatus: vi.fn(),
     getServiceById: vi.fn(),
     getTechnicianById: vi.fn(),
@@ -47,6 +48,7 @@ vi.mock("mercadopago", () => ({
 
 vi.mock("@/lib/db/bookings", () => ({
   getBookingByExternalReference: mocks.getBookingByExternalReference,
+  setBookingPaymentReference: mocks.setBookingPaymentReference,
   updateBookingPaymentStatus: mocks.updateBookingPaymentStatus,
 }))
 
@@ -209,6 +211,7 @@ describe("/api/payments/webhook", () => {
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
     expect(mocks.getBookingByExternalReference).toHaveBeenCalledWith("booking_booking-1")
+    expect(mocks.setBookingPaymentReference).toHaveBeenCalledWith("booking-1", "payment-1")
     expect(mocks.updateBookingPaymentStatus).toHaveBeenCalledWith("booking-1", "paid", "confirmed")
     expect(mocks.processedEvents.get("event-1")).toMatchObject({
       eventType: "payment",
@@ -274,6 +277,7 @@ describe("/api/payments/webhook", () => {
     )
 
     expect(response.status).toBe(200)
+    expect(mocks.setBookingPaymentReference).toHaveBeenCalledWith("booking-1", "payment-1")
     expect(mocks.updateBookingPaymentStatus).toHaveBeenCalledWith("booking-1", "pending")
   })
 

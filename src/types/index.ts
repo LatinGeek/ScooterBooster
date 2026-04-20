@@ -118,11 +118,13 @@ export interface Booking {
   serviceFee: number
   totalPrice: number
   paymentStatus: PaymentStatus
+  paymentId: string | null
   paymentLinkId: string | null
   paymentLinkUrl: string | null
   disclaimerAccepted: boolean
   disclaimerAcceptedAt: string | null
   disclaimerVersion: string | null
+  refundedAt?: string | null
   reminderSentAt?: string | null
   createdAt: string
   updatedAt: string

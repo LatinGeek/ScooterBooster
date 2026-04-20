@@ -29,11 +29,13 @@ function docToBooking(id: string, data: FirebaseFirestore.DocumentData): Booking
     serviceFee: data["serviceFee"] as number,
     totalPrice: data["totalPrice"] as number,
     paymentStatus: data["paymentStatus"] as Booking["paymentStatus"],
+    paymentId: (data["paymentId"] as string | null) ?? null,
     paymentLinkId: (data["paymentLinkId"] as string | null) ?? null,
     paymentLinkUrl: (data["paymentLinkUrl"] as string | null) ?? null,
     disclaimerAccepted: Boolean(data["disclaimerAccepted"]),
     disclaimerAcceptedAt: data["disclaimerAcceptedAt"] ? toIso(data["disclaimerAcceptedAt"]) : null,
     disclaimerVersion: (data["disclaimerVersion"] as string | null) ?? null,
+    refundedAt: data["refundedAt"] ? toIso(data["refundedAt"]) : null,
     reminderSentAt: data["reminderSentAt"] ? toIso(data["reminderSentAt"]) : null,
     createdAt: toIso(data["createdAt"]),
     updatedAt: toIso(data["updatedAt"]),
@@ -57,6 +59,11 @@ export async function getBookingsByTechnician(technicianId: string): Promise<Boo
     .where("technicianId", "==", technicianId)
     .orderBy("createdAt", "desc")
     .get()
+  return snap.docs.map((doc) => docToBooking(doc.id, doc.data()))
+}
+
+export async function getAllBookings(limit = 200): Promise<Booking[]> {
+  const snap = await adminDb.collection(COLLECTION).orderBy("createdAt", "desc").limit(limit).get()
   return snap.docs.map((doc) => docToBooking(doc.id, doc.data()))
 }
 
@@ -99,11 +106,13 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
     serviceFee: input.serviceFee,
     totalPrice: input.totalPrice,
     paymentStatus: "pending",
+    paymentId: null,
     paymentLinkId: null,
     paymentLinkUrl: null,
     disclaimerAccepted: input.disclaimerAccepted,
     disclaimerAcceptedAt: input.disclaimerAcceptedAt ?? null,
     disclaimerVersion: input.disclaimerVersion ?? null,
+    refundedAt: null,
     reminderSentAt: null,
     createdAt: now,
     updatedAt: now,
@@ -147,6 +156,13 @@ export async function updateBookingPaymentLink(
   })
 }
 
+export async function setBookingPaymentReference(id: string, paymentId: string): Promise<void> {
+  await adminDb.collection(COLLECTION).doc(id).update({
+    paymentId,
+    updatedAt: new Date().toISOString(),
+  })
+}
+
 /** Update booking payment status (called by webhook after MP confirmation) */
 export async function updateBookingPaymentStatus(
   id: string,
@@ -160,7 +176,20 @@ export async function updateBookingPaymentStatus(
   if (bookingStatus) {
     update["status"] = bookingStatus
   }
+  if (paymentStatus !== "refunded") {
+    update["refundedAt"] = null
+  }
   await adminDb.collection(COLLECTION).doc(id).update(update)
+}
+
+export async function markBookingRefunded(id: string): Promise<void> {
+  const now = new Date().toISOString()
+  await adminDb.collection(COLLECTION).doc(id).update({
+    paymentStatus: "refunded",
+    status: "cancelled_by_user",
+    refundedAt: now,
+    updatedAt: now,
+  })
 }
 
 /** Get a booking by external reference (MP external_reference = "booking_{id}") */

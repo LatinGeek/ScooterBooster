@@ -1,34 +1,35 @@
-# Tracker — Phase 09: Payments (MercadoPago)
+﻿# Tracker - Phase 09: Payments (MercadoPago)
 
-> Status: ✅ COMPLETE (core flow done; refund endpoint + testing deferred)
-> Last updated: 2026-04-18
+> Status: COMPLETE - checkout handoff, webhook reconciliation, and admin refunds now work in dev
+> Last updated: 2026-04-20
 
 ## Tasks
 
 - [x] MercadoPago Checkout Pro payment link creation (server-side)
-  - createPaymentLink() in src/lib/mercadopago.ts (already scaffolded, now wired)
-  - Called in POST /api/bookings after booking creation; paymentLinkUrl stored on booking doc
-  - Gracefully skipped if MERCADOPAGO_ACCESS_TOKEN not set (dev mode)
-- [x] POST /api/payments/initiate — regenerate MP preference for a pending booking
-- [x] Webhook handler POST /api/payments/webhook
-  - HMAC signature verification via x-signature header
-  - Idempotency: events stored in `webhookEvents` Firestore collection
-  - approved → booking confirmed + paymentStatus paid
-  - rejected/cancelled → booking stays pending (user can retry)
-  - refunded/charged_back → booking cancelled_by_user + paymentStatus refunded
-- [x] Update booking status on payment events (via updateBookingPaymentStatus DAL method)
-- [x] Return pages: /booking/[id]?status=success|failure|pending (banner in BookingDetailClient)
-- [x] Fee calculation server-side only (calculatePricing in mercadopago.ts)
-- [x] Wizard redirects to MP initPoint after booking creation
+  - `createPaymentLink()` in `src/lib/mercadopago.ts`
+  - Called in `POST /api/bookings` after booking creation; `paymentLinkUrl` stored on the booking document
+  - Gracefully skipped if `MERCADOPAGO_ACCESS_TOKEN` is not set (dev fallback)
+- [x] `POST /api/payments/initiate` regenerates a preference for a pending booking
+- [x] Webhook handler `POST /api/payments/webhook`
+  - HMAC signature verification via `x-signature`
+  - Idempotency via `webhookEvents` Firestore collection
+  - `approved` -> booking `confirmed` plus `paymentStatus=paid`
+  - `rejected` / `cancelled` -> booking stays pending so the user can retry
+  - `refunded` / `charged_back` -> booking `cancelled_by_user` plus `paymentStatus=refunded`
+- [x] Booking payment metadata is persisted on webhook reconciliation
+  - `paymentId` is now stored on the booking document so admin refunds can target the exact MercadoPago payment
+- [x] Return pages: `/booking/[id]?status=success|failure|pending` via booking detail banners
+- [x] Fee calculation stays server-side only in `calculatePricing()`
+- [x] Wizard redirects to the MercadoPago `init_point` after booking creation
 - [x] Payment webhooks audit-log each processed event and trigger user-facing confirmation/cancellation notifications
-- [ ] Refund endpoint POST /api/payments/[id]/refund (admin only) — deferred to Phase 13 admin panel
-- [ ] Test with sandbox credentials — needs MERCADOPAGO_ACCESS_TOKEN in .env.local
-- [ ] Webhook secret setup — needs MERCADOPAGO_WEBHOOK_SECRET after registering webhook URL in MP panel
+- [x] Refund endpoint `POST /api/payments/[id]/refund` (admin only)
+- [x] Admin refund operations UI in `/admin/bookings`
+- [ ] Sandbox approval / rejection / pending card matrix still needs a fully hosted callback smoke test
+- [ ] Webhook secret setup still depends on final deployed webhook registration in MercadoPago
 
 ## Notes
 
-- MERCADOPAGO_WEBHOOK_SECRET added to .env.example with instructions
-- If secret not set, webhook verification is skipped with a warning log (dev convenience)
-- Idempotency key = webhook event `id` field (not bookingId) — more precise
-- webhookEvents Firestore collection used for deduplication
-- Sandbox credentials needed from Germán to test end-to-end (Phase 00 credential gap)
+- `MERCADOPAGO_WEBHOOK_SECRET` is documented in `.env.example`
+- If the secret is not set, webhook verification is skipped with a warning log as a dev-only convenience
+- Webhook idempotency key = MercadoPago webhook `id` field (not booking id)
+- `paymentId` persistence on the booking document closes the gap between webhook reconciliation and admin-initiated refunds

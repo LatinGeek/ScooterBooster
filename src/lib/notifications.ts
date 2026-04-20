@@ -54,6 +54,12 @@ function buildBookingStatusCopy(status: BookingStatus): {
         title: "Reserva cancelada",
         body: "El técnico canceló esta reserva. Revisá el detalle para coordinar una alternativa.",
       }
+    case "cancelled_by_user":
+      return {
+        type: "booking_cancelled",
+        title: "Reserva cancelada",
+        body: "La reserva fue cancelada y ya actualizamos su estado en ScooterBooster.",
+      }
     default:
       return null
   }
@@ -100,3 +106,4 @@ export async function notify(event: NotificationEvent) {
     href: `/booking/${event.bookingId}`,
   })
 }
+

@@ -3,13 +3,14 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Activity, Bike, LayoutDashboard, LogOut, Settings, ShieldCheck, Users, Wrench } from "lucide-react"
+import { Activity, Bike, CalendarDays, LayoutDashboard, LogOut, Settings, ShieldCheck, Users, Wrench } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard, exact: true },
   { href: "/admin/technicians", label: "Técnicos", icon: Wrench, exact: false },
   { href: "/admin/users", label: "Usuarios", icon: Users, exact: false },
+  { href: "/admin/bookings", label: "Reservas", icon: CalendarDays, exact: false },
   { href: "/admin/scooters", label: "Scooters", icon: Bike, exact: false },
   { href: "/admin/services", label: "Servicios", icon: Wrench, exact: false },
   { href: "/admin/reviews", label: "Reseñas", icon: Activity, exact: false },

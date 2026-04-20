@@ -157,6 +157,7 @@ export default async function AdminOverviewPage() {
         {[
           { href: "/admin/technicians", label: "Gestionar técnicos" },
           { href: "/admin/users", label: "Gestionar usuarios" },
+          { href: "/admin/bookings", label: "Gestionar reservas" },
           { href: "/admin/scooters", label: "Gestionar scooters" },
           { href: "/admin/services", label: "Gestionar servicios" },
           { href: "/admin/reviews", label: "Moderar reseñas" },
@@ -179,3 +180,4 @@ export default async function AdminOverviewPage() {
     </section>
   )
 }
+

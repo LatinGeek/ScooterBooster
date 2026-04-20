@@ -240,3 +240,6 @@
 
 - **Soft-hiding reviews preserves trust signals better than deleting them outright in an admin moderation flow:** Keeping the original review document and excluding `isHidden` records from public queries lets admins reverse a moderation call, maintains rating-history context, and gives the audit log enough metadata to explain why a comment disappeared from technician profiles.
   - Affected files: `src/lib/db/reviews.ts`, `src/app/api/admin/reviews/route.ts`, `src/app/admin/reviews/page.tsx`, `src/app/admin/reviews/reviews-client.tsx`, `build-plan-tracker/10-reviews.md`, `build-plan-tracker/13-admin-panel.md`
+
+- **Admin refunds become much simpler once webhook reconciliation stores the MercadoPago payment id on the booking itself:** The booking record already sits at the center of support workflows, so persisting `paymentId` during webhook processing avoids a second lookup step later and lets `/admin/bookings` trigger exact refunds through `/api/payments/[id]/refund` without opening MercadoPago manually.
+  - Affected files: `src/lib/db/bookings.ts`, `src/app/api/payments/webhook/route.ts`, `src/app/api/payments/[id]/refund/route.ts`, `src/app/admin/bookings/page.tsx`, `src/app/admin/bookings/bookings-client.tsx`, `build-plan-tracker/09-payments.md`, `build-plan-tracker/13-admin-panel.md`

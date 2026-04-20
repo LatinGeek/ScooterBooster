@@ -1,7 +1,11 @@
 import crypto from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { MercadoPagoConfig, Payment } from "mercadopago"
-import { getBookingByExternalReference, updateBookingPaymentStatus } from "@/lib/db/bookings"
+import {
+  getBookingByExternalReference,
+  setBookingPaymentReference,
+  updateBookingPaymentStatus,
+} from "@/lib/db/bookings"
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getUserById } from "@/lib/db/users"
@@ -108,6 +112,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
       return NextResponse.json({ success: true })
     }
+
+    await setBookingPaymentReference(booking.id, paymentId)
 
     if (mpStatus === "approved") {
       await updateBookingPaymentStatus(booking.id, "paid", "confirmed")

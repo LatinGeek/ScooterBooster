@@ -98,11 +98,13 @@ export function TechnicianBookingsClient({
           serviceFee: d["serviceFee"] as number,
           totalPrice: d["totalPrice"] as number,
           paymentStatus: d["paymentStatus"] as Booking["paymentStatus"],
+          paymentId: (d["paymentId"] as string | null) ?? null,
           paymentLinkId: (d["paymentLinkId"] as string | null) ?? null,
           paymentLinkUrl: (d["paymentLinkUrl"] as string | null) ?? null,
           disclaimerAccepted: Boolean(d["disclaimerAccepted"]),
           disclaimerAcceptedAt: (d["disclaimerAcceptedAt"] as string | null) ?? null,
           disclaimerVersion: (d["disclaimerVersion"] as string | null) ?? null,
+          refundedAt: (d["refundedAt"] as string | null) ?? null,
           createdAt: d["createdAt"] as string,
           updatedAt: d["updatedAt"] as string,
         }

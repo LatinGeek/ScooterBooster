@@ -70,7 +70,7 @@ describe("notify", () => {
     })
   })
 
-  it("skips unsupported status changes", async () => {
+  it("creates a cancellation notification for user-initiated cancellations", async () => {
     await notify({
       type: "bookingStatusChanged",
       userId: "user-4",
@@ -78,6 +78,12 @@ describe("notify", () => {
       newStatus: "cancelled_by_user",
     })
 
-    expect(mocks.createUserNotification).not.toHaveBeenCalled()
+    expect(mocks.createUserNotification).toHaveBeenCalledWith({
+      userId: "user-4",
+      type: "booking_cancelled",
+      title: "Reserva cancelada",
+      body: "La reserva fue cancelada y ya actualizamos su estado en ScooterBooster.",
+      href: "/booking/booking-4",
+    })
   })
 })
