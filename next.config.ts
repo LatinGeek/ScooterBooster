@@ -25,6 +25,7 @@ const csp = [
     "https://*.firebaseio.com",
     "wss://*.firebaseio.com",
     "https://*.firebaseapp.com",
+    "https://*.web.app",
     "https://*.sentry.io",
     "https://*.ingest.sentry.io",
     "https://www.google-analytics.com",
@@ -40,7 +41,15 @@ const csp = [
   ].join(" "),
   "media-src 'self'",
   "object-src 'none'",
-  "frame-src 'self' https://accounts.google.com https://apis.google.com https://www.mercadopago.com https://mercadopago.com.uy",
+  [
+    "frame-src 'self'",
+    "https://accounts.google.com",
+    "https://apis.google.com",
+    "https://*.firebaseapp.com",
+    "https://*.web.app",
+    "https://www.mercadopago.com",
+    "https://mercadopago.com.uy",
+  ].join(" "),
   "worker-src 'self' blob:",
   "base-uri 'self'",
   "form-action 'self'",
@@ -58,8 +67,6 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(self)",
   },
-  // Firebase popup auth needs opener access to the Google popup window.
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
