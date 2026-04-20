@@ -15,18 +15,40 @@ function normalizeOrigin(value: string | null | undefined): string | null {
   }
 }
 
+function getOriginVariants(origin: string): string[] {
+  const variants = new Set<string>([origin])
+  const url = new URL(origin)
+
+  if (url.hostname.startsWith("www.")) {
+    url.hostname = url.hostname.replace(/^www\./, "")
+    variants.add(url.origin)
+  } else if (url.hostname.includes(".")) {
+    url.hostname = `www.${url.hostname}`
+    variants.add(url.origin)
+  }
+
+  return [...variants]
+}
+
 export function getTrustedOrigins(req: NextRequest): string[] {
   const trustedOrigins = new Set<string>()
   const configuredOrigin = normalizeOrigin(process.env.NEXT_PUBLIC_APP_URL)
+  const requestOrigin = normalizeOrigin(req.nextUrl.origin)
   const isLoopbackRequest = LOOPBACK_HOSTS.has(req.nextUrl.hostname)
 
   if (configuredOrigin) {
-    trustedOrigins.add(configuredOrigin)
+    for (const origin of getOriginVariants(configuredOrigin)) {
+      trustedOrigins.add(origin)
+    }
+  }
+
+  if (requestOrigin) {
+    for (const origin of getOriginVariants(requestOrigin)) {
+      trustedOrigins.add(origin)
+    }
   }
 
   if (process.env.NODE_ENV !== "production" || isLoopbackRequest) {
-    trustedOrigins.add(req.nextUrl.origin)
-
     for (const origin of DEV_TRUSTED_ORIGINS) {
       trustedOrigins.add(origin)
     }

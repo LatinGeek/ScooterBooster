@@ -37,6 +37,18 @@ describe("security origin checks", () => {
     expect(() => assertTrustedOrigin(request)).not.toThrow()
   })
 
+  it("accepts the www variant when the configured origin is apex", () => {
+    const request = new NextRequest("https://www.scooterbooster.uy/api/auth/session", {
+      method: "POST",
+      headers: {
+        origin: "https://www.scooterbooster.uy",
+      },
+    })
+
+    expect(getTrustedOrigins(request)).toContain("https://www.scooterbooster.uy")
+    expect(() => assertTrustedOrigin(request)).not.toThrow()
+  })
+
   it("accepts localhost origins outside production", () => {
     const request = new NextRequest("http://localhost:3000/api/bookings", {
       method: "POST",
