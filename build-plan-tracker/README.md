@@ -41,6 +41,6 @@ At the start of every session: read this file to know where to resume.
 
 ## Last Session
 
-- Date: 2026-04-19
-- Completed: Dev mode remains fully green - `npm test` (`130`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build` all pass locally. Technician applications and approvals are now fully covered in Playwright, and technicians have a dedicated `/dashboard/technician/profile` editor with public-profile preview plus a basic Firebase Storage photo upload path.
-- Next: Keep closing partial build-plan items that do not depend on prod access - deeper notification/reminder flows, admin CRUD/audit visibility, richer moderation tooling, and broader manual QA before we touch Phase 21 again.
+- Date: 2026-04-20
+- Completed: Dev mode is still fully green - `npm test` (`133`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build` all pass locally. Phase 14 now has real product surface area: users have an in-app notification bell with unread badge, a `/dashboard/notifications` center, Firestore-backed notification documents, and booking lifecycle triggers for pending-payment / confirmation / in-progress / completion / technician cancellation updates.
+- Next: Keep closing partial build-plan items that do not depend on prod access - WhatsApp deep-link cleanup, reminder automation/email depth, admin CRUD/audit visibility, and broader manual QA before we touch Phase 21 again.

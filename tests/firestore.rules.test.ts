@@ -213,4 +213,36 @@ describe("firestore.rules", () => {
       })
     )
   })
+
+  it("lets users read and mark their own notifications as read", async () => {
+    await seedDoc("users/user-1", {
+      displayName: "Alan",
+      email: "alan@example.com",
+      role: "user",
+    })
+    await seedDoc("users/user-1/notifications/notification-1", {
+      type: "booking_confirmed",
+      title: "Reserva confirmada",
+      body: "Tu tecnico confirmo la reserva.",
+      href: "/booking/booking-1",
+      readAt: null,
+      createdAt: "2026-04-20T00:00:00.000Z",
+    })
+
+    const ownerDb = authedDb("user-1")
+    const otherDb = authedDb("user-2")
+
+    await assertSucceeds(getDoc(doc(ownerDb, "users", "user-1", "notifications", "notification-1")))
+    await assertSucceeds(
+      updateDoc(doc(ownerDb, "users", "user-1", "notifications", "notification-1"), {
+        readAt: "2026-04-20T01:00:00.000Z",
+      }),
+    )
+    await assertFails(getDoc(doc(otherDb, "users", "user-1", "notifications", "notification-1")))
+    await assertFails(
+      updateDoc(doc(ownerDb, "users", "user-1", "notifications", "notification-1"), {
+        title: "Hack",
+      }),
+    )
+  })
 })

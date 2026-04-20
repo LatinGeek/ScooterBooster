@@ -1,0 +1,83 @@
+import { createUserNotification } from "@/lib/db/notifications"
+import type { BookingStatus, NotificationType } from "@/types"
+
+type NotificationEvent =
+  | {
+      type: "bookingCreated"
+      userId: string
+      bookingId: string
+      serviceName: string
+      totalPrice: number
+    }
+  | {
+      type: "bookingStatusChanged"
+      userId: string
+      bookingId: string
+      newStatus: BookingStatus
+    }
+
+function buildBookingStatusCopy(status: BookingStatus): {
+  type: NotificationType
+  title: string
+  body: string
+} | null {
+  switch (status) {
+    case "confirmed":
+      return {
+        type: "booking_confirmed",
+        title: "Reserva confirmada",
+        body: "Tu tecnico ya confirmo la reserva. Ya podes prepararte para el turno.",
+      }
+    case "in_progress":
+      return {
+        type: "booking_in_progress",
+        title: "Servicio en curso",
+        body: "Tu tecnico marco la reserva como en curso.",
+      }
+    case "completed":
+      return {
+        type: "booking_completed",
+        title: "Servicio completado",
+        body: "Tu reserva fue completada. Si queres, ya podes dejar una reseña.",
+      }
+    case "cancelled_by_technician":
+      return {
+        type: "booking_cancelled",
+        title: "Reserva cancelada",
+        body: "El tecnico cancelo esta reserva. Revisa el detalle para coordinar una alternativa.",
+      }
+    default:
+      return null
+  }
+}
+
+export async function notify(event: NotificationEvent) {
+  if (event.type === "bookingCreated") {
+    await createUserNotification({
+      userId: event.userId,
+      type: "booking_pending_payment",
+      title: "Reserva creada",
+      body: `Tu reserva para ${event.serviceName} ya fue creada. Falta completar el pago de ${new Intl.NumberFormat(
+        "es-UY",
+        {
+          style: "currency",
+          currency: "UYU",
+          maximumFractionDigits: 0,
+        },
+      ).format(event.totalPrice)} para confirmarla.`,
+      href: `/booking/${event.bookingId}`,
+    })
+    return
+  }
+
+  const copy = buildBookingStatusCopy(event.newStatus)
+  if (!copy) return
+
+  await createUserNotification({
+    userId: event.userId,
+    type: copy.type,
+    title: copy.title,
+    body: copy.body,
+    href: `/booking/${event.bookingId}`,
+  })
+}

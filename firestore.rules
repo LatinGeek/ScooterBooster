@@ -35,6 +35,14 @@ service cloud.firestore {
           && !("deletedAt" in request.resource.data.diff(resource.data).affectedKeys()))
         || isAdmin();
       allow delete: if isAdmin();
+
+      match /notifications/{notificationId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow update: if isOwner(userId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["readAt"])
+          && request.resource.data.readAt is string;
+        allow create, delete: if false;
+      }
     }
 
     match /technicians/{technicianId} {

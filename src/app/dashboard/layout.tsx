@@ -3,12 +3,14 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { CalendarDays, UserCircle, LogOut, Bike } from "lucide-react"
+import { Bell, CalendarDays, UserCircle, LogOut, Bike } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
+import { NotificationBell } from "@/components/notification-bell"
 import { useRouter } from "next/navigation"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Mis reservas", icon: CalendarDays, exact: true },
+  { href: "/dashboard/notifications", label: "Notificaciones", icon: Bell, exact: false },
   { href: "/dashboard/profile", label: "Perfil", icon: UserCircle, exact: false },
 ]
 
@@ -67,6 +69,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
               </div>
             )}
+
+            <div className="mb-4 flex items-center justify-between rounded-xl border border-[#e5e7eb] bg-white p-3">
+              <div>
+                <p className="text-sm font-semibold text-[#111827]">Centro de actividad</p>
+                <p className="text-xs text-[#6b7280]">Avisos sobre reservas y pagos</p>
+              </div>
+              <NotificationBell />
+            </div>
 
             {/* Nav links */}
             <nav className="flex flex-col gap-1">

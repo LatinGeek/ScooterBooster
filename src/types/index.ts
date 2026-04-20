@@ -154,3 +154,20 @@ export interface PricingBreakdown {
   totalPrice: number
   feePercentage: number
 }
+
+export type NotificationType =
+  | "booking_pending_payment"
+  | "booking_confirmed"
+  | "booking_in_progress"
+  | "booking_completed"
+  | "booking_cancelled"
+
+export interface AppNotification {
+  id: string
+  type: NotificationType
+  title: string
+  body: string
+  href: string | null
+  readAt: string | null
+  createdAt: string
+}

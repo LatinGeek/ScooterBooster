@@ -1,11 +1,20 @@
 import { NextRequest } from "next/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+vi.mock("next/server", async () => {
+  const actual = await vi.importActual<typeof import("next/server")>("next/server")
+  return {
+    ...actual,
+    after: vi.fn((callback: () => unknown) => callback()),
+  }
+})
+
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getBookingById: vi.fn(),
   updateBookingStatus: vi.fn(),
   getTechnicianByUserId: vi.fn(),
+  notify: vi.fn(),
 }))
 
 vi.mock("@/lib/session", () => ({
@@ -19,6 +28,10 @@ vi.mock("@/lib/db/bookings", () => ({
 
 vi.mock("@/lib/db/technicians", () => ({
   getTechnicianByUserId: mocks.getTechnicianByUserId,
+}))
+
+vi.mock("@/lib/notifications", () => ({
+  notify: mocks.notify,
 }))
 
 import { GET, PATCH } from "@/app/api/bookings/[id]/route"

@@ -226,3 +226,8 @@
 
 - **Technician profile management is easier to QA when the form owns a live public preview:** A dedicated `/dashboard/technician/profile` page that edits bio, location, contact details, active status, and photo URL/upload in one place closes a real product gap and gives Playwright a stable end-to-end target for technician-facing profile changes.
   - Affected files: `src/app/dashboard/technician/profile/page.tsx`, `src/app/dashboard/technician/profile/profile-client.tsx`, `src/app/api/technicians/me/route.ts`, `src/lib/db/technicians.ts`, `tests/e2e/technician-profile.spec.ts`
+- **User notifications fit this repo well as a Firestore subcollection plus client subscriptions:** Storing lightweight notification docs under `users/{uid}/notifications/{id}` makes unread badges and a real-time notification center straightforward, while route handlers can fan out new notifications with Admin SDK writes after the response using `after()`.
+  - Affected files: `src/lib/db/notifications.ts`, `src/lib/notifications.ts`, `src/components/notification-bell.tsx`, `src/app/dashboard/notifications/page.tsx`, `src/app/dashboard/notifications/notifications-client.tsx`, `firestore.rules`
+
+- **`after()` is great in real route handlers but needs explicit mocking in Vitest:** Route-unit tests do not run inside a real Next request scope, so any handler that calls `after()` will throw unless the test suite mocks it from `next/server`. The safest test pattern here is to keep the real `NextRequest` export and stub only `after`.
+  - Affected files: `src/app/api/bookings/route.test.ts`, `src/app/api/bookings/[id]/route.test.ts`

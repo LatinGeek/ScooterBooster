@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { after } from "next/server"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { canTransitionBookingStatus, canUserCancelBooking } from "@/lib/booking-rules"
 import { getSession } from "@/lib/session"
@@ -6,6 +7,7 @@ import { getBookingById, updateBookingStatus } from "@/lib/db/bookings"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { assertTrustedOrigin } from "@/lib/security"
+import { notify } from "@/lib/notifications"
 import { z } from "zod"
 
 export const dynamic = "force-dynamic"
@@ -99,5 +101,15 @@ export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Rout
 
   await updateBookingStatus(id, newStatus as import("@/types").BookingStatus)
   const updated = await getBookingById(id)
+  if (updated && role !== "user") {
+    after(async () => {
+      await notify({
+        type: "bookingStatusChanged",
+        userId: updated.userId,
+        bookingId: updated.id,
+        newStatus: updated.status,
+      })
+    })
+  }
   return ok(updated)
 })

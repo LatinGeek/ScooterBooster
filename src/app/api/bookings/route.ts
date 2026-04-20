@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { after } from "next/server"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { createBookingSchema } from "@/lib/validators/booking"
@@ -12,6 +13,7 @@ import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
 import logger from "@/lib/logger"
 import { enforceRateLimit } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
+import { notify } from "@/lib/notifications"
 
 export const dynamic = "force-dynamic"
 
@@ -128,6 +130,16 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       logger.error({ bookingId: booking.id, err: mpErr }, "Failed to create MP preference")
     }
   }
+
+  after(async () => {
+    await notify({
+      type: "bookingCreated",
+      userId: session.uid,
+      bookingId: booking.id,
+      serviceName: service.name,
+      totalPrice: booking.totalPrice,
+    })
+  })
 
   return ok({ booking: { ...booking, paymentLinkUrl }, paymentLinkUrl }, 201)
 })

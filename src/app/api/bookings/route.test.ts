@@ -1,6 +1,14 @@
 import { NextRequest } from "next/server"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+vi.mock("next/server", async () => {
+  const actual = await vi.importActual<typeof import("next/server")>("next/server")
+  return {
+    ...actual,
+    after: vi.fn((callback: () => unknown) => callback()),
+  }
+})
+
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getBookingsByUser: vi.fn(),
@@ -11,6 +19,7 @@ const mocks = vi.hoisted(() => ({
   updateBookingPaymentLink: vi.fn(),
   calculatePricing: vi.fn(),
   createPaymentLink: vi.fn(),
+  notify: vi.fn(),
   loggerInfo: vi.fn(),
   loggerError: vi.fn(),
 }))
@@ -40,6 +49,10 @@ vi.mock("@/lib/db/models", () => ({
 vi.mock("@/lib/mercadopago", () => ({
   calculatePricing: mocks.calculatePricing,
   createPaymentLink: mocks.createPaymentLink,
+}))
+
+vi.mock("@/lib/notifications", () => ({
+  notify: mocks.notify,
 }))
 
 vi.mock("@/lib/logger", () => ({

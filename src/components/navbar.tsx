@@ -3,17 +3,23 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Bike, Menu, X } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
+import { NotificationBell } from "@/components/notification-bell"
 import { Button } from "@/components/ui/button"
 import { GlobalSearchBox } from "@/components/global-search-box"
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { user, role, loading } = useAuth()
 
   const links = [
     { href: "/scooters", label: "Scooters" },
     { href: "/services", label: "Servicios" },
     { href: "/technicians", label: "Técnicos" },
   ]
+
+  const dashboardHref =
+    role === "technician" ? "/dashboard/technician" : role === "admin" ? "/admin" : "/dashboard"
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#e5e7eb] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -50,12 +56,26 @@ export function Navbar() {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">Iniciar sesión</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/booking">Reservar ahora</Link>
-            </Button>
+            {!loading && user ? (
+              <>
+                <NotificationBell />
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href={dashboardHref}>Mi panel</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/booking">Reservar ahora</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/login">Iniciar sesión</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/booking">Reservar ahora</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           <button
@@ -91,16 +111,37 @@ export function Navbar() {
             ))}
 
             <div className="flex flex-col gap-2 border-t border-[#e5e7eb] pt-2">
-              <Button variant="secondary" asChild>
-                <Link href="/login" onClick={() => setMobileOpen(false)}>
-                  Iniciar sesión
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link href="/booking" onClick={() => setMobileOpen(false)}>
-                  Reservar ahora
-                </Link>
-              </Button>
+              {!loading && user ? (
+                <>
+                  <div className="flex items-center justify-between rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-3 py-2">
+                    <span className="text-sm font-medium text-[#374151]">Notificaciones</span>
+                    <NotificationBell className="h-9 w-9" />
+                  </div>
+                  <Button variant="secondary" asChild>
+                    <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>
+                      Mi panel
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/booking" onClick={() => setMobileOpen(false)}>
+                      Reservar ahora
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="secondary" asChild>
+                    <Link href="/login" onClick={() => setMobileOpen(false)}>
+                      Iniciar sesión
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/booking" onClick={() => setMobileOpen(false)}>
+                      Reservar ahora
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         ) : null}
