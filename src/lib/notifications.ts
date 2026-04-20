@@ -10,6 +10,14 @@ type NotificationEvent =
       totalPrice: number
     }
   | {
+      type: "bookingReminder"
+      userId: string
+      bookingId: string
+      serviceName: string
+      technicianName: string
+      scheduledDateLabel: string
+    }
+  | {
       type: "bookingStatusChanged"
       userId: string
       bookingId: string
@@ -26,25 +34,25 @@ function buildBookingStatusCopy(status: BookingStatus): {
       return {
         type: "booking_confirmed",
         title: "Reserva confirmada",
-        body: "Tu tecnico ya confirmo la reserva. Ya podes prepararte para el turno.",
+        body: "Tu técnico ya confirmó la reserva. Ya podés prepararte para el turno.",
       }
     case "in_progress":
       return {
         type: "booking_in_progress",
         title: "Servicio en curso",
-        body: "Tu tecnico marco la reserva como en curso.",
+        body: "Tu técnico marcó la reserva como en curso.",
       }
     case "completed":
       return {
         type: "booking_completed",
         title: "Servicio completado",
-        body: "Tu reserva fue completada. Si queres, ya podes dejar una reseña.",
+        body: "Tu reserva fue completada. Si querés, ya podés dejar una reseña.",
       }
     case "cancelled_by_technician":
       return {
         type: "booking_cancelled",
         title: "Reserva cancelada",
-        body: "El tecnico cancelo esta reserva. Revisa el detalle para coordinar una alternativa.",
+        body: "El técnico canceló esta reserva. Revisá el detalle para coordinar una alternativa.",
       }
     default:
       return null
@@ -65,6 +73,17 @@ export async function notify(event: NotificationEvent) {
           maximumFractionDigits: 0,
         },
       ).format(event.totalPrice)} para confirmarla.`,
+      href: `/booking/${event.bookingId}`,
+    })
+    return
+  }
+
+  if (event.type === "bookingReminder") {
+    await createUserNotification({
+      userId: event.userId,
+      type: "booking_reminder",
+      title: "Recordatorio de reserva",
+      body: `Mañana ${event.scheduledDateLabel} tenés ${event.serviceName} con ${event.technicianName}.`,
       href: `/booking/${event.bookingId}`,
     })
     return

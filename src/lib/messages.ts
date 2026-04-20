@@ -1,4 +1,4 @@
-// Pre-filled WhatsApp message templates (Spanish)
+import { formatWhatsAppLink } from "@/lib/utils"
 
 export const WA_MESSAGES = {
   userContactTechnician: (bookingId: string) =>
@@ -8,8 +8,15 @@ export const WA_MESSAGES = {
     `Hola, soy tu técnico en ScooterBooster para la reserva ${bookingId}. Quisiera coordinar algunos detalles.`,
 
   reviewRequest: (technicianName: string) =>
-    `Hola! Esperamos que hayas quedado satisfecho con el servicio de ${technicianName}. ¿Podés dejarnos una reseña en ScooterBooster?`,
+    `Hola. Esperamos que hayas quedado satisfecho con el servicio de ${technicianName}. ¿Podés dejarnos una reseña en ScooterBooster?`,
 
   bookingConfirmation: (date: string, technicianName: string) =>
     `Tu reserva en ScooterBooster fue confirmada para el ${date} con ${technicianName}. ¡Nos vemos!`,
+
+  bookingReminder: (date: string, technicianName: string) =>
+    `Recordatorio de tu reserva en ScooterBooster: mañana ${date} te espera ${technicianName}. Si necesitás recoordinar, escribile por acá.`,
 } as const
+
+export function buildWhatsAppUrl(phoneNumber: string, message: string) {
+  return formatWhatsAppLink(phoneNumber, message)
+}

@@ -2,8 +2,9 @@ import { redirect } from "next/navigation"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { getBookingsByTechnician } from "@/lib/db/bookings"
+import { getUsersByIds } from "@/lib/db/users"
 import { adminDb } from "@/lib/firebase-admin"
-import type { Booking, Service, ScooterModel } from "@/types"
+import type { Booking, Service, ScooterModel, User } from "@/types"
 import lazyLoad from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -17,6 +18,7 @@ export const dynamic = "force-dynamic"
 async function fetchRelated(bookings: Booking[]) {
   const serviceIds = [...new Set(bookings.map((b) => b.serviceId))]
   const modelIds = [...new Set(bookings.map((b) => b.scooterModelId))]
+  const userIds = [...new Set(bookings.map((b) => b.userId))]
 
   const [serviceSnaps, modelSnaps] = await Promise.all([
     serviceIds.length
@@ -57,7 +59,9 @@ async function fetchRelated(bookings: Booking[]) {
     }
   }
 
-  return { services, models }
+  const users = await getUsersByIds(userIds)
+
+  return { services, models, users }
 }
 
 export default async function TechnicianBookingsPage() {
@@ -69,13 +73,14 @@ export default async function TechnicianBookingsPage() {
   if (!tech) redirect("/onboarding")
 
   const bookings = await getBookingsByTechnician(tech.id)
-  const { services, models } = await fetchRelated(bookings)
+  const { services, models, users } = await fetchRelated(bookings)
 
   return (
     <TechnicianBookingsClient
       initialBookings={bookings}
       services={services}
       models={models}
+      users={users as Record<string, User>}
       technicianId={tech.id}
     />
   )

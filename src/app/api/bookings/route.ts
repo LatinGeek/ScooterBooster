@@ -7,6 +7,8 @@ import { createBooking, getBookingsByUser, updateBookingPaymentLink } from "@/li
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
+import { getUserById } from "@/lib/db/users"
+import { addAuditLogEntry } from "@/lib/db/audit-log"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, createPaymentLink } from "@/lib/mercadopago"
 import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
@@ -14,6 +16,8 @@ import logger from "@/lib/logger"
 import { enforceRateLimit } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
 import { notify } from "@/lib/notifications"
+import { sendBookingCreatedEmail } from "@/lib/notification-emails"
+import { formatPrice } from "@/lib/utils"
 
 export const dynamic = "force-dynamic"
 
@@ -132,13 +136,65 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   after(async () => {
-    await notify({
-      type: "bookingCreated",
-      userId: session.uid,
-      bookingId: booking.id,
-      serviceName: service.name,
-      totalPrice: booking.totalPrice,
-    })
+    const user = await getUserById(session.uid)
+    const requestIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      req.headers.get("x-real-ip") ??
+      null
+    const userAgent = req.headers.get("user-agent") ?? null
+
+    await Promise.allSettled([
+      notify({
+        type: "bookingCreated",
+        userId: session.uid,
+        bookingId: booking.id,
+        serviceName: service.name,
+        totalPrice: booking.totalPrice,
+      }),
+      addAuditLogEntry({
+        action: "booking_created",
+        actorUid: session.uid,
+        targetType: "booking",
+        targetId: booking.id,
+        metadata: {
+          technicianId,
+          serviceId,
+          scooterModelId,
+          scheduledDate,
+          paymentLinkCreated: Boolean(paymentLinkUrl),
+        },
+      }),
+      ...(disclaimerAccepted
+        ? [
+            addAuditLogEntry({
+              action: "disclaimer_accepted",
+              actorUid: session.uid,
+              targetType: "booking",
+              targetId: booking.id,
+              metadata: {
+                serviceId,
+                userAgent,
+                ip: requestIp,
+              },
+            }),
+          ]
+        : []),
+      ...(user?.email
+        ? [
+            sendBookingCreatedEmail({
+              to: user.email,
+              bookingId: booking.id,
+              serviceName: service.name,
+              technicianName: technician.displayName,
+              scheduledDate: new Date(booking.scheduledDate).toLocaleString("es-UY", {
+                dateStyle: "full",
+                timeStyle: "short",
+              }),
+              totalPrice: formatPrice(booking.totalPrice),
+            }),
+          ]
+        : []),
+    ])
   })
 
   return ok({ booking: { ...booking, paymentLinkUrl }, paymentLinkUrl }, 201)

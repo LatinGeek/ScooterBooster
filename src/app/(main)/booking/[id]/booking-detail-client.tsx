@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ReviewForm } from "@/components/review-form"
+import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
 import type { Booking, BookingStatus, Technician, Service, ScooterModel } from "@/types"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -297,9 +298,10 @@ export function BookingDetailClient({
 
   // WhatsApp link
   const whatsappUrl = technician?.whatsappNumber
-    ? `https://wa.me/${technician.whatsappNumber}?text=${encodeURIComponent(
-        `Hola! Te escribo por mi reserva #${booking.id.slice(0, 8)} en ScooterBooster.`
-      )}`
+    ? buildWhatsAppUrl(
+        technician.whatsappNumber,
+        WA_MESSAGES.userContactTechnician(booking.id.slice(0, 8).toUpperCase()),
+      )
     : null
 
   return (

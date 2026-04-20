@@ -7,6 +7,9 @@ export interface User {
   photoURL: string | null
   role: "user" | "technician" | "admin"
   phone: string | null
+  whatsappConsent?: boolean
+  deletedAt?: string | null
+  scheduledDeletionAt?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -120,6 +123,7 @@ export interface Booking {
   disclaimerAccepted: boolean
   disclaimerAcceptedAt: string | null
   disclaimerVersion: string | null
+  reminderSentAt?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -158,6 +162,7 @@ export interface PricingBreakdown {
 export type NotificationType =
   | "booking_pending_payment"
   | "booking_confirmed"
+  | "booking_reminder"
   | "booking_in_progress"
   | "booking_completed"
   | "booking_cancelled"
@@ -169,5 +174,15 @@ export interface AppNotification {
   body: string
   href: string | null
   readAt: string | null
+  createdAt: string
+}
+
+export interface AuditLogEntry {
+  id: string
+  action: string
+  actorUid: string | null
+  targetType: string
+  targetId: string | null
+  metadata: Record<string, unknown>
   createdAt: string
 }

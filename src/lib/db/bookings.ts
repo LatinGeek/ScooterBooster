@@ -34,6 +34,7 @@ function docToBooking(id: string, data: FirebaseFirestore.DocumentData): Booking
     disclaimerAccepted: Boolean(data["disclaimerAccepted"]),
     disclaimerAcceptedAt: data["disclaimerAcceptedAt"] ? toIso(data["disclaimerAcceptedAt"]) : null,
     disclaimerVersion: (data["disclaimerVersion"] as string | null) ?? null,
+    reminderSentAt: data["reminderSentAt"] ? toIso(data["reminderSentAt"]) : null,
     createdAt: toIso(data["createdAt"]),
     updatedAt: toIso(data["updatedAt"]),
   }
@@ -103,6 +104,7 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
     disclaimerAccepted: input.disclaimerAccepted,
     disclaimerAcceptedAt: input.disclaimerAcceptedAt ?? null,
     disclaimerVersion: input.disclaimerVersion ?? null,
+    reminderSentAt: null,
     createdAt: now,
     updatedAt: now,
   }
@@ -167,4 +169,26 @@ export async function getBookingByExternalReference(
 ): Promise<Booking | null> {
   const bookingId = externalReference.replace("booking_", "")
   return getBookingById(bookingId)
+}
+
+export async function getConfirmedBookingsScheduledBetween(
+  startIso: string,
+  endIso: string,
+): Promise<Booking[]> {
+  const snap = await adminDb
+    .collection(COLLECTION)
+    .where("status", "==", "confirmed")
+    .where("scheduledDate", ">=", startIso)
+    .where("scheduledDate", "<", endIso)
+    .orderBy("scheduledDate", "asc")
+    .get()
+
+  return snap.docs.map((doc) => docToBooking(doc.id, doc.data()))
+}
+
+export async function markBookingReminderSent(id: string, sentAt = new Date().toISOString()): Promise<void> {
+  await adminDb.collection(COLLECTION).doc(id).update({
+    reminderSentAt: sentAt,
+    updatedAt: sentAt,
+  })
 }

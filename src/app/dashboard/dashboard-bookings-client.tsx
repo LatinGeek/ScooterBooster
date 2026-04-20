@@ -24,6 +24,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
 import type { Booking, BookingStatus, Service, Technician, ScooterModel } from "@/types"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -143,9 +144,9 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
   const showCancel = booking.status === "pending" || booking.status === "confirmed"
   const showReview = booking.status === "completed" && !hasReviewMap[booking.id]
 
-  const waMsg = encodeURIComponent(
-    `Hola, tengo una reserva en ScooterBooster (ID: ${booking.id}). Quisiera consultarte algo.`,
-  )
+  const whatsappUrl = technician?.whatsappNumber
+    ? buildWhatsAppUrl(technician.whatsappNumber, WA_MESSAGES.userContactTechnician(booking.id))
+    : null
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md">
@@ -192,10 +193,10 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
             </Button>
           )}
 
-          {showWhatsApp && technician?.whatsappNumber && (
+          {showWhatsApp && whatsappUrl && (
             <Button variant="outline" size="sm" asChild>
               <a
-                href={`https://wa.me/${technician.whatsappNumber}?text=${waMsg}`}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -1,21 +1,24 @@
 import { withSentryConfig } from "@sentry/nextjs"
 import type { NextConfig } from "next"
 
-// CSP: Next.js App Router requires 'unsafe-inline' for styles (Tailwind) and
-// 'unsafe-eval' for hydration in dev. Script 'unsafe-inline' is kept for
-// compatibility until nonce infrastructure is added. All external origins are
-// explicitly allow-listed; object-src 'none' blocks plugin-based XSS.
+// CSP: Next.js App Router still needs inline styles for Tailwind and inline/eval
+// allowances for framework/runtime behavior. External origins are explicitly
+// allow-listed so Firebase Auth, Google login, analytics, Sentry, and
+// MercadoPago can all function without over-broad wildcards.
 const csp = [
   "default-src 'self'",
-  // Scripts: self + inline (Next hydration) + eval (dev HMR) + analytics/GTM
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
-  // Styles: inline required by Tailwind
+  [
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "https://www.googletagmanager.com",
+    "https://www.google-analytics.com",
+    "https://apis.google.com",
+    "https://accounts.google.com",
+    "https://www.gstatic.com",
+    "https://ssl.gstatic.com",
+  ].join(" "),
   "style-src 'self' 'unsafe-inline'",
-  // Images: data URIs for inline SVG, blob for canvas exports, any HTTPS for scooter/avatar images
   "img-src 'self' data: blob: https:",
-  // Fonts: only served from self (@fontsource in bundle)
   "font-src 'self'",
-  // XHR/WS: Firebase, Sentry, GA, MercadoPago API, search
   [
     "connect-src 'self'",
     "https://*.googleapis.com",
@@ -27,25 +30,21 @@ const csp = [
     "https://www.google-analytics.com",
     "https://analytics.google.com",
     "https://www.googletagmanager.com",
+    "https://apis.google.com",
+    "https://accounts.google.com",
+    "https://www.gstatic.com",
+    "https://ssl.gstatic.com",
     "https://api.mercadopago.com",
     "https://www.mercadopago.com",
     "https://mercadopago.com.uy",
   ].join(" "),
-  // Media: hero video served from self
   "media-src 'self'",
-  // No plugins ever
   "object-src 'none'",
-  // Frames: Google Sign-In picker + MercadoPago checkout iframe
-  "frame-src 'self' https://accounts.google.com https://www.mercadopago.com https://mercadopago.com.uy",
-  // Workers: service worker only
+  "frame-src 'self' https://accounts.google.com https://apis.google.com https://www.mercadopago.com https://mercadopago.com.uy",
   "worker-src 'self' blob:",
-  // Prevent base-tag hijacking
   "base-uri 'self'",
-  // Forms only submit to same origin
   "form-action 'self'",
-  // Supersedes X-Frame-Options but set both for older browsers
   "frame-ancestors 'none'",
-  // Force HTTPS for all sub-resources
   "upgrade-insecure-requests",
 ].join("; ")
 
@@ -59,7 +58,8 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(self)",
   },
-  // HSTS — only effective on HTTPS; Vercel handles this, but set for completeness
+  // Firebase popup auth needs opener access to the Google popup window.
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
@@ -68,11 +68,8 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
-  // ── Image optimization ────────────────────────────────────────────────────
   images: {
-    // AVIF first (best compression), WebP fallback
     formats: ["image/avif", "image/webp"],
-    // Scooter images can come from Firebase Storage or external CDNs
     remotePatterns: [
       {
         protocol: "https",
@@ -80,14 +77,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "lh3.googleusercontent.com", // Google profile pictures
+        hostname: "lh3.googleusercontent.com",
       },
       {
         protocol: "https",
         hostname: "storage.googleapis.com",
       },
     ],
-    // Prevent layout shift — reserve space for common sizes
     deviceSizes: [375, 640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },

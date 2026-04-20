@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Bike } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
-// Inner component that uses useSearchParams — must be inside <Suspense>
 function LoginForm() {
   const { signInWithGoogle } = useAuth()
   const router = useRouter()
@@ -19,9 +18,9 @@ function LoginForm() {
     try {
       await signInWithGoogle()
       const redirect = searchParams.get("redirect") ?? "/"
-      // Only allow relative redirects for safety
       const safeRedirect = redirect.startsWith("/") ? redirect : "/"
       router.replace(safeRedirect)
+      router.refresh()
     } catch (err) {
       console.error(err)
       setError("No se pudo iniciar sesión. Intentá de nuevo.")
@@ -37,20 +36,17 @@ function LoginForm() {
         Iniciá sesión para acceder a tu cuenta
       </p>
 
-      {/* Error */}
-      {error && (
+      {error ? (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
-      )}
+      ) : null}
 
-      {/* Google Sign-In */}
       <button
         onClick={handleGoogleSignIn}
         disabled={loading}
         className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-[#e5e7eb] bg-white px-6 py-3 text-sm font-semibold text-[#374151] shadow-sm transition-all duration-200 hover:bg-[#f9fafb] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#10b981] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {/* Google logo */}
         <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -91,7 +87,6 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f9fafb] px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#10b981]">
             <Bike className="h-8 w-8 text-white" />
@@ -102,7 +97,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Wrap in Suspense because LoginForm calls useSearchParams() */}
         <Suspense
           fallback={
             <div className="rounded-2xl border border-[#e5e7eb] bg-white px-8 py-10 shadow-sm">
@@ -118,4 +112,3 @@ export default function LoginPage() {
     </main>
   )
 }
-

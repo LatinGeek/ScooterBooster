@@ -21,6 +21,69 @@ export function Navbar() {
   const dashboardHref =
     role === "technician" ? "/dashboard/technician" : role === "admin" ? "/admin" : "/dashboard"
 
+  const desktopAuthActions = loading ? (
+    <>
+      <div className="h-9 w-28 animate-pulse rounded-md bg-[#f3f4f6]" />
+      <div className="h-9 w-32 animate-pulse rounded-md bg-[#d1fae5]" />
+    </>
+  ) : user ? (
+    <>
+      <NotificationBell />
+      <Button variant="ghost" size="sm" asChild>
+        <Link href={dashboardHref}>Mi panel</Link>
+      </Button>
+      <Button size="sm" asChild>
+        <Link href="/booking">Reservar ahora</Link>
+      </Button>
+    </>
+  ) : (
+    <>
+      <Button variant="ghost" size="sm" asChild>
+        <Link href="/login">Iniciar sesión</Link>
+      </Button>
+      <Button size="sm" asChild>
+        <Link href="/booking">Reservar ahora</Link>
+      </Button>
+    </>
+  )
+
+  const mobileAuthActions = loading ? (
+    <div className="space-y-2">
+      <div className="h-10 animate-pulse rounded-xl bg-[#f3f4f6]" />
+      <div className="h-10 animate-pulse rounded-xl bg-[#d1fae5]" />
+    </div>
+  ) : user ? (
+    <>
+      <div className="flex items-center justify-between rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-3 py-2">
+        <span className="text-sm font-medium text-[#374151]">Notificaciones</span>
+        <NotificationBell className="h-9 w-9" />
+      </div>
+      <Button variant="secondary" asChild>
+        <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>
+          Mi panel
+        </Link>
+      </Button>
+      <Button asChild>
+        <Link href="/booking" onClick={() => setMobileOpen(false)}>
+          Reservar ahora
+        </Link>
+      </Button>
+    </>
+  ) : (
+    <>
+      <Button variant="secondary" asChild>
+        <Link href="/login" onClick={() => setMobileOpen(false)}>
+          Iniciar sesión
+        </Link>
+      </Button>
+      <Button asChild>
+        <Link href="/booking" onClick={() => setMobileOpen(false)}>
+          Reservar ahora
+        </Link>
+      </Button>
+    </>
+  )
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#e5e7eb] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -55,28 +118,7 @@ export function Navbar() {
             />
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
-            {!loading && user ? (
-              <>
-                <NotificationBell />
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href={dashboardHref}>Mi panel</Link>
-                </Button>
-                <Button size="sm" asChild>
-                  <Link href="/booking">Reservar ahora</Link>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/login">Iniciar sesión</Link>
-                </Button>
-                <Button size="sm" asChild>
-                  <Link href="/booking">Reservar ahora</Link>
-                </Button>
-              </>
-            )}
-          </div>
+          <div className="hidden items-center gap-3 md:flex">{desktopAuthActions}</div>
 
           <button
             className="cursor-pointer p-2 text-[#6b7280] transition-colors duration-200 hover:text-[#111827] md:hidden"
@@ -110,39 +152,7 @@ export function Navbar() {
               </Link>
             ))}
 
-            <div className="flex flex-col gap-2 border-t border-[#e5e7eb] pt-2">
-              {!loading && user ? (
-                <>
-                  <div className="flex items-center justify-between rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-3 py-2">
-                    <span className="text-sm font-medium text-[#374151]">Notificaciones</span>
-                    <NotificationBell className="h-9 w-9" />
-                  </div>
-                  <Button variant="secondary" asChild>
-                    <Link href={dashboardHref} onClick={() => setMobileOpen(false)}>
-                      Mi panel
-                    </Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="/booking" onClick={() => setMobileOpen(false)}>
-                      Reservar ahora
-                    </Link>
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="secondary" asChild>
-                    <Link href="/login" onClick={() => setMobileOpen(false)}>
-                      Iniciar sesión
-                    </Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="/booking" onClick={() => setMobileOpen(false)}>
-                      Reservar ahora
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
+            <div className="flex flex-col gap-2 border-t border-[#e5e7eb] pt-2">{mobileAuthActions}</div>
           </div>
         ) : null}
       </div>

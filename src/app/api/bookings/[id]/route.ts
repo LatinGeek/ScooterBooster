@@ -5,9 +5,18 @@ import { canTransitionBookingStatus, canUserCancelBooking } from "@/lib/booking-
 import { getSession } from "@/lib/session"
 import { getBookingById, updateBookingStatus } from "@/lib/db/bookings"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
+import { getTechnicianById } from "@/lib/db/technicians"
+import { getServiceById } from "@/lib/db/services"
+import { getUserById } from "@/lib/db/users"
+import { addAuditLogEntry } from "@/lib/db/audit-log"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { assertTrustedOrigin } from "@/lib/security"
 import { notify } from "@/lib/notifications"
+import {
+  sendBookingCancelledEmail,
+  sendBookingCompletedEmail,
+  sendBookingConfirmedEmail,
+} from "@/lib/notification-emails"
 import { z } from "zod"
 
 export const dynamic = "force-dynamic"
@@ -101,14 +110,81 @@ export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Rout
 
   await updateBookingStatus(id, newStatus as import("@/types").BookingStatus)
   const updated = await getBookingById(id)
-  if (updated && role !== "user") {
+  if (updated) {
     after(async () => {
-      await notify({
-        type: "bookingStatusChanged",
-        userId: updated.userId,
-        bookingId: updated.id,
-        newStatus: updated.status,
+      const [service, technician, user] = await Promise.all([
+        getServiceById(updated.serviceId),
+        getTechnicianById(updated.technicianId),
+        getUserById(updated.userId),
+      ])
+      const scheduledDateLabel = new Date(updated.scheduledDate).toLocaleString("es-UY", {
+        dateStyle: "full",
+        timeStyle: "short",
       })
+
+      await Promise.allSettled([
+        ...(role !== "user"
+          ? [
+              notify({
+                type: "bookingStatusChanged",
+                userId: updated.userId,
+                bookingId: updated.id,
+                newStatus: updated.status,
+              }),
+            ]
+          : []),
+        addAuditLogEntry({
+          action: "booking_status_updated",
+          actorUid: session.uid,
+          targetType: "booking",
+          targetId: updated.id,
+          metadata: {
+            previousStatus: currentStatus,
+            newStatus: updated.status,
+            actorRole: role,
+          },
+        }),
+        ...(user?.email && service && technician && updated.status === "confirmed"
+          ? [
+              sendBookingConfirmedEmail({
+                to: user.email,
+                bookingId: updated.id,
+                serviceName: service.name,
+                technicianName: technician.displayName,
+                scheduledDate: scheduledDateLabel,
+              }),
+            ]
+          : []),
+        ...(user?.email && service && technician && updated.status === "completed"
+          ? [
+              sendBookingCompletedEmail({
+                to: user.email,
+                bookingId: updated.id,
+                serviceName: service.name,
+                technicianName: technician.displayName,
+                scheduledDate: scheduledDateLabel,
+              }),
+            ]
+          : []),
+        ...(user?.email &&
+        service &&
+        technician &&
+        (updated.status === "cancelled_by_user" || updated.status === "cancelled_by_technician")
+          ? [
+              sendBookingCancelledEmail({
+                to: user.email,
+                bookingId: updated.id,
+                serviceName: service.name,
+                technicianName: technician.displayName,
+                scheduledDate: scheduledDateLabel,
+                reason:
+                  updated.status === "cancelled_by_technician"
+                    ? "El técnico canceló la reserva."
+                    : "Cancelaste la reserva desde tu cuenta.",
+              }),
+            ]
+          : []),
+      ])
     })
   }
   return ok(updated)

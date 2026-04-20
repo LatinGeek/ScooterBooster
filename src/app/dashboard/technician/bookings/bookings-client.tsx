@@ -1,27 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import Link from "next/link"
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore"
+import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore"
+import { CalendarDays, CheckCircle, Clock, MessageCircle, Wrench, XCircle, AlertCircle, Zap } from "lucide-react"
 import { getFirebaseDb } from "@/lib/firebase"
-import {
-  CalendarDays,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Wrench,
-  MessageCircle,
-  AlertCircle,
-  Zap,
-} from "lucide-react"
+import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
 import { Button } from "@/components/ui/button"
-import type { Booking, BookingStatus, Service, ScooterModel } from "@/types"
+import type { Booking, BookingStatus, Service, ScooterModel, User } from "@/types"
 
 interface Props {
   initialBookings: Booking[]
   services: Record<string, Service>
   models: Record<string, ScooterModel>
+  users: Record<string, User>
   technicianId: string
 }
 
@@ -47,6 +40,12 @@ const TAB_STATUSES: Record<Tab, BookingStatus[]> = {
   cancelled: ["cancelled_by_user", "cancelled_by_technician", "expired"],
 }
 
+const TECH_TRANSITIONS: Partial<Record<BookingStatus, { label: string; next: BookingStatus }>> = {
+  confirmed: { label: "Iniciar servicio", next: "in_progress" },
+  in_progress: { label: "Marcar completado", next: "completed" },
+  pending: { label: "Cancelar reserva", next: "cancelled_by_technician" },
+}
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-UY", {
     weekday: "short",
@@ -65,14 +64,13 @@ function formatPrice(n: number) {
   }).format(n)
 }
 
-// Allowed transitions for technician
-const TECH_TRANSITIONS: Partial<Record<BookingStatus, { label: string; next: BookingStatus }>> = {
-  confirmed: { label: "Iniciar servicio", next: "in_progress" },
-  in_progress: { label: "Marcar completado", next: "completed" },
-  pending: { label: "Cancelar reserva", next: "cancelled_by_technician" },
-}
-
-export function TechnicianBookingsClient({ initialBookings, services, models, technicianId }: Props) {
+export function TechnicianBookingsClient({
+  initialBookings,
+  services,
+  models,
+  users,
+  technicianId,
+}: Props) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings)
   const [activeTab, setActiveTab] = useState<Tab>("pending")
   const [transitioning, setTransitioning] = useState<string | null>(null)
@@ -207,16 +205,14 @@ export function TechnicianBookingsClient({ initialBookings, services, models, te
             const isBusy = transitioning === booking.id
             const service = services[booking.serviceId]
             const model = models[booking.scooterModelId]
-
-            const waMsg = encodeURIComponent(
-              `Hola, tengo tu reserva en ScooterBooster (ID: ${booking.id}). Quisiera coordinar algunos detalles.`,
-            )
+            const user = users[booking.userId]
+            const whatsappUrl =
+              user?.phone && user.whatsappConsent
+                ? buildWhatsAppUrl(user.phone, WA_MESSAGES.technicianContactUser(booking.id))
+                : null
 
             return (
-              <div
-                key={booking.id}
-                className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm"
-              >
+              <div key={booking.id} className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm">
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-[#111827]">
@@ -225,6 +221,9 @@ export function TechnicianBookingsClient({ initialBookings, services, models, te
                     <p className="mt-0.5 truncate text-sm text-[#6b7280]">
                       {model?.name ?? "Scooter"}
                     </p>
+                    {user?.displayName ? (
+                      <p className="mt-1 truncate text-xs text-[#9ca3af]">Cliente: {user.displayName}</p>
+                    ) : null}
                   </div>
                   <span
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.bg} ${cfg.color}`}
@@ -239,42 +238,40 @@ export function TechnicianBookingsClient({ initialBookings, services, models, te
                     <CalendarDays className="h-4 w-4 text-[#10b981]" />
                     {formatDate(booking.scheduledDate)}
                   </span>
-                  <span className="text-[#111827] font-medium">
-                    {formatPrice(booking.basePrice)} base
-                  </span>
+                  <span className="font-medium text-[#111827]">{formatPrice(booking.basePrice)} base</span>
                 </div>
 
-                {booking.notes && (
+                {booking.notes ? (
                   <p className="mb-4 rounded-lg bg-[#f9fafb] px-3 py-2 text-xs text-[#6b7280]">
                     Notas: {booking.notes}
                   </p>
-                )}
+                ) : null}
 
                 <div className="flex flex-wrap gap-2 border-t border-[#f3f4f6] pt-4">
-                  {transition && (
+                  {transition ? (
                     <Button
                       size="sm"
                       disabled={isBusy}
                       onClick={() => void handleTransition(booking.id, transition.next)}
                       className={transition.next === "cancelled_by_technician" ? "bg-red-500 hover:bg-red-600" : ""}
                     >
-                      {isBusy ? (
-                        <Wrench className="mr-1.5 h-4 w-4 animate-spin" />
-                      ) : null}
+                      {isBusy ? <Wrench className="mr-1.5 h-4 w-4 animate-spin" /> : null}
                       {transition.label}
                     </Button>
-                  )}
+                  ) : null}
 
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={`https://wa.me/${booking.userId}?text=${waMsg}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <MessageCircle className="mr-1.5 h-4 w-4 text-[#25d366]" />
-                      Contactar
-                    </a>
-                  </Button>
+                  {whatsappUrl ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                        <MessageCircle className="mr-1.5 h-4 w-4 text-[#25d366]" />
+                        Contactar cliente
+                      </a>
+                    </Button>
+                  ) : (
+                    <span className="inline-flex items-center rounded-full bg-[#f3f4f6] px-3 py-1.5 text-xs text-[#6b7280]">
+                      Sin WhatsApp habilitado
+                    </span>
+                  )}
 
                   <Button variant="ghost" size="sm" asChild className="ml-auto text-[#6b7280]">
                     <Link href={`/booking/${booking.id}`}>Ver detalle →</Link>
