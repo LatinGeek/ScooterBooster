@@ -41,6 +41,6 @@ At the start of every session: read this file to know where to resume.
 
 ## Last Session
 
-- Date: 2026-04-20
-- Completed: Admin user operations are now much closer to the Phase 13 goal. `/admin/users` now supports search, profile drill-in, role updates, and suspend/restore controls backed by `PATCH /api/admin/users` plus stronger `POST /api/admin/set-role` syncing. Verification is green: `npm test` (`160`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases - Phase 13 analytics/override polish, richer authenticated desktop/manual QA for Phase 20, and any remaining Firestore/rules polish before production-focused Phase 21 work resumes.
+- Date: 2026-04-21
+- Completed: The admin overview now closes the analytics slice from Phase 13 with real 30-day charts for bookings and GMV plus a clearer booking-status distribution panel. Full verification is green: `npm test` (`156`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases - technician override tooling in Phase 13, richer authenticated desktop/manual QA for Phase 20, and any remaining Firestore/rules polish before production-focused Phase 21 work resumes.

@@ -249,3 +249,6 @@
 
 - **Admin suspension works best as a soft-delete plus Firebase Auth disable, not as an immediate hard delete:** Marking `deletedAt`/`scheduledDeletionAt`, disabling the auth user, and then letting the existing purge cron finish the 30-day grace period gives support a safe restore path while still taking the account offline instantly.
   - Affected files: `src/app/api/admin/users/route.ts`, `src/lib/db/users.ts`, `src/app/admin/users/users-client.tsx`, `src/app/api/admin/users/purge-deleted/route.ts`, `knowledge-base/learnings.md`
+
+- **You do not need a chart library to make the admin overview genuinely useful in this repo:** For the current scale, a small server-side aggregation plus lightweight SVG polylines is enough to show 30-day bookings and GMV trends without adding bundle weight or a new dependency surface.
+  - Affected files: `src/app/admin/page.tsx`, `src/app/admin/overview-charts.tsx`, `build-plan-tracker/13-admin-panel.md`
