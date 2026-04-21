@@ -1,6 +1,6 @@
 ﻿# Tracker - Phase 13: Admin Panel
 
-> Status: PARTIAL - bookings, refunds, moderation, settings, roles, users, audit visibility, catalog CRUD, and analytics are live; the remaining gap is mainly deeper admin override tooling
+> Status: COMPLETE - admin can now moderate technicians and reviews, manage catalog/users/bookings, process refunds, inspect audits, and monitor platform analytics from the app
 > Last updated: 2026-04-21
 
 ## Tasks
@@ -19,7 +19,7 @@
 - [x] Admin refund / payment operations UI
 - [x] User search, role controls, and suspend/restore workflow in `/admin/users`
 - [x] KPI charts for bookings and GMV over the last 30 days
-- [ ] Technician profile override editor from the admin side
+- [x] Technician profile override editor from the admin side
 
 ## Notes
 
@@ -30,4 +30,5 @@
 - `/admin/reviews` gives admins a dedicated moderation queue with search, hidden/visible filters, and soft-hide / restore actions backed by audit logs.
 - `/admin/bookings` centralizes booking triage, unpaid force-cancel actions, payment-link visibility, and MercadoPago refunds without requiring direct Firebase console access.
 - `/admin/users` supports client-side search/filtering, profile drill-in, role changes that sync both custom claims and Firestore, plus suspend/restore actions that disable Firebase Auth access and schedule the existing 30-day purge flow.
-- `/admin` now visualizes 30-day booking creation and GMV trends directly from Firestore snapshots, plus a status distribution card that makes daily ops triage quicker.
+- `/admin` visualizes 30-day booking creation and GMV trends directly from Firestore snapshots, plus a status distribution card that makes daily ops triage quicker.
+- `/admin/technicians` now doubles as an override workspace where admins can fix a technician's public profile, supported brands, visible services, and active state without impersonating that technician.

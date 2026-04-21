@@ -1,10 +1,11 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getTechnicianById: vi.fn(),
   setTechnicianApproval: vi.fn(),
+  updateTechnicianProfile: vi.fn(),
   getUserById: vi.fn(),
   getServiceById: vi.fn(),
   addAuditLogEntry: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock("@/lib/session", () => ({
 vi.mock("@/lib/db/technicians", () => ({
   getTechnicianById: mocks.getTechnicianById,
   setTechnicianApproval: mocks.setTechnicianApproval,
+  updateTechnicianProfile: mocks.updateTechnicianProfile,
 }))
 
 vi.mock("@/lib/db/users", () => ({
@@ -53,7 +55,6 @@ vi.mock("@/lib/logger", () => ({
   },
 }))
 
-// next/cache is not available in the test environment
 vi.mock("next/cache", () => ({
   revalidateTag: mocks.revalidateTag,
 }))
@@ -137,5 +138,59 @@ describe("/api/admin/technicians/[id]", () => {
     expect(mocks.setTechnicianApproval).toHaveBeenCalledWith("tech-1", true)
     expect(mocks.setCustomUserClaims).toHaveBeenCalledWith("user-1", { role: "technician" })
     expect(mocks.loggerInfo).toHaveBeenCalled()
+  })
+
+  it("lets admins override technician profile fields", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
+    mocks.getTechnicianById.mockResolvedValue({ id: "tech-1", userId: "user-1", displayName: "Carlos", services: ["service-1"] })
+    mocks.updateTechnicianProfile.mockResolvedValue({
+      id: "tech-1",
+      displayName: "Carlos Centro",
+      bio: "Perfil actualizado",
+      photoURL: "https://example.com/tech.jpg",
+      phone: "+59899111001",
+      whatsappNumber: "59899111001",
+      location: "Centro, Montevideo",
+      services: ["service-1"],
+      supportedBrands: ["brand-1"],
+      availability: {},
+      pricing: {},
+      rating: 5,
+      reviewCount: 12,
+      isApproved: true,
+      isActive: true,
+      createdAt: "2026-04-01T00:00:00.000Z",
+      updatedAt: "2026-04-21T00:00:00.000Z",
+    })
+
+    const payload = {
+      action: "update",
+      displayName: "Carlos Centro",
+      bio: "<b>Perfil actualizado</b>",
+      location: "Centro, Montevideo",
+      phone: "+59899111001",
+      whatsappNumber: "59899111001",
+      services: ["service-1"],
+      supportedBrands: ["brand-1"],
+      isActive: true,
+    }
+
+    const response = await PATCH(createPatchRequest(payload), {
+      params: Promise.resolve({ id: "tech-1" }),
+    })
+    const json = (await response.json()) as { success: boolean; data: { displayName: string } }
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(json.data.displayName).toBe("Carlos Centro")
+    expect(mocks.updateTechnicianProfile).toHaveBeenCalledWith("tech-1", expect.objectContaining({
+      displayName: "Carlos Centro",
+      bio: "Perfil actualizado",
+      location: "Centro, Montevideo",
+    }))
+    expect(mocks.addAuditLogEntry).toHaveBeenCalledWith(expect.objectContaining({
+      action: "technician_profile_overridden",
+      targetId: "tech-1",
+    }))
   })
 })

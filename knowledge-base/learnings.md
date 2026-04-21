@@ -252,3 +252,6 @@
 
 - **You do not need a chart library to make the admin overview genuinely useful in this repo:** For the current scale, a small server-side aggregation plus lightweight SVG polylines is enough to show 30-day bookings and GMV trends without adding bundle weight or a new dependency surface.
   - Affected files: `src/app/admin/page.tsx`, `src/app/admin/overview-charts.tsx`, `build-plan-tracker/13-admin-panel.md`
+
+- **Admin technician moderation becomes much more useful once it also supports direct profile overrides:** Approval alone leaves support stuck when a technician profile is mostly right but needs a quick copy, contact, or compatibility fix. Reusing the same profile-update path behind an admin-scoped override action closes that gap without inventing a second technician-edit system.
+  - Affected files: `src/app/admin/technicians/page.tsx`, `src/app/admin/technicians/technicians-client.tsx`, `src/app/api/admin/technicians/[id]/route.ts`, `build-plan-tracker/13-admin-panel.md`
