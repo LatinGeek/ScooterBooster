@@ -19,7 +19,7 @@ At the start of every session: read this file to know where to resume.
 | 01    | Foundations & Environment                    | COMPLETE    |
 | 02    | Design System Implementation                 | COMPLETE    |
 | 03    | Authentication & User Profiles               | COMPLETE    |
-| 04    | Firestore Schema, Rules & Seed Data          | PARTIAL     |
+| 04    | Firestore Schema, Rules & Seed Data          | BLOCKED     |
 | 05    | Scooter Catalog                              | COMPLETE    |
 | 06    | Service Catalog + Legal Disclaimer           | COMPLETE    |
 | 07    | Technicians (Onboarding, Profiles, Approval) | COMPLETE    |
@@ -31,9 +31,9 @@ At the start of every session: read this file to know where to resume.
 | 13    | Admin Panel                                  | COMPLETE    |
 | 14    | Notifications & WhatsApp                     | COMPLETE    |
 | 15    | Search, Filters & Discovery                  | COMPLETE    |
-| 16    | SEO, Metadata & Legal Pages                  | PARTIAL     |
-| 17    | Testing & QA                                 | PARTIAL     |
-| 18    | Observability                                | PARTIAL     |
+| 16    | SEO, Metadata & Legal Pages                  | BLOCKED     |
+| 17    | Testing & QA                                 | BLOCKED     |
+| 18    | Observability                                | BLOCKED     |
 | 19    | Security Hardening                           | COMPLETE    |
 | 20    | Performance & Polish                         | COMPLETE    |
 | 21    | Deployment (Vercel + Firebase Prod)          | NOT STARTED |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Phase 16 got a small but useful dev-side closeout step. Root metadata now supports `google-site-verification` through a `GOOGLE_SITE_VERIFICATION` env var, and `.env.example` documents that hook so enabling Search Console later is an env-only step instead of a code change. Verification stayed green with `npm run lint` and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases — especially any final testing/observability polish before we intentionally shift back toward Phase 21 deployment work.
+- Completed: Tracker statuses were reclassified to reflect reality more honestly. Phases 04, 16, 17, and 18 are no longer missing meaningful dev-side implementation work; their remaining gaps are external integrations like deployed Firestore rules, Search Console ownership, a public payment callback/webhook loop, Sentry source maps, log drains, and uptime monitors.
+- Next: Stay in dev mode unless we intentionally switch to external integration closure for the blocked phases or start Phase 21 deployment work.

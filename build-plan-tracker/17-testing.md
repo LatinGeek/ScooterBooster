@@ -1,6 +1,6 @@
 # Tracker - Phase 17: Testing & QA
 
-> Status: PARTIAL - Vitest, Firestore rules, and Playwright are green in dev mode; the main remaining gap is a true externally confirmed payment loop plus final cross-environment manual QA
+> Status: BLOCKED - Vitest, Firestore rules, and Playwright are green in dev mode; the only meaningful remaining gap is a true externally confirmed hosted payment loop plus final cross-environment QA
 > Last updated: 2026-04-22
 
 ## Tasks
@@ -17,7 +17,7 @@
 - [x] E2E: auth redirect for protected routes
 - [x] Manual/visual QA on mobile public flows (375px + landscape)
 - [x] Manual QA on desktop-authenticated dashboard/admin navigation
-- [ ] Payment completion return path after a true hosted approval
+- [ ] Payment completion return path after a true hosted approval — blocked on a public callback/webhook target
 
 ## Notes
 

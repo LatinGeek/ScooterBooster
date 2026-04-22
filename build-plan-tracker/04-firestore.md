@@ -1,6 +1,6 @@
 # Tracker — Phase 04: Firestore Schema, Rules & Seed Data
 
-> Status: PARTIAL - composite indexes are deployed, Firestore rules plus emulator-backed rule tests are in repo, and payment metadata now has dedicated DAL coverage
+> Status: BLOCKED - the repo-side schema, DAL, indexes, seed data, and rules work are complete; the only remaining gap is deployed Firestore rules in the real target environment
 > Last updated: 2026-04-22
 
 ## Tasks
@@ -11,7 +11,7 @@
 - [x] Seed script — `scripts/seed.ts` (7 brands, 23 models, 4 services, 3 demo technicians)
 - [x] `tsx` + `dotenv` installed for running seed script (`npm run seed`)
 - [x] `paymentLinks` + `auditLog` DAL files
-- [ ] Deploy rules — needs Firebase project access (credentials via Vercel dashboard)
+- [ ] Deploy rules — blocked on Firebase project access / target environment credentials
 - [x] Deploy indexes
 
 ## Notes

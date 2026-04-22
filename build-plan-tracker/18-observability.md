@@ -1,16 +1,16 @@
 # Tracker - Phase 18: Observability
 
-> Status: PARTIAL - Vercel Analytics/Speed Insights, Sentry SDK wiring, `/api/health`, request-correlated API logging, local GA4 event plumbing, and an in-app admin observability panel are now in place
+> Status: BLOCKED - the repo-side observability wiring is in place; the remaining gaps are external integrations like source-map verification, log drains, and uptime monitors
 > Last updated: 2026-04-22
 
 ## Tasks
 
-- [ ] Sentry error tracking + source maps
+- [ ] Sentry error tracking + source maps — blocked on target-environment verification and valid upload credentials
 - [x] Google Analytics 4 with custom events (signup, booking, payment, review, approval) wired in-app behind cookie consent
 - [x] Vercel Analytics + Speed Insights
 - [x] Internal observability dashboard/checklist in admin
-- [ ] Structured logging with pino (from Phase 01) -> Vercel Log Drains
-- [ ] Uptime monitoring
+- [ ] Structured logging with pino (from Phase 01) -> Vercel Log Drains — blocked on external drain configuration
+- [ ] Uptime monitoring — blocked on external monitor setup
 
 ## Notes
 
