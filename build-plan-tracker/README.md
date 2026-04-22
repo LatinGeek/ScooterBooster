@@ -19,7 +19,7 @@ At the start of every session: read this file to know where to resume.
 | 01    | Foundations & Environment                    | COMPLETE    |
 | 02    | Design System Implementation                 | COMPLETE    |
 | 03    | Authentication & User Profiles               | COMPLETE    |
-| 04    | Firestore Schema, Rules & Seed Data          | BLOCKED     |
+| 04    | Firestore Schema, Rules & Seed Data          | COMPLETE    |
 | 05    | Scooter Catalog                              | COMPLETE    |
 | 06    | Service Catalog + Legal Disclaimer           | COMPLETE    |
 | 07    | Technicians (Onboarding, Profiles, Approval) | COMPLETE    |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Tracker statuses were reclassified to reflect reality more honestly. Phases 04, 16, 17, and 18 are no longer missing meaningful dev-side implementation work; their remaining gaps are external integrations like deployed Firestore rules, Search Console ownership, a public payment callback/webhook loop, Sentry source maps, log drains, and uptime monitors.
-- Next: Stay in dev mode unless we intentionally switch to external integration closure for the blocked phases or start Phase 21 deployment work.
+- Completed: External integration closure started. Firestore rules were successfully deployed to `scooterbooster-dev`, so Phase 04 is no longer blocked in the active dev environment and is now marked complete.
+- Next: Continue through the remaining blocked external integrations one by one — Search Console ownership, hosted-payment callback confirmation, and observability platform setup.

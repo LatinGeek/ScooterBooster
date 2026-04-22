@@ -297,3 +297,6 @@
 
 - **Search Console goes from “future work” to a one-line env flip if the root metadata already exposes the verification field:** Wiring `verification.google` to `GOOGLE_SITE_VERIFICATION` in the root layout keeps dev mode clean today while removing a later code deploy from the ownership-verification path.
   - Affected files: `src/app/layout.tsx`, `.env.example`, `build-plan-tracker/16-seo-legal.md`
+
+- **If the active Firebase project is available, don't keep Firestore rules marked blocked out of habit:** Once `firebase-tools` can deploy `firestore.rules` to the shared dev project successfully, Phase 04 stops being an integration placeholder and becomes genuinely complete for day-to-day development.
+  - Affected files: `build-plan-tracker/04-firestore.md`, `build-plan-tracker/README.md`
