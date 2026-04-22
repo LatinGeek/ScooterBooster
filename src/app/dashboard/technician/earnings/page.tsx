@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation"
+import { getModelById } from "@/lib/db/models"
+import { getServiceById } from "@/lib/db/services"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { getBookingsByTechnician } from "@/lib/db/bookings"
-import { adminDb } from "@/lib/firebase-admin"
 import type { Service, ScooterModel } from "@/types"
 import lazyLoad from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -30,21 +31,21 @@ export default async function EarningsPage() {
 
   const [serviceSnaps, modelSnaps] = await Promise.all([
     serviceIds.length
-      ? Promise.all(serviceIds.map((id) => adminDb.collection("services").doc(id).get()))
+      ? Promise.all(serviceIds.map((id) => getServiceById(id)))
       : Promise.resolve([]),
     modelIds.length
-      ? Promise.all(modelIds.map((id) => adminDb.collection("scooterModels").doc(id).get()))
+      ? Promise.all(modelIds.map((id) => getModelById(id)))
       : Promise.resolve([]),
   ])
 
   const services: Record<string, Service> = {}
-  for (const snap of serviceSnaps) {
-    if (snap.exists) services[snap.id] = { id: snap.id, ...snap.data() } as unknown as Service
+  for (const service of serviceSnaps) {
+    if (service) services[service.id] = service
   }
 
   const models: Record<string, ScooterModel> = {}
-  for (const snap of modelSnaps) {
-    if (snap.exists) models[snap.id] = { id: snap.id, ...snap.data() } as unknown as ScooterModel
+  for (const model of modelSnaps) {
+    if (model) models[model.id] = model
   }
 
   const totalEarnings = completed.reduce((sum, b) => sum + b.basePrice, 0)

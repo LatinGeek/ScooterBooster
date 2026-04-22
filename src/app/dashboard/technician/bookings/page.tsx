@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation"
+import { getModelById } from "@/lib/db/models"
+import { getServiceById } from "@/lib/db/services"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId } from "@/lib/db/technicians"
 import { getBookingsByTechnician } from "@/lib/db/bookings"
 import { getUsersByIds } from "@/lib/db/users"
-import { adminDb } from "@/lib/firebase-admin"
 import type { Booking, Service, ScooterModel, User } from "@/types"
 import lazyLoad from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -22,40 +23,24 @@ async function fetchRelated(bookings: Booking[]) {
 
   const [serviceSnaps, modelSnaps] = await Promise.all([
     serviceIds.length
-      ? Promise.all(serviceIds.map((id) => adminDb.collection("services").doc(id).get()))
+      ? Promise.all(serviceIds.map((id) => getServiceById(id)))
       : Promise.resolve([]),
     modelIds.length
-      ? Promise.all(modelIds.map((id) => adminDb.collection("scooterModels").doc(id).get()))
+      ? Promise.all(modelIds.map((id) => getModelById(id)))
       : Promise.resolve([]),
   ])
 
   const services: Record<string, Service> = {}
-  for (const snap of serviceSnaps) {
-    if (snap.exists) {
-      const data = snap.data() ?? {}
-      services[snap.id] = {
-        id: snap.id,
-        ...data,
-        createdAt:
-          typeof data["createdAt"] === "string"
-            ? data["createdAt"]
-            : data["createdAt"]?.toDate?.().toISOString() ?? "",
-      } as unknown as Service
+  for (const service of serviceSnaps) {
+    if (service) {
+      services[service.id] = service
     }
   }
 
   const models: Record<string, ScooterModel> = {}
-  for (const snap of modelSnaps) {
-    if (snap.exists) {
-      const data = snap.data() ?? {}
-      models[snap.id] = {
-        id: snap.id,
-        ...data,
-        createdAt:
-          typeof data["createdAt"] === "string"
-            ? data["createdAt"]
-            : data["createdAt"]?.toDate?.().toISOString() ?? "",
-      } as unknown as ScooterModel
+  for (const model of modelSnaps) {
+    if (model) {
+      models[model.id] = model
     }
   }
 

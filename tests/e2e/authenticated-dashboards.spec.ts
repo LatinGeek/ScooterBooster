@@ -68,6 +68,38 @@ test.describe("authenticated dashboards", () => {
     await expect(page.getByRole("heading", { name: /Hola, Carlos/i })).toBeVisible()
   })
 
+  test("signed-in technicians can open earnings with completed bookings present", async ({
+    page,
+  }) => {
+    const bookingId = `e2e-tech-earnings-${Date.now()}`
+
+    await createTechnicianBookingFixture({
+      bookingId,
+      userId: "e2e-user-1",
+      technicianId: "tech-demo-1",
+      scheduledDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      status: "completed",
+      notes: "Reserva completada para validar ganancias",
+    })
+
+    try {
+      await signInAs(page, {
+        uid: "demo-user-1",
+        role: "technician",
+        email: "tech-demo-1@example.com",
+        displayName: "Carlos Rodríguez",
+      })
+
+      await page.goto("/dashboard/technician/earnings")
+
+      await expect(page).toHaveURL(/\/dashboard\/technician\/earnings$/)
+      await expect(page.getByRole("heading", { name: "Ganancias" })).toBeVisible()
+      await expect(page.getByText("Mantenimiento General")).toBeVisible()
+    } finally {
+      await deleteFixture("bookings", bookingId)
+    }
+  })
+
   test("signed-in admins can open the admin overview", async ({ page }) => {
     await signInAs(page, {
       uid: "e2e-admin-1",
