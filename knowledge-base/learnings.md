@@ -294,3 +294,6 @@
 
 - **Support gets much faster once every API response carries the same request ID that pino logs emit:** Adding `x-request-id` at the shared `withErrorHandling` layer means a browser report, an admin screenshot, and a server log line can all point to the same event without asking users to reproduce anything. Pairing that with an observability-panel readiness card makes the missing log-drain step obvious without blocking dev work.
   - Affected files: `src/lib/api-response.ts`, `src/lib/api-response.test.ts`, `src/app/admin/observability/page.tsx`, `build-plan-tracker/18-observability.md`
+
+- **Search Console goes from “future work” to a one-line env flip if the root metadata already exposes the verification field:** Wiring `verification.google` to `GOOGLE_SITE_VERIFICATION` in the root layout keeps dev mode clean today while removing a later code deploy from the ownership-verification path.
+  - Affected files: `src/app/layout.tsx`, `.env.example`, `build-plan-tracker/16-seo-legal.md`

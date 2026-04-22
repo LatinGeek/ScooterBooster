@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Phase 18 got another useful dev-side hardening pass. API responses now carry `x-request-id`, pino logs include the same request ID for request-based handlers, and the admin observability panel now reflects structured logging readiness alongside health, Sentry, analytics, and reminder prerequisites. Verification stayed green with targeted observability tests, `npm run lint`, and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases — especially any final SEO/legal and testing polish before we intentionally shift back toward Phase 21 deployment work.
+- Completed: Phase 16 got a small but useful dev-side closeout step. Root metadata now supports `google-site-verification` through a `GOOGLE_SITE_VERIFICATION` env var, and `.env.example` documents that hook so enabling Search Console later is an env-only step instead of a code change. Verification stayed green with `npm run lint` and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases — especially any final testing/observability polish before we intentionally shift back toward Phase 21 deployment work.

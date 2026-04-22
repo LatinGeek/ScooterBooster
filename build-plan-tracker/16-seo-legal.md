@@ -9,6 +9,7 @@
 - [x] `sitemap.xml` + `robots.txt`
 - [x] JSON-LD schemas for Organization, Product, Service, LocalBusiness, FAQ, and AggregateRating when data exists
 - [ ] Google Search Console verification
+- [x] Search Console verification hook is ready in metadata (`GOOGLE_SITE_VERIFICATION` env)
 - [x] Legal pages: Terms, Privacy Policy, Cookie Policy, FAQ
 - [x] Cookie consent banner (local consent storage for dev/prototype flow)
 - [x] Cookie banner persistence integrated with a future analytics preference system
@@ -17,4 +18,5 @@
 
 - JSON-LD now renders from live data on `/`, `/services`, `/scooters/[id]`, `/technicians/[id]`, and `/legal/faq`.
 - Cookie consent now stores structured local preferences in `sb-cookie-preferences`, with separate actions for essential-only vs analytics-enabled browsing. Legacy `sb-cookie-consent=accepted` values migrate automatically.
-- Search Console and any production verification tags remain intentionally deferred while we stay in dev mode.
+- Root metadata now supports a future `google-site-verification` tag through `GOOGLE_SITE_VERIFICATION`, so flipping Search Console on later is an env-only step.
+- Search Console ownership itself remains intentionally deferred while we stay in dev mode.
