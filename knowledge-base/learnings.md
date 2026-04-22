@@ -273,3 +273,6 @@
 
 - **Search feels much more complete once every empty state offers a recovery path instead of just saying “no results”:** On this project, the useful pattern was to keep the full query in the URL, show removable filter chips on `/technicians`, and offer one-click follow-up actions like “Quitar búsqueda”, “Quitar servicios”, or “Buscar técnicos” so discovery never becomes a dead end.
   - Affected files: `src/app/(main)/search/page.tsx`, `src/app/(main)/technicians/page.tsx`, `tests/e2e/public-routes.spec.ts`, `build-plan-tracker/15-search.md`
+
+- **Desktop-authenticated QA gets much more trustworthy once it checks the post-login navbar state, not just protected routes:** Verifying that signed-in users see `Mi panel` while guest CTAs disappear catches session-hydration regressions early, and then a small set of admin/user/technician destination checks gives us broad desktop confidence without building a brittle mega-spec.
+  - Affected files: `tests/e2e/desktop-authenticated-navigation.spec.ts`, `tests/e2e/support/auth.ts`, `build-plan-tracker/17-testing.md`, `build-plan-tracker/20-performance.md`

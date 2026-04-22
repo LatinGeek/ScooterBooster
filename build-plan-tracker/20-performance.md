@@ -1,7 +1,7 @@
 ﻿# Tracker — Phase 20: Performance & Polish
 
-> Status: PARTIAL — public polish is done; authenticated dashboard/desktop Lighthouse coverage still remains
-> Last updated: 2026-04-19
+> Status: PARTIAL — public polish is done, and desktop authenticated smoke is now covered; the remaining gap is formal desktop Lighthouse scoring
+> Last updated: 2026-04-22
 
 ## Tasks
 
@@ -16,7 +16,7 @@
 - [x] Toasts — sonner v2 installed; Toaster mounted in root layout with emerald success / red error palette; all `alert()` calls replaced
 - [x] Microcopy review — public home/login/services copy now uses consistent Spanish labels (`Deslimitación`, `Control de crucero`, legal links under `/legal/*`, sentence-case headings)
 - [x] Avatar/media lint cleanup — remaining dashboard/admin avatar warnings were migrated from raw `<img>` to `next/image`
-- [ ] Lighthouse audit — public mobile targets are green; authenticated dashboard + desktop pass still pending
+- [ ] Lighthouse audit — public mobile targets are green; formal desktop scoring still pending
 
 ## Notes
 
@@ -32,3 +32,4 @@
   - `/services`: Perf 94, A11y 95, Best Practices 96, SEO 100
   - `/technicians`: Perf 93, A11y 95, Best Practices 96, SEO 100
   - `/booking/new`: Perf 94, A11y 95, Best Practices 96, SEO 100
+- Authenticated desktop smoke is now covered in Playwright for the authorized navbar state, user notifications, admin users/bookings/audit, and technician profile management.
