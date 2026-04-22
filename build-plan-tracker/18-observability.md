@@ -1,6 +1,6 @@
 # Tracker - Phase 18: Observability
 
-> Status: BLOCKED - Sentry source-map upload is now verified in preview, and the remaining gaps are external integrations like log drains and uptime monitors
+> Status: BLOCKED - Sentry source-map upload is now verified in preview, and the remaining gap is external log-drain configuration
 > Last updated: 2026-04-22
 
 ## Tasks
@@ -10,7 +10,6 @@
 - [x] Vercel Analytics + Speed Insights
 - [x] Internal observability dashboard/checklist in admin
 - [ ] Structured logging with pino (from Phase 01) -> Vercel Log Drains — blocked on external drain configuration
-- [ ] Uptime monitoring — blocked on external monitor setup
 
 ## Notes
 

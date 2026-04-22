@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: External integration closure continued. A fresh Vercel preview deployed successfully with Sentry auth envs present, and the build logs confirmed source maps uploaded to Sentry for the preview release. Phase 18 remains blocked only by the remaining platform-side pieces: log drains and uptime monitoring.
-- Next: Continue through the remaining blocked external integrations — hosted-payment callback confirmation for Phase 17, plus the last observability platform steps.
+- Completed: Uptime monitoring was intentionally removed from Phase 18 so the observability checklist matches the actual project scope. Phase 18 is now blocked only by the remaining platform-side log-drain configuration.
+- Next: Continue through the remaining blocked external integrations — hosted-payment callback confirmation for Phase 17, plus the last observability platform step.

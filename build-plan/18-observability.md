@@ -1,8 +1,8 @@
-# Phase 18 â€” Observability (Logging, Analytics, Errors)
+# Phase 18 — Observability (Logging, Analytics, Errors)
 
 > **Goal:** Know what's happening in prod. Catch errors before users report them.
 
-## 18.1 â€” Error Tracking (Sentry)
+## 18.1 — Error Tracking (Sentry)
 
 - [ ] Create Sentry project `scooterbooster`
 - [ ] Install: `npm i @sentry/nextjs`
@@ -13,7 +13,7 @@
 - [ ] Add test error route `/api/_test/sentry` (dev-only) to verify
 - [ ] Configure alerts: Slack / email on new issue
 
-## 18.2 â€” Analytics
+## 18.2 — Analytics
 
 - [ ] Google Analytics 4 (or Plausible for privacy)
 - [ ] Fire events:
@@ -28,37 +28,28 @@
   - `technician_approved`
 - [ ] Conversion funnels defined in GA
 
-## 18.3 â€” Vercel Analytics & Speed Insights
+## 18.3 — Vercel Analytics & Speed Insights
 
 - [ ] Enable Vercel Web Analytics
 - [ ] Enable Speed Insights
 - [ ] Add `<Analytics />` and `<SpeedInsights />` to layout
 
-## 18.4 â€” Structured Logging
+## 18.4 — Structured Logging
 
 - [ ] All API routes log: `{ route, method, userId?, duration, status }`
 - [ ] Pipe to Vercel Log Drains (Axiom, Datadog, or Logtail)
 - [ ] Retain 30 days
 
-## 18.5 â€” Uptime Monitoring
-
-- [ ] Set up Better Uptime / UptimeRobot on:
-  - `https://scooterbooster.uy` (200 expected)
-  - `https://scooterbooster.uy/api/health` (returns `{ ok: true }`)
-- [ ] Create `/api/health` route that pings Firestore
-
-## 18.6 â€” Dashboards
+## 18.5 — Dashboards
 
 - [ ] Build a Notion / Linear doc linking:
   - Sentry issues
   - GA dashboard
   - Vercel Analytics
-  - Uptime status
 - [ ] Share with team
 
 ## Exit Criteria
 
 - [ ] Sentry catching prod errors with source maps
 - [ ] GA events firing and visible
-- [ ] Uptime checks green
 - [ ] Health endpoint live

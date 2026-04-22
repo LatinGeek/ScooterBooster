@@ -306,3 +306,6 @@
 
 - **A successful Vercel preview build that explicitly reports `Successfully uploaded source maps to Sentry` is strong enough to close the source-map upload task without waiting for a manual issue screenshot:** once the deployment environment has `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT`, the build log itself becomes the fastest trustworthy proof point.
   - Affected files: `build-plan-tracker/18-observability.md`, `build-plan-tracker/README.md`
+
+- **If uptime monitoring is out of scope for the product, remove it from both the build plan and tracker instead of leaving it as a permanent fake blocker:** that keeps the remaining blocked list honest and makes Phase 18 about the observability pieces we actually intend to operate.
+  - Affected files: `build-plan/18-observability.md`, `build-plan-tracker/18-observability.md`, `build-plan-tracker/README.md`
