@@ -1,33 +1,25 @@
-"use client"
+﻿"use client"
 
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { toast } from "sonner"
+import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore"
 import {
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-} from "firebase/firestore"
-import { getFirebaseDb } from "@/lib/firebase"
-import {
+  AlertCircle,
   CalendarDays,
   CheckCircle,
   Clock,
-  XCircle,
-  Wrench,
   CreditCard,
   MessageCircle,
   Star,
+  Wrench,
+  XCircle,
   Zap,
-  AlertCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { getFirebaseDb } from "@/lib/firebase"
 import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
-import type { Booking, BookingStatus, Service, Technician, ScooterModel } from "@/types"
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import type { Booking, BookingStatus, ScooterModel, Service, Technician } from "@/types"
 
 interface Props {
   initialBookings: Booking[]
@@ -36,8 +28,6 @@ interface Props {
   models: Record<string, ScooterModel>
   userId: string
 }
-
-// ─── Status config ────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<
   BookingStatus,
@@ -104,8 +94,6 @@ const CANCELLED_STATUSES: BookingStatus[] = [
 
 type Tab = "upcoming" | "past" | "cancelled"
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function formatDate(iso: string): string {
   if (!iso) return "—"
   return new Date(iso).toLocaleDateString("es-UY", {
@@ -119,10 +107,39 @@ function formatDate(iso: string): string {
 }
 
 function formatPrice(amount: number): string {
-  return new Intl.NumberFormat("es-UY", { style: "currency", currency: "UYU", maximumFractionDigits: 0 }).format(amount)
+  return new Intl.NumberFormat("es-UY", {
+    style: "currency",
+    currency: "UYU",
+    maximumFractionDigits: 0,
+  }).format(amount)
 }
 
-// ─── Booking card ─────────────────────────────────────────────────────────────
+function getPaymentLabel(booking: Booking) {
+  if (booking.paymentStatus === "paid") return "Pago confirmado"
+  if (booking.paymentStatus === "refunded") return "Reembolsado"
+  return "Pago pendiente"
+}
+
+function getNextStepCopy(booking: Booking) {
+  switch (booking.status) {
+    case "pending":
+      return booking.paymentLinkUrl
+        ? "Falta completar el pago para confirmar el turno."
+        : "La reserva está creada y esperando el link de pago."
+    case "confirmed":
+      return "Ya está confirmada. Solo queda esperar la fecha o coordinar detalles."
+    case "in_progress":
+      return "El técnico ya marcó el servicio como en curso."
+    case "completed":
+      return "Servicio completado. Si querés, podés dejar una reseña."
+    case "cancelled_by_user":
+      return "La cancelaste desde ScooterBooster."
+    case "cancelled_by_technician":
+      return "El técnico canceló el turno. Revisá el detalle para ver alternativas."
+    default:
+      return "La reserva venció sin confirmarse a tiempo."
+  }
+}
 
 interface BookingCardProps {
   booking: Booking
@@ -150,26 +167,19 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md">
-      {/* Header */}
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate font-semibold text-[#111827]">
-            {service?.name ?? "Servicio"}
-          </p>
+          <p className="truncate font-semibold text-[#111827]">{service?.name ?? "Servicio"}</p>
           <p className="mt-0.5 truncate text-sm text-[#6b7280]">
             {model ? `${model.name}` : "Scooter"} · {technician?.displayName ?? "Técnico"}
           </p>
         </div>
-        {/* Status badge */}
-        <span
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.bg} ${cfg.color}`}
-        >
+        <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.bg} ${cfg.color}`}>
           <StatusIcon className="h-3.5 w-3.5" />
           {cfg.label}
         </span>
       </div>
 
-      {/* Details row */}
       <div className="mb-4 flex flex-wrap gap-4 text-sm text-[#6b7280]">
         <span className="flex items-center gap-1.5">
           <CalendarDays className="h-4 w-4 shrink-0 text-[#10b981]" />
@@ -181,12 +191,29 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
         </span>
       </div>
 
-      {/* CTAs */}
+      <div className="mb-4 rounded-2xl bg-[#f8fafc] p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.16em] text-[#94a3b8] uppercase">Siguiente paso</p>
+            <p className="mt-2 text-sm font-semibold text-[#111827]">{getNextStepCopy(booking)}</p>
+          </div>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+            booking.paymentStatus === "paid"
+              ? "bg-[#d1fae5] text-[#065f46]"
+              : booking.paymentStatus === "refunded"
+                ? "bg-amber-50 text-amber-700"
+                : "bg-amber-50 text-amber-700"
+          }`}>
+            {getPaymentLabel(booking)}
+          </span>
+        </div>
+      </div>
+
       {(showPayCTA || showWhatsApp || showCancel || showReview) && (
         <div className="flex flex-wrap gap-2 border-t border-[#f3f4f6] pt-4">
           {showPayCTA && (
             <Button size="sm" asChild>
-              <a href={booking.paymentLinkUrl!} target="_blank" rel="noopener noreferrer">
+              <a href={booking.paymentLinkUrl ?? "#"} target="_blank" rel="noopener noreferrer">
                 <CreditCard className="mr-1.5 h-4 w-4" />
                 Pagar ahora
               </a>
@@ -195,11 +222,7 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
 
           {showWhatsApp && whatsappUrl && (
             <Button variant="outline" size="sm" asChild>
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="mr-1.5 h-4 w-4 text-[#25d366]" />
                 Contactar técnico
               </a>
@@ -234,14 +257,12 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
             </Button>
           )}
 
-          {/* Always show "View details" */}
           <Button variant="ghost" size="sm" asChild className="ml-auto text-[#6b7280]">
             <Link href={`/booking/${booking.id}`}>Ver detalle →</Link>
           </Button>
         </div>
       )}
 
-      {/* If no CTAs, still show view detail */}
       {!showPayCTA && !showWhatsApp && !showCancel && !showReview && (
         <div className="flex border-t border-[#f3f4f6] pt-4">
           <Button variant="ghost" size="sm" asChild className="text-[#6b7280]">
@@ -252,8 +273,6 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
     </div>
   )
 }
-
-// ─── Empty state ──────────────────────────────────────────────────────────────
 
 function EmptyState({ tab }: { tab: Tab }) {
   const messages: Record<Tab, { title: string; sub: string; showCTA: boolean }> = {
@@ -291,8 +310,6 @@ function EmptyState({ tab }: { tab: Tab }) {
   )
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function DashboardBookingsClient({
   initialBookings,
   technicians,
@@ -305,14 +322,9 @@ export function DashboardBookingsClient({
   const [cancelling, setCancelling] = useState<string | null>(null)
   const [hasReviewMap, setHasReviewMap] = useState<Record<string, boolean>>({})
 
-  // Real-time Firestore subscription
   useEffect(() => {
     const db = getFirebaseDb()
-    const q = query(
-      collection(db, "bookings"),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc"),
-    )
+    const q = query(collection(db, "bookings"), where("userId", "==", userId), orderBy("createdAt", "desc"))
     const unsub = onSnapshot(q, (snap) => {
       const updated: Booking[] = snap.docs.map((doc) => {
         const d = doc.data()
@@ -336,6 +348,7 @@ export function DashboardBookingsClient({
           disclaimerAcceptedAt: (d["disclaimerAcceptedAt"] as string | null) ?? null,
           disclaimerVersion: (d["disclaimerVersion"] as string | null) ?? null,
           refundedAt: (d["refundedAt"] as string | null) ?? null,
+          reminderSentAt: (d["reminderSentAt"] as string | null) ?? null,
           createdAt: d["createdAt"] as string,
           updatedAt: d["updatedAt"] as string,
         }
@@ -345,25 +358,20 @@ export function DashboardBookingsClient({
     return () => unsub()
   }, [userId])
 
-  // Check which completed bookings already have reviews
   useEffect(() => {
-    const completedIds = bookings
-      .filter((b) => b.status === "completed")
-      .map((b) => b.id)
+    const completedIds = bookings.filter((b) => b.status === "completed").map((b) => b.id)
     if (!completedIds.length) return
 
     const db = getFirebaseDb()
     const reviewChecks = completedIds.map(async (bookingId) => {
-      const { getDocs, query: fsQuery, collection: fsCollection, where: fsWhere } = await import("firebase/firestore")
-      const snap = await getDocs(
-        fsQuery(fsCollection(db, "reviews"), fsWhere("bookingId", "==", bookingId)),
-      )
+      const { collection: fsCollection, getDocs, query: fsQuery, where: fsWhere } = await import("firebase/firestore")
+      const snap = await getDocs(fsQuery(fsCollection(db, "reviews"), fsWhere("bookingId", "==", bookingId)))
       return { bookingId, hasReview: !snap.empty }
     })
 
     Promise.all(reviewChecks).then((results) => {
       const map: Record<string, boolean> = {}
-      for (const r of results) map[r.bookingId] = r.hasReview
+      for (const result of results) map[result.bookingId] = result.hasReview
       setHasReviewMap(map)
     })
   }, [bookings])
@@ -385,7 +393,6 @@ export function DashboardBookingsClient({
     }
   }
 
-  // Group bookings
   const upcoming = bookings.filter((b) => UPCOMING_STATUSES.includes(b.status))
   const past = bookings.filter((b) => PAST_STATUSES.includes(b.status))
   const cancelled = bookings.filter((b) => CANCELLED_STATUSES.includes(b.status))
@@ -399,35 +406,32 @@ export function DashboardBookingsClient({
 
   return (
     <section>
-      {/* Page header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#111827]">Mis reservas</h1>
+        <p className="mt-1 text-sm text-[#6b7280]">Gestioná tus turnos, pagos y contactos con técnicos.</p>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
+        <p className="text-sm font-semibold text-[#111827]">Cómo leer este panel</p>
         <p className="mt-1 text-sm text-[#6b7280]">
-          Gestioná tus turnos, pagos y contactos con técnicos.
+          Próximas muestra turnos que todavía requieren acción o seguimiento. Historial agrupa servicios completados y Canceladas reúne reservas cerradas sin turno activo.
         </p>
       </div>
 
-      {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-xl bg-[#f3f4f6] p-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${
-              activeTab === tab.id
-                ? "bg-white text-[#111827] shadow-sm"
-                : "text-[#6b7280] hover:text-[#111827]"
+              activeTab === tab.id ? "bg-white text-[#111827] shadow-sm" : "text-[#6b7280] hover:text-[#111827]"
             }`}
           >
             {tab.label}
             {tab.count > 0 && (
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-                  activeTab === tab.id
-                    ? "bg-[#d1fae5] text-[#059669]"
-                    : "bg-[#e5e7eb] text-[#6b7280]"
-                }`}
-              >
+              <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                activeTab === tab.id ? "bg-[#d1fae5] text-[#059669]" : "bg-[#e5e7eb] text-[#6b7280]"
+              }`}>
                 {tab.count}
               </span>
             )}
@@ -435,7 +439,6 @@ export function DashboardBookingsClient({
         ))}
       </div>
 
-      {/* Booking list */}
       {tabGroups[activeTab].length === 0 ? (
         <EmptyState tab={activeTab} />
       ) : (

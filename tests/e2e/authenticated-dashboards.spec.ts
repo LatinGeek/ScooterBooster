@@ -1,6 +1,10 @@
-import { expect, test } from "@playwright/test"
+﻿import { expect, test } from "@playwright/test"
 import { signInAs, signOut } from "./support/auth"
-import { createTechnicianBookingFixture, deleteFixture } from "./support/fixtures"
+import {
+  createTechnicianBookingFixture,
+  deleteFixture,
+  upsertUserNotificationFixture,
+} from "./support/fixtures"
 
 test.describe("authenticated dashboards", () => {
   test.afterEach(async ({ page }) => {
@@ -49,6 +53,36 @@ test.describe("authenticated dashboards", () => {
       await expect(page.getByRole("heading", { name: "Mis reservas" })).toBeVisible()
       await expect(page.getByText("Mantenimiento General")).toBeVisible()
       await expect(page.getByText("Carlos Rodríguez")).toBeVisible()
+    } finally {
+      await deleteFixture("bookings", bookingId)
+    }
+  })
+
+  test("signed-in users see clearer payment return guidance on booking detail", async ({ page }) => {
+    const bookingId = `e2e-booking-return-${Date.now()}`
+
+    await createTechnicianBookingFixture({
+      bookingId,
+      userId: "e2e-user-1",
+      technicianId: "tech-demo-1",
+      scheduledDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+      status: "pending",
+      notes: "Reserva con pago pendiente para validar retorno",
+    })
+
+    try {
+      await signInAs(page, {
+        uid: "e2e-user-1",
+        role: "user",
+        email: "e2e-user-1@example.com",
+        displayName: "E2E User",
+      })
+
+      await page.goto(`/booking/${bookingId}?status=success`)
+
+      await expect(page.getByText("Pago en revisión")).toBeVisible()
+      await expect(page.getByText("Qué sigue ahora")).toBeVisible()
+      await expect(page.getByText("Estamos validando tu pago")).toBeVisible()
     } finally {
       await deleteFixture("bookings", bookingId)
     }
@@ -112,5 +146,48 @@ test.describe("authenticated dashboards", () => {
 
     await expect(page).toHaveURL(/\/admin$/)
     await expect(page.getByRole("heading", { name: "Panel de administración" })).toBeVisible()
+  })
+
+  test("signed-in users can review grouped notifications", async ({ page }) => {
+    const unreadId = `notification-unread-${Date.now()}`
+    const readId = `notification-read-${Date.now()}`
+
+    await upsertUserNotificationFixture({
+      userId: "e2e-user-1",
+      notificationId: unreadId,
+      type: "booking_confirmed",
+      title: "Reserva confirmada",
+      body: "Tu turno ya quedó confirmado.",
+      href: "/booking/demo",
+    })
+    await upsertUserNotificationFixture({
+      userId: "e2e-user-1",
+      notificationId: readId,
+      type: "booking_completed",
+      title: "Servicio completado",
+      body: "Tu servicio ya terminó.",
+      href: "/booking/demo",
+      readAt: new Date().toISOString(),
+    })
+
+    try {
+      await signInAs(page, {
+        uid: "e2e-user-1",
+        role: "user",
+        email: "e2e-user-1@example.com",
+        displayName: "E2E User",
+      })
+
+      await page.goto("/dashboard/notifications")
+
+      await expect(page.getByRole("heading", { name: "Notificaciones" })).toBeVisible()
+      await expect(page.getByRole("heading", { name: "Pendientes" })).toBeVisible()
+      await expect(page.getByRole("heading", { name: "Historial" })).toBeVisible()
+      await expect(page.getByText("Reserva confirmada")).toBeVisible()
+      await expect(page.getByText("Servicio completado")).toBeVisible()
+    } finally {
+      await deleteFixture("users/e2e-user-1/notifications", unreadId)
+      await deleteFixture("users/e2e-user-1/notifications", readId)
+    }
   })
 })

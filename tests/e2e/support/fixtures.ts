@@ -258,3 +258,52 @@ export async function deleteFixture(collectionName: string, id: string) {
   const db = getAdminDb()
   await db.collection(collectionName).doc(id).delete()
 }
+
+export async function upsertUserNotificationFixture(input: {
+  userId: string
+  notificationId: string
+  type:
+    | "booking_pending_payment"
+    | "booking_confirmed"
+    | "booking_reminder"
+    | "booking_in_progress"
+    | "booking_completed"
+    | "booking_cancelled"
+  title: string
+  body: string
+  href?: string | null
+  readAt?: string | null
+}) {
+  const db = getAdminDb()
+  const timestamp = nowIso()
+
+  await db
+    .collection("users")
+    .doc(input.userId)
+    .set(
+      {
+        displayName: "Cliente E2E",
+        email: `${input.userId}@example.com`,
+        photoURL: null,
+        role: "user",
+        phone: "+59899118888",
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      },
+      { merge: true },
+    )
+
+  await db
+    .collection("users")
+    .doc(input.userId)
+    .collection("notifications")
+    .doc(input.notificationId)
+    .set({
+      type: input.type,
+      title: input.title,
+      body: input.body,
+      href: input.href ?? null,
+      readAt: input.readAt ?? null,
+      createdAt: timestamp,
+    })
+}
