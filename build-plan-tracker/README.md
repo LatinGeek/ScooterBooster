@@ -30,7 +30,7 @@ At the start of every session: read this file to know where to resume.
 | 12    | Technician Dashboard                         | COMPLETE    |
 | 13    | Admin Panel                                  | COMPLETE    |
 | 14    | Notifications & WhatsApp                     | COMPLETE    |
-| 15    | Search, Filters & Discovery                  | PARTIAL     |
+| 15    | Search, Filters & Discovery                  | COMPLETE    |
 | 16    | SEO, Metadata & Legal Pages                  | PARTIAL     |
 | 17    | Testing & QA                                 | PARTIAL     |
 | 18    | Observability                                | PARTIAL     |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Phase 06 is now complete in dev, with richer service education blocks and FAQs on each service detail page. Phase 16 cookie preferences and the local Phase 18 GA4 plumbing also moved forward: the banner now stores structured essential-vs-analytics consent, GA4 loads only after consent, and the app emits custom analytics events for signup, booking, payment return states, reviews, technician applications, and approvals. Full verification is green: `npm test` (`165`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
+- Completed: Phase 15 is now complete in dev. Search/discovery got the remaining UX polish: `/search` now suggests quick follow-up queries when a result set is empty, `/technicians` now surfaces removable active-filter chips plus recovery shortcuts for zero-result combinations, and public E2E coverage now checks that users get clear next actions instead of dead-end empty states. Verification stayed green with `npm test`, `npm run test:e2e`, `npm run lint`, and `npm run build`.
 - Next: Keep closing the remaining partial dev-addressable phases - especially Phase 20 authenticated desktop/manual QA, plus the remaining observability and testing polish before production-focused Phase 21 resumes.

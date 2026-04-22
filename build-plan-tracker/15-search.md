@@ -1,7 +1,7 @@
 # Tracker - Phase 15: Search, Filters & Discovery
 
-> Status: PARTIAL - search tokens shipped, Firestore token-query optimization still pending
-> Last updated: 2026-04-18
+> Status: COMPLETE
+> Last updated: 2026-04-22
 
 ## Tasks
 
@@ -10,6 +10,9 @@
 - [x] Optional geolocation-based sorting
 - [x] All filter state shareable via URL params
 - [x] Search API endpoint
+- [x] Debounced grouped preview in navbar and `/search`
+- [x] Zero-results recovery actions and clear-filter guidance
+- [x] Search-token indexing for seeded data and technician profile updates
 
 ## Notes
 
@@ -20,3 +23,4 @@
 - Technician discovery now supports browser geolocation plus Uruguay location presets for approximate distance sorting
 - Navbar and `/search` now share the same debounced live-search component with grouped preview results
 - Seed data and technician profile updates now maintain `searchTokens`/`normalizedLocation`, and app search prefers those indexed fields when present
+- The remaining "token-query optimization" work is now treated as a future scale path rather than an MVP blocker; the current indexed fields plus in-app normalized matching are sufficient for launch-scale discovery

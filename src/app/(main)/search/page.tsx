@@ -19,6 +19,17 @@ function getQueryValue(value: string | string[] | undefined): string {
   return typeof value === "string" ? value.trim() : ""
 }
 
+function buildSuggestedQueries(query: string) {
+  const normalized = query.trim()
+  const suggestions = [
+    normalized ? `${normalized} montevideo` : "montevideo",
+    normalized ? `${normalized} mantenimiento` : "mantenimiento",
+    normalized ? `${normalized} xiaomi` : "xiaomi",
+  ]
+
+  return Array.from(new Set(suggestions.filter((item) => item.trim().length >= 2))).slice(0, 3)
+}
+
 export default async function SearchPage({
   searchParams,
 }: {
@@ -29,6 +40,9 @@ export default async function SearchPage({
 
   const [results, brands] = await Promise.all([searchPlatform(query), getActiveBrands()])
   const brandById = new Map(brands.map((brand) => [brand.id, brand]))
+  const totalResults =
+    results.scooters.length + results.services.length + results.technicians.length
+  const suggestedQueries = buildSuggestedQueries(query)
 
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-[linear-gradient(180deg,#f8fffb_0%,#ffffff_30%,#f8fafc_100%)]">
@@ -78,6 +92,11 @@ export default async function SearchPage({
               <div>
                 <p className="text-sm text-[#6b7280]">Resultados para</p>
                 <p className="text-2xl font-bold text-[#111827]">“{query}”</p>
+                <p className="mt-1 text-sm text-[#6b7280]">
+                  {totalResults > 0
+                    ? `Encontramos ${totalResults} coincidencia${totalResults === 1 ? "" : "s"} en toda la plataforma.`
+                    : "Todavía no hay coincidencias exactas, pero te dejamos atajos para seguir explorando."}
+                </p>
               </div>
               <div className="flex flex-wrap gap-2 text-sm text-[#6b7280]">
                 <span className="rounded-full bg-[#ecfdf5] px-3 py-1 text-[#047857]">
@@ -103,6 +122,38 @@ export default async function SearchPage({
                 <p className="mt-2 text-[#6b7280]">
                   Probá con otra marca, un barrio distinto o un servicio más general.
                 </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  <Link
+                    href={query ? `/technicians?q=${encodeURIComponent(query)}` : "/technicians"}
+                    className="inline-flex rounded-full bg-[#10b981] px-5 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
+                  >
+                    Buscar técnicos
+                  </Link>
+                  <Link
+                    href="/services"
+                    className="inline-flex rounded-full border border-[#cbd5e1] px-5 py-2 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#f8fafc]"
+                  >
+                    Explorar servicios
+                  </Link>
+                </div>
+                {suggestedQueries.length > 0 ? (
+                  <div className="mt-6">
+                    <p className="text-xs font-semibold tracking-[0.18em] text-[#94a3b8] uppercase">
+                      Pruebas rápidas
+                    </p>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                      {suggestedQueries.map((suggestion) => (
+                        <Link
+                          key={suggestion}
+                          href={`/search?q=${encodeURIComponent(suggestion)}`}
+                          className="rounded-full bg-[#f8fafc] px-4 py-2 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#e2e8f0]"
+                        >
+                          {suggestion}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
 

@@ -42,6 +42,17 @@ function createLocationHref(
   return `/technicians?${params.toString()}`
 }
 
+function buildHrefFromParams(params: URLSearchParams): string {
+  const query = params.toString()
+  return query ? `/technicians?${query}` : "/technicians"
+}
+
+interface ActiveFilterChip {
+  key: string
+  label: string
+  href: string
+}
+
 export default async function TechniciansPage({
   searchParams,
 }: {
@@ -129,6 +140,152 @@ export default async function TechniciansPage({
       hasCoordinates ? getDistanceToTechnician(technician, latitude, longitude) : null,
     ])
   )
+  const selectedBrandName = brands.find((item) => item.id === brand)?.name
+  const activeFilters: ActiveFilterChip[] = [
+    query
+      ? {
+          key: "q",
+          label: `Búsqueda: ${query}`,
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("q")
+              return params
+            })()
+          ),
+        }
+      : null,
+    location
+      ? {
+          key: "location",
+          label: `Ubicación: ${location}`,
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("location")
+              params.delete("near")
+              params.delete("lat")
+              params.delete("lng")
+              return params
+            })()
+          ),
+        }
+      : null,
+    selectedBrandName
+      ? {
+          key: "brand",
+          label: `Marca: ${selectedBrandName}`,
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("brand")
+              return params
+            })()
+          ),
+        }
+      : null,
+    minRatingValue
+      ? {
+          key: "minRating",
+          label: `Rating desde ${minRatingValue}`,
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("minRating")
+              return params
+            })()
+          ),
+        }
+      : null,
+    minPriceRaw || maxPriceRaw
+      ? {
+          key: "price",
+          label: `Precio: ${minPriceRaw || "0"}-${maxPriceRaw || "sin tope"} UYU`,
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("minPrice")
+              params.delete("maxPrice")
+              return params
+            })()
+          ),
+        }
+      : null,
+    ...selectedServices
+      .map((serviceId) => services.find((service) => service.id === serviceId))
+      .filter((service): service is (typeof services)[number] => Boolean(service))
+      .map((service) => ({
+        key: `service-${service.id}`,
+        label: `Servicio: ${service.name}`,
+        href: buildHrefFromParams(
+          (() => {
+            const params = new URLSearchParams(currentSearchParams.toString())
+            const remainingServices = params.getAll("service").filter((value) => value !== service.id)
+            params.delete("service")
+            for (const remainingService of remainingServices) {
+              params.append("service", remainingService)
+            }
+            return params
+          })()
+        ),
+      })),
+    nearbyLabel
+      ? {
+          key: "near",
+          label: `Cercanía: ${nearbyLabel}`,
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("near")
+              params.delete("lat")
+              params.delete("lng")
+              return params
+            })()
+          ),
+        }
+      : null,
+  ].filter((item): item is ActiveFilterChip => Boolean(item))
+  const zeroStateSuggestions = [
+    query ? { label: "Quitar búsqueda", href: activeFilters.find((item) => item.key === "q")?.href } : null,
+    selectedServices.length > 0
+      ? {
+          label: "Quitar servicios",
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("service")
+              return params
+            })()
+          ),
+        }
+      : null,
+    brand
+      ? {
+          label: "Ver todas las marcas",
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("brand")
+              return params
+            })()
+          ),
+        }
+      : null,
+    minPriceRaw || maxPriceRaw || minRatingValue
+      ? {
+          label: "Relajar precio y rating",
+          href: buildHrefFromParams(
+            (() => {
+              const params = new URLSearchParams(currentSearchParams.toString())
+              params.delete("minPrice")
+              params.delete("maxPrice")
+              params.delete("minRating")
+              return params
+            })()
+          ),
+        }
+      : null,
+  ].filter((item): item is { label: string; href: string } => Boolean(item?.href))
 
   return (
     <main>
@@ -373,6 +530,39 @@ export default async function TechniciansPage({
               </div>
             </div>
 
+            {activeFilters.length > 0 ? (
+              <div className="mb-5 rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[#111827]">
+                      Filtros activos ({activeFilters.length})
+                    </p>
+                    <p className="mt-1 text-xs text-[#6b7280]">
+                      Tocá una chip para quitar solo ese filtro sin perder el resto de la búsqueda.
+                    </p>
+                  </div>
+                  <Link
+                    href="/technicians"
+                    className="text-sm font-semibold text-[#10b981] transition-colors duration-200 hover:text-[#059669]"
+                  >
+                    Limpiar todo
+                  </Link>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {activeFilters.map((filter) => (
+                    <Link
+                      key={filter.key}
+                      href={filter.href}
+                      className="rounded-full bg-[#f8fafc] px-3 py-1.5 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#e2e8f0]"
+                    >
+                      {filter.label} ×
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             {nearbyLabel ? (
               <div className="mb-5 rounded-3xl border border-[#d1fae5] bg-[#f0fdf4] px-4 py-3 text-sm text-[#047857]">
                 Ordenado por cercanía aproximada a {nearbyLabel}.
@@ -388,6 +578,19 @@ export default async function TechniciansPage({
                 <p className="mt-2">
                   Probá cambiando la ubicación, relajando el precio o quitando algún servicio.
                 </p>
+                {zeroStateSuggestions.length > 0 ? (
+                  <div className="mt-6 flex flex-wrap justify-center gap-2">
+                    {zeroStateSuggestions.map((suggestion) => (
+                      <Link
+                        key={suggestion.label}
+                        href={suggestion.href}
+                        className="rounded-full bg-[#f8fafc] px-4 py-2 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#e2e8f0]"
+                      >
+                        {suggestion.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
                 <Link
                   href="/technicians"
                   className="mt-6 inline-flex cursor-pointer rounded-full bg-[#10b981] px-5 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
