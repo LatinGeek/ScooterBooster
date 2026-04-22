@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { dismissCookieBanner } from "./support/ui"
 
 function getFutureLocalDateTime(daysFromNow = 3) {
   const date = new Date()
@@ -42,6 +43,7 @@ test.describe("booking flow", () => {
     })
 
     await page.goto("/booking/new")
+    await dismissCookieBanner(page)
 
     await page.getByRole("button", { name: /Mi Electric Scooter 1S/i }).click()
     await page.getByRole("button", { name: "Siguiente" }).click()

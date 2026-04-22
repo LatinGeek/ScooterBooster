@@ -1,7 +1,7 @@
 # Tracker - Phase 16: SEO, Metadata & Legal Pages
 
 > Status: PARTIAL
-> Last updated: 2026-04-19
+> Last updated: 2026-04-22
 
 ## Tasks
 
@@ -11,10 +11,10 @@
 - [ ] Google Search Console verification
 - [x] Legal pages: Terms, Privacy Policy, Cookie Policy, FAQ
 - [x] Cookie consent banner (local consent storage for dev/prototype flow)
-- [ ] Cookie banner persistence integrated with a future analytics preference system
+- [x] Cookie banner persistence integrated with a future analytics preference system
 
 ## Notes
 
 - JSON-LD now renders from live data on `/`, `/services`, `/scooters/[id]`, `/technicians/[id]`, and `/legal/faq`.
-- Cookie consent currently stores a local acceptance flag in the browser (`sb-cookie-consent`) so we can validate UX in dev before wiring optional analytics preferences.
+- Cookie consent now stores structured local preferences in `sb-cookie-preferences`, with separate actions for essential-only vs analytics-enabled browsing. Legacy `sb-cookie-consent=accepted` values migrate automatically.
 - Search Console and any production verification tags remain intentionally deferred while we stay in dev mode.

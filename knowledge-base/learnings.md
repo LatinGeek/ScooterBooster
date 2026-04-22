@@ -261,3 +261,9 @@
 
 - **A request-changes moderation state is more useful than a binary approve/reject flow for technician onboarding:** Persisting a dedicated application status plus moderation reason lets admins send actionable feedback, keeps the applicant inside the same technician record, and makes resubmission a small profile update instead of a fresh application from scratch.
   - Affected files: `src/lib/db/technicians.ts`, `src/app/api/admin/technicians/[id]/route.ts`, `src/app/api/technicians/apply/route.ts`, `src/app/(main)/technicians/apply/apply-form.tsx`, `src/app/admin/technicians/technicians-client.tsx`
+
+- **Analytics consent is easier to evolve when the cookie banner stores structured preferences instead of a single accepted flag:** Migrating from `sb-cookie-consent=accepted` to a JSON payload under `sb-cookie-preferences` let us gate GA4 loading and custom events cleanly, while still preserving backward compatibility for browsers that had already accepted the old banner.
+  - Affected files: `src/lib/analytics.ts`, `src/components/cookie-banner.tsx`, `src/components/analytics-provider.tsx`, `build-plan-tracker/16-seo-legal.md`, `build-plan-tracker/18-observability.md`
+
+- **GA4 event plumbing can stay client-first in App Router as long as the return surfaces carry enough state:** Booking creation can emit `payment_initiated` before the MercadoPago handoff, and the booking detail page can emit `payment_succeeded`, `payment_failed`, and `booking_confirmed` once per session by reading the back-url status plus the live booking document.
+  - Affected files: `src/app/layout.tsx`, `src/app/onboarding/page.tsx`, `src/app/(main)/booking/new/booking-wizard.tsx`, `src/app/(main)/booking/[id]/booking-detail-client.tsx`, `src/components/review-form.tsx`, `src/app/(main)/technicians/apply/apply-form.tsx`, `src/app/admin/technicians/technicians-client.tsx`

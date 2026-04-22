@@ -41,6 +41,6 @@ At the start of every session: read this file to know where to resume.
 
 ## Last Session
 
-- Date: 2026-04-21
-- Completed: Phase 07 is now complete in dev. Technician onboarding supports resubmission after moderation notes, admins can explicitly request changes from `/admin/technicians`, and profile-photo uploads now run through a server-side resize pipeline before landing in Firebase Storage. Full verification is green: `npm test` (`162`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases - especially Phase 20 authenticated desktop/manual QA, plus the remaining observability/SEO/testing polish before production-focused Phase 21 resumes.
+- Date: 2026-04-22
+- Completed: Phase 16 cookie preferences and the local Phase 18 GA4 plumbing both moved forward in dev. The cookie banner now stores structured essential-vs-analytics consent, GA4 loads only after consent, and the app emits custom analytics events for signup, booking, payment return states, reviews, technician applications, and approvals. Full verification is green: `npm test` (`165`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases - especially Phase 20 authenticated desktop/manual QA, plus the remaining observability and testing polish before production-focused Phase 21 resumes.

@@ -14,6 +14,7 @@ import {
   Wrench,
   XCircle,
 } from "lucide-react"
+import { trackAnalyticsEvent } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { ScooterBrand, Service, Technician } from "@/types"
@@ -145,6 +146,11 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
             ? "Se pidió al técnico que ajuste su perfil."
             : "Técnico rechazado.",
       )
+      if (action === "approve") {
+        trackAnalyticsEvent("technician_approved", {
+          technician_id: techId,
+        })
+      }
       setTechnicians((current) =>
         current.map((technician) =>
           technician.id === techId

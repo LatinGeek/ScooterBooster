@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, ShieldCheck, Wrench, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { trackAnalyticsEvent } from "@/lib/analytics"
 import type { ScooterBrand, Service, Technician } from "@/types"
 
 interface ApplyFormProps {
@@ -78,6 +79,11 @@ export function ApplyForm({
         return
       }
 
+      trackAnalyticsEvent("technician_applied", {
+        mode: existingApplication ? "resubmission" : "new",
+        services: selectedServices.length,
+        brands: selectedBrands.length,
+      })
       router.replace("/technicians/apply?submitted=1")
       router.refresh()
     } catch {

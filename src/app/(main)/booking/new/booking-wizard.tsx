@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useCallback, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Check,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DisclaimerModal } from "@/components/disclaimer-modal"
+import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import type { ScooterModel, Service, Technician } from "@/types"
 
@@ -499,6 +500,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
   const [showDisclaimer, setShowDisclaimer] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hasTrackedBookingStart = useRef(false)
 
   const model = models.find((m) => m.id === state.scooterModelId)
   const service = services.find((s) => s.id === state.serviceId)
@@ -555,6 +557,12 @@ export function BookingWizard({ models, services, technicians }: Props) {
       setShowDisclaimer(true)
       return
     }
+    if (!hasTrackedBookingStart.current && step === 1 && state.scooterModelId) {
+      hasTrackedBookingStart.current = true
+      trackAnalyticsEvent("booking_started", {
+        scooter_model_id: state.scooterModelId,
+      })
+    }
     setStep(nextStep)
     syncUrl({}, nextStep)
   }
@@ -585,7 +593,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
       const json = (await res.json()) as {
         success: boolean
-        data?: { booking: { id: string }; paymentLinkUrl?: string | null }
+        data?: { booking: { id: string; totalPrice?: number }; paymentLinkUrl?: string | null }
         error?: string
       }
 
@@ -604,6 +612,12 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
       // If MP payment link is available, redirect to MercadoPago checkout
       if (paymentLinkUrl) {
+        trackAnalyticsEvent("payment_initiated", {
+          booking_id: bookingId,
+          service_id: state.serviceId,
+          technician_id: state.technicianId,
+          total_price: json.data?.booking.totalPrice ?? 0,
+        })
         if (process.env.NEXT_PUBLIC_E2E_AUTH === "enabled") {
           window.sessionStorage.setItem("sb:e2e-payment-link", paymentLinkUrl)
           return

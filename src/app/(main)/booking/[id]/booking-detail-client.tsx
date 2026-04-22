@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   CheckCircle,
@@ -17,6 +17,9 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ReviewForm } from "@/components/review-form"
+import {
+  trackAnalyticsEventOncePerSession,
+} from "@/lib/analytics"
 import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
 import type { Booking, BookingStatus, Technician, Service, ScooterModel } from "@/types"
 
@@ -303,6 +306,27 @@ export function BookingDetailClient({
         WA_MESSAGES.userContactTechnician(booking.id.slice(0, 8).toUpperCase()),
       )
     : null
+
+  useEffect(() => {
+    if (paymentReturnStatus === "success" || booking.paymentStatus === "paid") {
+      trackAnalyticsEventOncePerSession(`payment-succeeded:${booking.id}`, "payment_succeeded", {
+        booking_id: booking.id,
+      })
+    }
+
+    if (paymentReturnStatus === "failure") {
+      trackAnalyticsEventOncePerSession(`payment-failed:${booking.id}`, "payment_failed", {
+        booking_id: booking.id,
+      })
+    }
+
+    if (booking.status === "confirmed") {
+      trackAnalyticsEventOncePerSession(`booking-confirmed:${booking.id}`, "booking_confirmed", {
+        booking_id: booking.id,
+        technician_id: booking.technicianId,
+      })
+    }
+  }, [booking.id, booking.paymentStatus, booking.status, booking.technicianId, paymentReturnStatus])
 
   return (
     <div>

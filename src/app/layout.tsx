@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "sonner"
+import { AnalyticsProvider } from "@/components/analytics-provider"
 import { CookieBanner } from "@/components/cookie-banner"
 import "./globals.css"
 import { AuthProvider } from "@/providers/auth-provider"
@@ -49,12 +50,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const isVercelDeployment = process.env.VERCEL === "1"
+  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? null
 
   return (
     <html lang="es" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AuthProvider>{children}</AuthProvider>
         <CookieBanner />
+        <AnalyticsProvider measurementId={gaMeasurementId} />
         <Toaster
           position="bottom-right"
           toastOptions={{

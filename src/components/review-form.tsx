@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Star, Loader2, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { trackAnalyticsEvent } from "@/lib/analytics"
 
 interface ReviewFormProps {
   bookingId: string
@@ -47,6 +48,11 @@ export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess 
       }
 
       setSubmitted(true)
+      trackAnalyticsEvent("review_submitted", {
+        booking_id: bookingId,
+        technician_id: technicianId,
+        rating,
+      })
       onSuccess?.()
     } catch {
       setError("Error de conexión. Revisá tu internet e intentá de nuevo.")

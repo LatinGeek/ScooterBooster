@@ -1,12 +1,12 @@
 # Tracker - Phase 18: Observability
 
-> Status: PARTIAL - Vercel Analytics/Speed Insights, Sentry SDK wiring, and `/api/health` are now in place
-> Last updated: 2026-04-19
+> Status: PARTIAL - Vercel Analytics/Speed Insights, Sentry SDK wiring, `/api/health`, and local GA4 event plumbing are now in place
+> Last updated: 2026-04-22
 
 ## Tasks
 
 - [ ] Sentry error tracking + source maps
-- [ ] Google Analytics 4 with custom events (signup, booking, payment, review, approval)
+- [x] Google Analytics 4 with custom events (signup, booking, payment, review, approval) wired in-app behind cookie consent
 - [x] Vercel Analytics + Speed Insights
 - [ ] Structured logging with pino (from Phase 01) -> Vercel Log Drains
 - [ ] Uptime monitoring
@@ -20,3 +20,4 @@
 - `src/lib/api-response.ts` now logs route, method, status, and duration for request-based API handlers through the existing pino logger.
 - `@sentry/nextjs` is installed and wired through `src/instrumentation.ts`, `src/instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `src/app/global-error.tsx`, and `next.config.ts`.
 - `src/app/api/_test/sentry/route.ts` can emit a dev-only verification event, but source-map upload verification still depends on the provided `SENTRY_AUTH_TOKEN` being valid in the target build environment.
+- `src/components/analytics-provider.tsx` now loads GA4 only when `NEXT_PUBLIC_GA_MEASUREMENT_ID` exists and the user accepts analytics cookies. Custom events currently cover signup completion, booking start, payment initiation, payment success/failure return states, review submission, technician application, and technician approval.
