@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/session"
 import { getBookingsByUser } from "@/lib/db/bookings"
-import { adminDb } from "@/lib/firebase-admin"
+import { getModelById } from "@/lib/db/models"
+import { getServiceById } from "@/lib/db/services"
+import { getTechnicianById } from "@/lib/db/technicians"
 import type { Booking, Service, Technician, ScooterModel } from "@/types"
 import lazyLoad from "next/dynamic"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -22,36 +24,34 @@ async function fetchRelated(bookings: Booking[]) {
 
   const [techSnaps, serviceSnaps, modelSnaps] = await Promise.all([
     technicianIds.length
-      ? Promise.all(
-          technicianIds.map((id) => adminDb.collection("technicians").doc(id).get()),
-        )
+      ? Promise.all(technicianIds.map((id) => getTechnicianById(id)))
       : Promise.resolve([]),
     serviceIds.length
-      ? Promise.all(serviceIds.map((id) => adminDb.collection("services").doc(id).get()))
+      ? Promise.all(serviceIds.map((id) => getServiceById(id)))
       : Promise.resolve([]),
     modelIds.length
-      ? Promise.all(modelIds.map((id) => adminDb.collection("scooterModels").doc(id).get()))
+      ? Promise.all(modelIds.map((id) => getModelById(id)))
       : Promise.resolve([]),
   ])
 
   const technicians: Record<string, Technician> = {}
-  for (const snap of techSnaps) {
-    if (snap.exists) {
-      technicians[snap.id] = { id: snap.id, ...snap.data() } as unknown as Technician
+  for (const technician of techSnaps) {
+    if (technician) {
+      technicians[technician.id] = technician
     }
   }
 
   const services: Record<string, Service> = {}
-  for (const snap of serviceSnaps) {
-    if (snap.exists) {
-      services[snap.id] = { id: snap.id, ...snap.data() } as unknown as Service
+  for (const service of serviceSnaps) {
+    if (service) {
+      services[service.id] = service
     }
   }
 
   const models: Record<string, ScooterModel> = {}
-  for (const snap of modelSnaps) {
-    if (snap.exists) {
-      models[snap.id] = { id: snap.id, ...snap.data() } as unknown as ScooterModel
+  for (const model of modelSnaps) {
+    if (model) {
+      models[model.id] = model
     }
   }
 
