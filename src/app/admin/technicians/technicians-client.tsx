@@ -38,6 +38,8 @@ type TechnicianOverrideDraft = {
   isActive: boolean
 }
 
+type ModerationAction = "approve" | "request_changes" | "reject"
+
 function buildDraft(technician: Technician): TechnicianOverrideDraft {
   return {
     displayName: technician.displayName,
@@ -62,12 +64,15 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
     technicianId: initial[0]?.id ?? null,
     value: initial[0] ? buildDraft(initial[0]) : null,
   })
+  const [moderationReason, setModerationReason] = useState("")
 
   const grouped: Record<Tab, Technician[]> = useMemo(
     () => ({
-      pending: technicians.filter((technician) => !technician.isApproved && technician.isActive),
+      pending: technicians.filter((technician) => (technician.applicationStatus ?? "pending") === "pending"),
       approved: technicians.filter((technician) => technician.isApproved),
-      rejected: technicians.filter((technician) => !technician.isApproved && !technician.isActive),
+      rejected: technicians.filter((technician) =>
+        ["request_changes", "rejected"].includes(technician.applicationStatus ?? "rejected"),
+      ),
     }),
     [technicians],
   )
@@ -105,6 +110,7 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
   function selectTechnician(technician: Technician) {
     setSelectedId(technician.id)
     setDraftState({ technicianId: technician.id, value: buildDraft(technician) })
+    setModerationReason(technician.moderationReason ?? "")
   }
 
   function updateDraft(patch: Partial<TechnicianOverrideDraft>) {
@@ -115,32 +121,49 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
     })
   }
 
-  async function handleAction(techId: string, action: "approve" | "reject") {
+  async function handleAction(techId: string, action: ModerationAction) {
     setProcessing(techId)
     try {
       const response = await fetch(`/api/admin/technicians/${techId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, reason: moderationReason.trim() || undefined }),
       })
+      const data = (await response.json()) as {
+        error?: string
+        data?: { applicationStatus?: Technician["applicationStatus"]; moderationReason?: string | null }
+      }
       if (!response.ok) {
-        const data = (await response.json()) as { error?: string }
         toast.error(data.error ?? "Error al procesar la acción.")
         return
       }
 
-      toast.success(action === "approve" ? "Técnico aprobado." : "Técnico rechazado.")
+      toast.success(
+        action === "approve"
+          ? "Técnico aprobado."
+          : action === "request_changes"
+            ? "Se pidió al técnico que ajuste su perfil."
+            : "Técnico rechazado.",
+      )
       setTechnicians((current) =>
         current.map((technician) =>
           technician.id === techId
             ? {
                 ...technician,
                 isApproved: action === "approve",
-                isActive: action === "approve" ? true : false,
+                isActive: action !== "reject",
+                applicationStatus:
+                  data.data?.applicationStatus ??
+                  (action === "approve" ? "approved" : action === "request_changes" ? "request_changes" : "rejected"),
+                moderationReason:
+                  data.data?.moderationReason ?? (action === "approve" ? null : moderationReason.trim() || null),
               }
             : technician,
         ),
       )
+      if (selectedTechnician?.id === techId) {
+        setModerationReason(action === "approve" ? "" : moderationReason)
+      }
     } finally {
       setProcessing(null)
     }
@@ -257,6 +280,10 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
                               <span className="inline-flex items-center gap-1 rounded-full bg-[#d1fae5] px-2 py-0.5 text-xs font-medium text-[#059669]">
                                 <CheckCircle className="h-3 w-3" /> Aprobado
                               </span>
+                            ) : (technician.applicationStatus ?? "pending") === "request_changes" ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                <Clock className="h-3 w-3" /> Pide cambios
+                              </span>
                             ) : technician.isActive ? (
                               <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
                                 <Clock className="h-3 w-3" /> Pendiente
@@ -294,7 +321,18 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
                           <CheckCircle className="mr-1.5 h-4 w-4" /> Aprobar
                         </Button>
                       ) : null}
-                      {technician.isApproved || technician.isActive ? (
+                      {!technician.isApproved ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={isBusy}
+                          onClick={() => void handleAction(technician.id, "request_changes")}
+                          className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Clock className="mr-1.5 h-4 w-4" /> Pedir cambios
+                        </Button>
+                      ) : null}
+                      {technician.isApproved || technician.isActive || technician.applicationStatus === "request_changes" ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -328,7 +366,7 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
                 </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                 <label className="space-y-1 text-sm text-[#374151] sm:col-span-2">
                   <span className="font-medium">Nombre público</span>
                   <Input value={draft.displayName} onChange={(event) => updateDraft({ displayName: event.target.value })} />
@@ -358,6 +396,21 @@ export function AdminTechniciansClient({ technicians: initial, services, brands 
                   />
                 </label>
               </div>
+
+              <label className="space-y-1 text-sm text-[#374151]">
+                <span className="font-medium">Nota de moderación</span>
+                <textarea
+                  value={moderationReason}
+                  onChange={(event) => setModerationReason(event.target.value)}
+                  placeholder="Opcional: explica qué debe corregir el técnico o por qué se rechaza."
+                  className="min-h-24 w-full rounded-xl border border-[#d1d5db] px-3 py-2 text-sm text-[#111827] outline-none ring-0 transition focus:border-[#111827]"
+                />
+              </label>
+              {selectedTechnician.moderationReason ? (
+                <p className="rounded-xl bg-[#f8fafc] px-4 py-3 text-sm text-[#475569]">
+                  Última nota enviada: {selectedTechnician.moderationReason}
+                </p>
+              ) : null}
 
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[#374151]">Servicios visibles</p>

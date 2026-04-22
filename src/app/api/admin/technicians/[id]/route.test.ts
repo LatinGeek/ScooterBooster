@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getTechnicianById: vi.fn(),
+  setTechnicianApplicationStatus: vi.fn(),
   setTechnicianApproval: vi.fn(),
   updateTechnicianProfile: vi.fn(),
   getUserById: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock("@/lib/session", () => ({
 
 vi.mock("@/lib/db/technicians", () => ({
   getTechnicianById: mocks.getTechnicianById,
+  setTechnicianApplicationStatus: mocks.setTechnicianApplicationStatus,
   setTechnicianApproval: mocks.setTechnicianApproval,
   updateTechnicianProfile: mocks.updateTechnicianProfile,
 }))
@@ -134,10 +136,48 @@ describe("/api/admin/technicians/[id]", () => {
 
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
-    expect(json.data).toEqual({ id: "tech-1", isApproved: true })
+    expect(json.data).toEqual(
+      expect.objectContaining({ id: "tech-1", isApproved: true, applicationStatus: "approved" }),
+    )
     expect(mocks.setTechnicianApproval).toHaveBeenCalledWith("tech-1", true)
     expect(mocks.setCustomUserClaims).toHaveBeenCalledWith("user-1", { role: "technician" })
     expect(mocks.loggerInfo).toHaveBeenCalled()
+  })
+
+  it("can request changes with a moderation reason", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
+    mocks.getTechnicianById.mockResolvedValue({
+      id: "tech-1",
+      userId: "user-1",
+      displayName: "Carlos",
+      services: ["service-1"],
+    })
+
+    const response = await PATCH(
+      createPatchRequest({
+        action: "request_changes",
+        reason: "Necesitamos una foto mas clara y una bio mas especifica.",
+      }),
+      {
+        params: Promise.resolve({ id: "tech-1" }),
+      },
+    )
+    const json = (await response.json()) as {
+      success: boolean
+      data: { applicationStatus: string; moderationReason: string }
+    }
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(json.data.applicationStatus).toBe("request_changes")
+    expect(mocks.setTechnicianApplicationStatus).toHaveBeenCalledWith("tech-1", {
+      status: "request_changes",
+      reason: "Necesitamos una foto mas clara y una bio mas especifica.",
+    })
+    expect(mocks.setCustomUserClaims).toHaveBeenCalledWith("user-1", { role: "user" })
+    expect(mocks.addAuditLogEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "technician_changes_requested" }),
+    )
   })
 
   it("lets admins override technician profile fields", async () => {

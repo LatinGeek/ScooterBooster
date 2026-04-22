@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getTechnicianByUserId: vi.fn(),
   createTechnicianApplication: vi.fn(),
+  resubmitTechnicianApplication: vi.fn(),
   userGet: vi.fn(),
   auditAdd: vi.fn(),
 }))
@@ -16,6 +17,7 @@ vi.mock("@/lib/session", () => ({
 vi.mock("@/lib/db/technicians", () => ({
   getTechnicianByUserId: mocks.getTechnicianByUserId,
   createTechnicianApplication: mocks.createTechnicianApplication,
+  resubmitTechnicianApplication: mocks.resubmitTechnicianApplication,
 }))
 
 vi.mock("@/lib/firebase-admin", () => ({
@@ -137,7 +139,13 @@ describe("/api/technicians/apply", () => {
 
     expect(response.status).toBe(201)
     expect(json.success).toBe(true)
-    expect(json.data).toEqual({ id: "user-1", isApproved: false, isActive: true })
+    expect(json.data).toEqual(
+      expect.objectContaining({
+        id: "user-1",
+        isApproved: false,
+        isActive: true,
+      }),
+    )
     expect(mocks.createTechnicianApplication).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "user-1",
@@ -149,5 +157,58 @@ describe("/api/technicians/apply", () => {
       })
     )
     expect(mocks.auditAdd).toHaveBeenCalledTimes(1)
+  })
+
+  it("allows resubmitting an application after request-changes", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1", role: "user" })
+    mocks.getTechnicianByUserId.mockResolvedValue({
+      id: "user-1",
+      photoURL: "https://example.com/tech.webp",
+      availability: { monday: { start: "09:00", end: "18:00", isAvailable: true } },
+    })
+    mocks.userGet.mockResolvedValue({
+      exists: true,
+      data: () => ({
+        displayName: "Alan Tecnico",
+        phone: "+59899123456",
+        photoURL: null,
+      }),
+    })
+    mocks.resubmitTechnicianApplication.mockResolvedValue({
+      id: "user-1",
+      isApproved: false,
+      isActive: true,
+      applicationStatus: "pending",
+      services: ["maintenance"],
+      supportedBrands: ["brand-xiaomi"],
+      location: "Pocitos, Montevideo",
+    })
+
+    const response = await POST(
+      createPostRequest({
+        bio: "Tecnico con experiencia en mantenimiento, firmware y diagnostico de scooters urbanos.",
+        services: ["maintenance"],
+        supportedBrands: ["brand-xiaomi"],
+        location: "Pocitos, Montevideo",
+        whatsappNumber: "59899123456",
+        basePrice: 1800,
+      }),
+    )
+    const json = (await response.json()) as {
+      success: boolean
+      data: { id: string; applicationStatus: string }
+    }
+
+    expect(response.status).toBe(201)
+    expect(json.success).toBe(true)
+    expect(json.data.applicationStatus).toBe("pending")
+    expect(mocks.resubmitTechnicianApplication).toHaveBeenCalledWith(
+      "user-1",
+      expect.objectContaining({
+        displayName: "Alan Tecnico",
+        photoURL: "https://example.com/tech.webp",
+        services: ["maintenance"],
+      }),
+    )
   })
 })

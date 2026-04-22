@@ -33,6 +33,10 @@ function buildSearchTokens(...values: Array<string | undefined | null>): string[
 }
 
 function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Technician {
+  const applicationStatus =
+    (data["applicationStatus"] as Technician["applicationStatus"] | undefined) ??
+    (Boolean(data["isApproved"]) ? "approved" : Boolean(data["isActive"]) ? "pending" : "rejected")
+
   return {
     id,
     userId: data["userId"] as string,
@@ -50,6 +54,9 @@ function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Tech
     reviewCount: (data["reviewCount"] as number) ?? 0,
     isApproved: Boolean(data["isApproved"]),
     isActive: Boolean(data["isActive"]),
+    applicationStatus,
+    moderationReason: (data["moderationReason"] as string | null | undefined) ?? null,
+    moderatedAt: (data["moderatedAt"] as string | null | undefined) ?? null,
     normalizedLocation: (data["normalizedLocation"] as string | undefined) ?? undefined,
     searchTokens: (data["searchTokens"] as string[]) ?? [],
     createdAt:
@@ -133,7 +140,28 @@ export async function getAllTechnicians(): Promise<Technician[]> {
 export async function setTechnicianApproval(id: string, isApproved: boolean): Promise<void> {
   await adminDb.collection(COLLECTION).doc(id).update({
     isApproved,
+    applicationStatus: isApproved ? "approved" : "rejected",
+    moderationReason: null,
+    moderatedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+  })
+}
+
+export async function setTechnicianApplicationStatus(
+  id: string,
+  input: {
+    status: "pending" | "request_changes" | "rejected" | "approved"
+    reason?: string | null
+  }
+): Promise<void> {
+  const now = new Date().toISOString()
+  await adminDb.collection(COLLECTION).doc(id).update({
+    isApproved: input.status === "approved",
+    isActive: input.status !== "rejected",
+    applicationStatus: input.status,
+    moderationReason: input.reason ?? null,
+    moderatedAt: now,
+    updatedAt: now,
   })
 }
 
@@ -194,6 +222,9 @@ export async function createTechnicianApplication(
       reviewCount: 0,
       isApproved: false,
       isActive: true,
+      applicationStatus: "pending",
+      moderationReason: null,
+      moderatedAt: null,
       normalizedLocation: normalizeSearchText(input.location),
       searchTokens: buildSearchTokens(
         input.displayName,
@@ -268,6 +299,24 @@ export async function updateTechnicianProfile(
   }
 
   await adminDb.collection(COLLECTION).doc(id).update(updates)
+  const doc = await adminDb.collection(COLLECTION).doc(id).get()
+  return docToTechnician(doc.id, doc.data()!)
+}
+
+export async function resubmitTechnicianApplication(
+  id: string,
+  input: UpdateTechnicianInput
+): Promise<Technician> {
+  await updateTechnicianProfile(id, input)
+  await adminDb.collection(COLLECTION).doc(id).update({
+    isApproved: false,
+    isActive: true,
+    applicationStatus: "pending",
+    moderationReason: null,
+    moderatedAt: null,
+    updatedAt: new Date().toISOString(),
+  })
+
   const doc = await adminDb.collection(COLLECTION).doc(id).get()
   return docToTechnician(doc.id, doc.data()!)
 }

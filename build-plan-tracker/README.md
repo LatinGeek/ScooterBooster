@@ -22,7 +22,7 @@ At the start of every session: read this file to know where to resume.
 | 04    | Firestore Schema, Rules & Seed Data          | PARTIAL     |
 | 05    | Scooter Catalog                              | COMPLETE    |
 | 06    | Service Catalog + Legal Disclaimer           | PARTIAL     |
-| 07    | Technicians (Onboarding, Profiles, Approval) | PARTIAL     |
+| 07    | Technicians (Onboarding, Profiles, Approval) | COMPLETE    |
 | 08    | Booking Flow                                 | COMPLETE    |
 | 09    | Payments (MercadoPago)                       | COMPLETE    |
 | 10    | Reviews & Ratings                            | COMPLETE    |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-21
-- Completed: Phase 13 is now functionally complete in dev. `/admin/technicians` includes an admin override editor for technician profiles, while the rest of the panel already covers moderation, catalog CRUD, refunds, user management, audits, and analytics. Full verification is green: `npm test` (`157`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases - richer authenticated desktop/manual QA for Phase 20, plus any remaining Firestore/rules and product-polish work before production-focused Phase 21 resumes.
+- Completed: Phase 07 is now complete in dev. Technician onboarding supports resubmission after moderation notes, admins can explicitly request changes from `/admin/technicians`, and profile-photo uploads now run through a server-side resize pipeline before landing in Firebase Storage. Full verification is green: `npm test` (`162`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases - especially Phase 20 authenticated desktop/manual QA, plus the remaining observability/SEO/testing polish before production-focused Phase 21 resumes.

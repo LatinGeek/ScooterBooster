@@ -186,3 +186,4 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
     </section>
   )
 }
+

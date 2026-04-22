@@ -31,6 +31,9 @@ export interface Technician {
   reviewCount: number
   isApproved: boolean
   isActive: boolean
+  applicationStatus?: "pending" | "approved" | "request_changes" | "rejected"
+  moderationReason?: string | null
+  moderatedAt?: string | null
   normalizedLocation?: string
   searchTokens?: string[]
   createdAt: string

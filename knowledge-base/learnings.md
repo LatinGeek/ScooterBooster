@@ -255,3 +255,9 @@
 
 - **Admin technician moderation becomes much more useful once it also supports direct profile overrides:** Approval alone leaves support stuck when a technician profile is mostly right but needs a quick copy, contact, or compatibility fix. Reusing the same profile-update path behind an admin-scoped override action closes that gap without inventing a second technician-edit system.
   - Affected files: `src/app/admin/technicians/page.tsx`, `src/app/admin/technicians/technicians-client.tsx`, `src/app/api/admin/technicians/[id]/route.ts`, `build-plan-tracker/13-admin-panel.md`
+
+- **Technician photo uploads are safer when the browser only sends raw files and the server owns resizing:** Moving profile-photo uploads behind `/api/technicians/me/photo` lets us validate MIME/size, generate consistent `512x512` + `128x128` WebP derivatives with `sharp`, and keep Firebase Storage URLs predictable for the public technician card and profile surfaces.
+  - Affected files: `src/app/api/technicians/me/photo/route.ts`, `src/app/dashboard/technician/profile/profile-client.tsx`, `src/lib/firebase-admin.ts`, `build-plan-tracker/07-technicians.md`
+
+- **A request-changes moderation state is more useful than a binary approve/reject flow for technician onboarding:** Persisting a dedicated application status plus moderation reason lets admins send actionable feedback, keeps the applicant inside the same technician record, and makes resubmission a small profile update instead of a fresh application from scratch.
+  - Affected files: `src/lib/db/technicians.ts`, `src/app/api/admin/technicians/[id]/route.ts`, `src/app/api/technicians/apply/route.ts`, `src/app/(main)/technicians/apply/apply-form.tsx`, `src/app/admin/technicians/technicians-client.tsx`

@@ -15,13 +15,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { getFirebaseStorage } from "@/lib/firebase"
 import type { Technician } from "@/types"
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 
 const PHONE_REGEX = /^\+598\d{8}$/
 const WHATSAPP_REGEX = /^598\d{8}$/
-const MAX_IMAGE_SIZE = 3 * 1024 * 1024
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024
 
 interface Props {
   tech: Technician
@@ -150,17 +148,24 @@ export function TechnicianProfileClient({ tech }: Props) {
     setApiError(null)
 
     try {
-      const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg"
-      const safeExtension = extension.replace(/[^a-z0-9]/g, "") || "jpg"
-      const storage = getFirebaseStorage()
-      const storageRef = ref(
-        storage,
-        `technicians/${tech.id}/profile-${Date.now()}.${safeExtension}`,
-      )
+      const formData = new FormData()
+      formData.append("file", file)
 
-      await uploadBytes(storageRef, file, { contentType: file.type })
-      const downloadUrl = await getDownloadURL(storageRef)
-      setPhotoURL(downloadUrl)
+      const response = await fetch("/api/technicians/me/photo", {
+        method: "POST",
+        body: formData,
+      })
+      const payload = (await response.json()) as {
+        error?: string
+        data?: { photoURL?: string }
+      }
+
+      if (!response.ok || !payload.data?.photoURL) {
+        setApiError(payload.error ?? "No pudimos procesar la imagen en este momento.")
+        return
+      }
+
+      setPhotoURL(payload.data.photoURL)
       setErrors((current) => ({ ...current, photoURL: undefined }))
     } catch {
       setApiError(
@@ -339,8 +344,8 @@ export function TechnicianProfileClient({ tech }: Props) {
                   onChange={(event) => void handleUpload(event)}
                 />
                 <p className="text-xs text-[#6b7280]">
-                  Puedes pegar una URL publica o subir una imagen de hasta 3 MB. Si vienes usando
-                  la foto de Google, tambien puedes mantenerla tal cual.
+                  Puedes pegar una URL publica o subir una imagen de hasta 2 MB. Si la subes desde
+                  tu equipo, la ajustamos automaticamente a 512 px para que cargue mas rapido.
                 </p>
                 {errors.photoURL && <p className="text-xs text-red-600">{errors.photoURL}</p>}
               </div>

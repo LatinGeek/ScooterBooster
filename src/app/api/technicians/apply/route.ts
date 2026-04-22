@@ -3,7 +3,11 @@ import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { adminDb } from "@/lib/firebase-admin"
 import { getSession } from "@/lib/session"
-import { createTechnicianApplication, getTechnicianByUserId } from "@/lib/db/technicians"
+import {
+  createTechnicianApplication,
+  getTechnicianByUserId,
+  resubmitTechnicianApplication,
+} from "@/lib/db/technicians"
 import { AuthError, ForbiddenError, ValidationError } from "@/lib/errors"
 import { sanitizePlainText } from "@/lib/sanitize"
 import { assertTrustedOrigin } from "@/lib/security"
@@ -45,9 +49,6 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   const existingTechnician = await getTechnicianByUserId(session.uid)
-  if (existingTechnician) {
-    throw new ValidationError("Ya existe una solicitud o perfil tecnico para esta cuenta")
-  }
 
   const body = (await req.json()) as Record<string, unknown>
   const parsed = applySchema.safeParse({
@@ -86,27 +87,42 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     ])
   )
 
-  const technician = await createTechnicianApplication({
-    id: session.uid,
-    userId: session.uid,
-    displayName: userData.displayName.trim(),
-    bio: parsed.data.bio,
-    photoURL: userData.photoURL ?? "",
-    phone: userData.phone,
-    whatsappNumber: parsed.data.whatsappNumber,
-    location: parsed.data.location,
-    services: parsed.data.services,
-    supportedBrands: parsed.data.supportedBrands,
-    pricing,
-    availability: createDefaultAvailability(),
-  })
+  const technician = existingTechnician
+    ? await resubmitTechnicianApplication(session.uid, {
+        displayName: userData.displayName.trim(),
+        bio: parsed.data.bio,
+        photoURL: existingTechnician.photoURL || userData.photoURL || "",
+        phone: userData.phone,
+        whatsappNumber: parsed.data.whatsappNumber,
+        location: parsed.data.location,
+        services: parsed.data.services,
+        supportedBrands: parsed.data.supportedBrands,
+        pricing,
+        availability: existingTechnician.availability,
+        isActive: true,
+      })
+    : await createTechnicianApplication({
+        id: session.uid,
+        userId: session.uid,
+        displayName: userData.displayName.trim(),
+        bio: parsed.data.bio,
+        photoURL: userData.photoURL ?? "",
+        phone: userData.phone,
+        whatsappNumber: parsed.data.whatsappNumber,
+        location: parsed.data.location,
+        services: parsed.data.services,
+        supportedBrands: parsed.data.supportedBrands,
+        pricing,
+        availability: createDefaultAvailability(),
+      })
 
   await adminDb.collection("auditLog").add({
-    type: "technician_application_submitted",
+    type: existingTechnician ? "technician_application_resubmitted" : "technician_application_submitted",
     actorUid: session.uid,
     technicianId: technician.id,
     createdAt: new Date().toISOString(),
     metadata: {
+      mode: existingTechnician ? "resubmission" : "new",
       services: technician.services,
       supportedBrands: technician.supportedBrands,
       location: technician.location,
@@ -118,6 +134,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       id: technician.id,
       isApproved: technician.isApproved,
       isActive: technician.isActive,
+      applicationStatus: technician.applicationStatus,
     },
     201
   )

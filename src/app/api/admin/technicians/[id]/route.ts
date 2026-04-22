@@ -4,7 +4,12 @@ import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { getServiceById } from "@/lib/db/services"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
-import { getTechnicianById, setTechnicianApproval, updateTechnicianProfile } from "@/lib/db/technicians"
+import {
+  getTechnicianById,
+  setTechnicianApplicationStatus,
+  setTechnicianApproval,
+  updateTechnicianProfile,
+} from "@/lib/db/technicians"
 import { getUserById } from "@/lib/db/users"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { adminAuth } from "@/lib/firebase-admin"
@@ -13,9 +18,10 @@ import { sendTechnicianApprovedEmail, sendTechnicianRejectedEmail } from "@/lib/
 import { sanitizeOptionalPlainText } from "@/lib/sanitize"
 import { getSession } from "@/lib/session"
 import { assertTrustedOrigin } from "@/lib/security"
+import type { Technician } from "@/types"
 
 const moderationSchema = z.object({
-  action: z.enum(["approve", "reject"], { error: "Acción inválida" }),
+  action: z.enum(["approve", "reject", "request_changes"], { error: "Acción inválida" }),
   reason: z.string().max(500).optional(),
 })
 
@@ -33,8 +39,14 @@ const overrideSchema = z.object({
 })
 
 const patchSchema = z.union([moderationSchema, overrideSchema])
+type TechnicianModerationResponse = {
+  id: string
+  isApproved: boolean
+  applicationStatus: "approved" | "request_changes" | "rejected"
+  moderationReason: string | null
+}
 
-export const PATCH = withErrorHandling(
+export const PATCH = withErrorHandling<Technician | TechnicianModerationResponse, [NextRequest, { params: Promise<{ id: string }> }]>(
   async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
     assertTrustedOrigin(req)
 
@@ -47,7 +59,7 @@ export const PATCH = withErrorHandling(
     if (!tech) throw new NotFoundError("Técnico no encontrado")
 
     const rawBody = (await req.json()) as Record<string, unknown>
-    if (!["approve", "reject", "update"].includes(String(rawBody.action ?? ""))) {
+    if (!["approve", "reject", "request_changes", "update"].includes(String(rawBody.action ?? ""))) {
       throw new ValidationError("Acción inválida")
     }
     const parsed = patchSchema.safeParse({
@@ -90,13 +102,21 @@ export const PATCH = withErrorHandling(
     const isApproved = parsed.data.action === "approve"
     const rejectionReason = parsed.data.reason?.trim() || "Necesitamos revisar algunos datos antes de aprobar tu perfil."
 
-    await setTechnicianApproval(id, isApproved)
-    await adminAuth.setCustomUserClaims(tech.userId, { role: isApproved ? "technician" : "user" })
+    if (parsed.data.action === "request_changes") {
+      await setTechnicianApplicationStatus(id, {
+        status: "request_changes",
+        reason: rejectionReason,
+      })
+      await adminAuth.setCustomUserClaims(tech.userId, { role: "user" })
+    } else {
+      await setTechnicianApproval(id, isApproved)
+      await adminAuth.setCustomUserClaims(tech.userId, { role: isApproved ? "technician" : "user" })
+    }
     revalidateTag("technicians", { expire: 0 })
 
     logger.info(
       { adminUid: session.uid, technicianId: id, action: parsed.data.action },
-      "Admin technician approval action",
+          "Admin technician moderation action",
     )
 
     const [user, serviceNames] = await Promise.all([
@@ -106,7 +126,12 @@ export const PATCH = withErrorHandling(
 
     await Promise.allSettled([
       addAuditLogEntry({
-        action: isApproved ? "technician_approved" : "technician_rejected",
+        action:
+          parsed.data.action === "request_changes"
+            ? "technician_changes_requested"
+            : isApproved
+              ? "technician_approved"
+              : "technician_rejected",
         actorUid: session.uid,
         targetType: "technician",
         targetId: id,
@@ -134,6 +159,11 @@ export const PATCH = withErrorHandling(
         : []),
     ])
 
-    return ok({ id, isApproved })
+    return ok({
+      id,
+      isApproved,
+      applicationStatus: parsed.data.action === "request_changes" ? "request_changes" : isApproved ? "approved" : "rejected",
+      moderationReason: isApproved ? null : rejectionReason,
+    })
   },
 )
