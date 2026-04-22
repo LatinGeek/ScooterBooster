@@ -31,7 +31,7 @@ At the start of every session: read this file to know where to resume.
 | 13    | Admin Panel                                  | COMPLETE    |
 | 14    | Notifications & WhatsApp                     | COMPLETE    |
 | 15    | Search, Filters & Discovery                  | COMPLETE    |
-| 16    | SEO, Metadata & Legal Pages                  | BLOCKED     |
+| 16    | SEO, Metadata & Legal Pages                  | COMPLETE    |
 | 17    | Testing & QA                                 | BLOCKED     |
 | 18    | Observability                                | BLOCKED     |
 | 19    | Security Hardening                           | COMPLETE    |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: External integration closure started. Firestore rules were successfully deployed to `scooterbooster-dev`, so Phase 04 is no longer blocked in the active dev environment and is now marked complete.
-- Next: Continue through the remaining blocked external integrations one by one — Search Console ownership, hosted-payment callback confirmation, and observability platform setup.
+- Completed: Search Console ownership was confirmed via DNS TXT verification, so Phase 16 is now fully complete alongside the existing SEO, metadata, JSON-LD, legal, and cookie-consent work.
+- Next: Continue through the remaining blocked external integrations one by one — hosted-payment callback confirmation and observability platform setup.

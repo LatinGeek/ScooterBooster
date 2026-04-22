@@ -300,3 +300,6 @@
 
 - **If the active Firebase project is available, don't keep Firestore rules marked blocked out of habit:** Once `firebase-tools` can deploy `firestore.rules` to the shared dev project successfully, Phase 04 stops being an integration placeholder and becomes genuinely complete for day-to-day development.
   - Affected files: `build-plan-tracker/04-firestore.md`, `build-plan-tracker/README.md`
+
+- **DNS TXT verification is the cleanest way to close Search Console for this project because it keeps ownership independent of app deploy timing:** Once the property is verified at the DNS layer, the SEO phase can be treated as complete even if the optional meta-tag hook remains unused.
+  - Affected files: `build-plan-tracker/16-seo-legal.md`, `build-plan-tracker/README.md`
