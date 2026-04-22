@@ -154,6 +154,20 @@ export interface PaymentLink {
   initPoint: string
 }
 
+export type PaymentLinkStatus = "pending" | "approved" | "rejected" | "refunded"
+
+export interface PaymentLinkRecord {
+  id: string
+  bookingId: string
+  initPoint: string
+  externalReference: string
+  status: PaymentLinkStatus
+  paymentId: string | null
+  lastWebhookEventId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T

@@ -288,3 +288,6 @@
 
 - **Booking and notification UX gets noticeably calmer when every state explains the next action instead of just the current label:** On this project, pairing payment-return banners with a short `Qué sigue ahora` card, adding per-booking next-step copy in the dashboard, and grouping notifications into pending/history sections made the post-purchase experience feel much less ambiguous without adding any new backend complexity.
   - Affected files: `src/app/(main)/booking/[id]/booking-detail-client.tsx`, `src/app/dashboard/dashboard-bookings-client.tsx`, `src/app/dashboard/notifications/notifications-client.tsx`, `tests/e2e/authenticated-dashboards.spec.ts`, `build-plan-tracker/20-performance.md`
+
+- **MercadoPago preference metadata deserves its own Firestore collection once refunds and retries exist:** Storing only `paymentLinkId`/`paymentLinkUrl` on the booking works for the happy path, but a separate `paymentLinks` DAL gives us a cleaner history of regenerated preferences, webhook outcomes, and refunds without turning the booking document into a payment-event log.
+  - Affected files: `src/lib/db/payment-links.ts`, `src/app/api/bookings/route.ts`, `src/app/api/payments/initiate/route.ts`, `src/app/api/payments/webhook/route.ts`, `src/app/api/payments/[id]/refund/route.ts`, `build-plan-tracker/04-firestore.md`, `build-plan-tracker/09-payments.md`

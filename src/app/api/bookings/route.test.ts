@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   getUserById: vi.fn(),
   createBooking: vi.fn(),
   updateBookingPaymentLink: vi.fn(),
+  upsertPaymentLinkRecord: vi.fn(),
   calculatePricing: vi.fn(),
   createPaymentLink: vi.fn(),
   notify: vi.fn(),
@@ -35,6 +36,10 @@ vi.mock("@/lib/db/bookings", () => ({
   createBooking: mocks.createBooking,
   getBookingsByUser: mocks.getBookingsByUser,
   updateBookingPaymentLink: mocks.updateBookingPaymentLink,
+}))
+
+vi.mock("@/lib/db/payment-links", () => ({
+  upsertPaymentLinkRecord: mocks.upsertPaymentLinkRecord,
 }))
 
 vi.mock("@/lib/db/technicians", () => ({
@@ -201,6 +206,11 @@ describe("/api/bookings", () => {
       "pref-1",
       "https://mp.test/pay/booking-1"
     )
+    expect(mocks.upsertPaymentLinkRecord).toHaveBeenCalledWith({
+      preferenceId: "pref-1",
+      bookingId: "booking-1",
+      initPoint: "https://mp.test/pay/booking-1",
+    })
   })
 
   it("blocks bookings that require a disclaimer until accepted", async () => {
@@ -321,6 +331,7 @@ describe("/api/bookings", () => {
     expect(json.success).toBe(true)
     expect(json.data.paymentLinkUrl).toBeNull()
     expect(mocks.updateBookingPaymentLink).not.toHaveBeenCalled()
+    expect(mocks.upsertPaymentLinkRecord).not.toHaveBeenCalled()
     expect(mocks.loggerError).toHaveBeenCalled()
   })
 

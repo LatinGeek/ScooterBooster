@@ -18,6 +18,8 @@
   - `refunded` / `charged_back` -> booking `cancelled_by_user` plus `paymentStatus=refunded`
 - [x] Booking payment metadata is persisted on webhook reconciliation
   - `paymentId` is now stored on the booking document so admin refunds can target the exact MercadoPago payment
+- [x] Payment preference metadata is mirrored in Firestore
+  - `src/lib/db/payment-links.ts` now tracks MercadoPago preference IDs, checkout URLs, webhook status, and refund state in a dedicated `paymentLinks` collection
 - [x] Return pages: `/booking/[id]?status=success|failure|pending` via booking detail banners
 - [x] Fee calculation stays server-side only in `calculatePricing()`
 - [x] Wizard redirects to the MercadoPago `init_point` after booking creation
@@ -33,3 +35,4 @@
 - If the secret is not set, webhook verification is skipped with a warning log as a dev-only convenience
 - Webhook idempotency key = MercadoPago webhook `id` field (not booking id)
 - `paymentId` persistence on the booking document closes the gap between webhook reconciliation and admin-initiated refunds
+- Keeping a separate `paymentLinks` collection makes it easier to inspect payment-link history without overloading the booking record with every MercadoPago transition

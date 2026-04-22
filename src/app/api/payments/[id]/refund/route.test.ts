@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getBookingById: vi.fn(),
   markBookingRefunded: vi.fn(),
+  updatePaymentLinkStatus: vi.fn(),
   getUserById: vi.fn(),
   getServiceById: vi.fn(),
   getTechnicianById: vi.fn(),
@@ -27,6 +28,9 @@ vi.mock("@/lib/session", () => ({ getSession: mocks.getSession }))
 vi.mock("@/lib/db/bookings", () => ({
   getBookingById: mocks.getBookingById,
   markBookingRefunded: mocks.markBookingRefunded,
+}))
+vi.mock("@/lib/db/payment-links", () => ({
+  updatePaymentLinkStatus: mocks.updatePaymentLinkStatus,
 }))
 vi.mock("@/lib/db/users", () => ({ getUserById: mocks.getUserById }))
 vi.mock("@/lib/db/services", () => ({ getServiceById: mocks.getServiceById }))
@@ -63,6 +67,7 @@ describe("/api/payments/[id]/refund", () => {
       scheduledDate: "2026-04-22T13:00:00.000Z",
       paymentStatus: "paid",
       paymentId: "payment-1",
+      paymentLinkId: "pref-1",
     })
     mocks.getUserById.mockResolvedValue({ uid: "user-1", email: "user@example.com" })
     mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware" })
@@ -78,6 +83,11 @@ describe("/api/payments/[id]/refund", () => {
     expect(json.data.refundId).toBe("refund-1")
     expect(json.data.paymentStatus).toBe("refunded")
     expect(mocks.markBookingRefunded).toHaveBeenCalledWith("booking-1")
+    expect(mocks.updatePaymentLinkStatus).toHaveBeenCalledWith({
+      preferenceId: "pref-1",
+      status: "refunded",
+      paymentId: "payment-1",
+    })
   })
 
   it("rejects bookings that are not paid", async () => {

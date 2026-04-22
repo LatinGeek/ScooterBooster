@@ -4,6 +4,7 @@ import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
 import { getBookingById, markBookingRefunded } from "@/lib/db/bookings"
+import { updatePaymentLinkStatus } from "@/lib/db/payment-links"
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getUserById } from "@/lib/db/users"
@@ -55,6 +56,13 @@ export const POST = withErrorHandling(
     const refund = await refundClient.create({ payment_id: paymentId })
 
     await markBookingRefunded(booking.id)
+    if (booking.paymentLinkId) {
+      await updatePaymentLinkStatus({
+        preferenceId: booking.paymentLinkId,
+        status: "refunded",
+        paymentId,
+      })
+    }
 
     const [user, service, technician] = await Promise.all([
       getUserById(booking.userId),

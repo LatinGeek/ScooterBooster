@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Payment-return UX, booking timeline clarity, notification center polish, and formal desktop Lighthouse scoring are now all closed in dev. The booking detail view now explains post-payment states and next actions more clearly, dashboard cards highlight the next step per reservation, notifications are grouped with better unread handling, and desktop Lighthouse production runs scored 99/96/96/100 on the key public routes. Verification stayed green with `npm test` (`165`), `npm run test:e2e` (`24`), `npm run lint`, and `npm run build`.
+- Completed: Phase 04 got a useful cleanup pass: MercadoPago preferences are now mirrored in a dedicated `paymentLinks` Firestore collection, so booking creation, payment re-initiation, webhook reconciliation, and refunds all keep payment-link history in a first-class DAL instead of only on booking documents. Verification stayed green with targeted payment route tests, `npm run lint`, and `npm run build`.
 - Next: Keep closing the remaining partial dev-addressable phases — especially deeper observability/testing polish and any remaining SEO/legal cleanup before we intentionally shift back toward Phase 21 deployment work.

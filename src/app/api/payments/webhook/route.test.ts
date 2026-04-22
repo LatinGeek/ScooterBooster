@@ -22,6 +22,7 @@ const mocks = vi.hoisted(() => {
     getBookingByExternalReference: vi.fn(),
     setBookingPaymentReference: vi.fn(),
     updateBookingPaymentStatus: vi.fn(),
+    updatePaymentLinkStatus: vi.fn(),
     getServiceById: vi.fn(),
     getTechnicianById: vi.fn(),
     getUserById: vi.fn(),
@@ -50,6 +51,10 @@ vi.mock("@/lib/db/bookings", () => ({
   getBookingByExternalReference: mocks.getBookingByExternalReference,
   setBookingPaymentReference: mocks.setBookingPaymentReference,
   updateBookingPaymentStatus: mocks.updateBookingPaymentStatus,
+}))
+
+vi.mock("@/lib/db/payment-links", () => ({
+  updatePaymentLinkStatus: mocks.updatePaymentLinkStatus,
 }))
 
 vi.mock("@/lib/db/services", () => ({
@@ -191,7 +196,10 @@ describe("/api/payments/webhook", () => {
       status: "approved",
       external_reference: "booking_booking-1",
     })
-    mocks.getBookingByExternalReference.mockResolvedValue({ id: "booking-1" })
+    mocks.getBookingByExternalReference.mockResolvedValue({
+      id: "booking-1",
+      paymentLinkId: "pref-1",
+    })
 
     const response = await POST(
       createWebhookRequest(
@@ -213,6 +221,12 @@ describe("/api/payments/webhook", () => {
     expect(mocks.getBookingByExternalReference).toHaveBeenCalledWith("booking_booking-1")
     expect(mocks.setBookingPaymentReference).toHaveBeenCalledWith("booking-1", "payment-1")
     expect(mocks.updateBookingPaymentStatus).toHaveBeenCalledWith("booking-1", "paid", "confirmed")
+    expect(mocks.updatePaymentLinkStatus).toHaveBeenCalledWith({
+      preferenceId: "pref-1",
+      status: "approved",
+      paymentId: "payment-1",
+      lastWebhookEventId: "event-1",
+    })
     expect(mocks.processedEvents.get("event-1")).toMatchObject({
       eventType: "payment",
       paymentId: "payment-1",
@@ -260,7 +274,10 @@ describe("/api/payments/webhook", () => {
       status: "rejected",
       external_reference: "booking_booking-1",
     })
-    mocks.getBookingByExternalReference.mockResolvedValue({ id: "booking-1" })
+    mocks.getBookingByExternalReference.mockResolvedValue({
+      id: "booking-1",
+      paymentLinkId: "pref-1",
+    })
 
     const response = await POST(
       createWebhookRequest(
@@ -279,6 +296,12 @@ describe("/api/payments/webhook", () => {
     expect(response.status).toBe(200)
     expect(mocks.setBookingPaymentReference).toHaveBeenCalledWith("booking-1", "payment-1")
     expect(mocks.updateBookingPaymentStatus).toHaveBeenCalledWith("booking-1", "pending")
+    expect(mocks.updatePaymentLinkStatus).toHaveBeenCalledWith({
+      preferenceId: "pref-1",
+      status: "rejected",
+      paymentId: "payment-1",
+      lastWebhookEventId: "event-1",
+    })
   })
 
   it("returns 500 so MercadoPago can retry when processing fails", async () => {

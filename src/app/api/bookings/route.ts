@@ -4,6 +4,7 @@ import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { createBookingSchema } from "@/lib/validators/booking"
 import { createBooking, getBookingsByUser, updateBookingPaymentLink } from "@/lib/db/bookings"
+import { upsertPaymentLinkRecord } from "@/lib/db/payment-links"
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
@@ -127,6 +128,11 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
         totalPrice: booking.totalPrice,
       })
       await updateBookingPaymentLink(booking.id, preferenceId, initPoint)
+      await upsertPaymentLinkRecord({
+        preferenceId,
+        bookingId: booking.id,
+        initPoint,
+      })
       paymentLinkUrl = initPoint
       logger.info({ bookingId: booking.id, preferenceId }, "MercadoPago preference created")
     } catch (mpErr) {

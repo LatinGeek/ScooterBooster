@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getBookingById: vi.fn(),
   updateBookingPaymentLink: vi.fn(),
+  upsertPaymentLinkRecord: vi.fn(),
   getServiceById: vi.fn(),
   getModelById: vi.fn(),
   createPaymentLink: vi.fn(),
@@ -18,6 +19,10 @@ vi.mock("@/lib/session", () => ({
 vi.mock("@/lib/db/bookings", () => ({
   getBookingById: mocks.getBookingById,
   updateBookingPaymentLink: mocks.updateBookingPaymentLink,
+}))
+
+vi.mock("@/lib/db/payment-links", () => ({
+  upsertPaymentLinkRecord: mocks.upsertPaymentLinkRecord,
 }))
 
 vi.mock("@/lib/db/services", () => ({
@@ -133,6 +138,11 @@ describe("/api/payments/initiate", () => {
       "pref-1",
       "https://mp.test/pay"
     )
+    expect(mocks.upsertPaymentLinkRecord).toHaveBeenCalledWith({
+      preferenceId: "pref-1",
+      bookingId: "booking-1",
+      initPoint: "https://mp.test/pay",
+    })
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
 })

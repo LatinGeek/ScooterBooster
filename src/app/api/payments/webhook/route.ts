@@ -6,6 +6,7 @@ import {
   setBookingPaymentReference,
   updateBookingPaymentStatus,
 } from "@/lib/db/bookings"
+import { updatePaymentLinkStatus } from "@/lib/db/payment-links"
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getUserById } from "@/lib/db/users"
@@ -124,6 +125,22 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     } else if (mpStatus === "rejected" || mpStatus === "cancelled") {
       await updateBookingPaymentStatus(booking.id, "pending")
       logger.info({ bookingId: booking.id, mpStatus }, "Payment rejected - booking stays pending")
+    }
+
+    if (booking.paymentLinkId) {
+      const mappedStatus =
+        mpStatus === "approved"
+          ? "approved"
+          : mpStatus === "refunded" || mpStatus === "charged_back"
+            ? "refunded"
+            : "rejected"
+
+      await updatePaymentLinkStatus({
+        preferenceId: booking.paymentLinkId,
+        status: mappedStatus,
+        paymentId,
+        lastWebhookEventId: eventId || null,
+      })
     }
 
     const [service, technician, user] = await Promise.all([

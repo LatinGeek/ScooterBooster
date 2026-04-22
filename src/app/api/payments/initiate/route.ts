@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { getBookingById, updateBookingPaymentLink } from "@/lib/db/bookings"
+import { upsertPaymentLinkRecord } from "@/lib/db/payment-links"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
 import { createPaymentLink } from "@/lib/mercadopago"
@@ -66,6 +67,11 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   })
 
   await updateBookingPaymentLink(booking.id, preferenceId, initPoint)
+  await upsertPaymentLinkRecord({
+    preferenceId,
+    bookingId: booking.id,
+    initPoint,
+  })
 
   logger.info({ bookingId, preferenceId }, "Payment preference (re)created")
 
