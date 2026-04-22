@@ -267,3 +267,6 @@
 
 - **GA4 event plumbing can stay client-first in App Router as long as the return surfaces carry enough state:** Booking creation can emit `payment_initiated` before the MercadoPago handoff, and the booking detail page can emit `payment_succeeded`, `payment_failed`, and `booking_confirmed` once per session by reading the back-url status plus the live booking document.
   - Affected files: `src/app/layout.tsx`, `src/app/onboarding/page.tsx`, `src/app/(main)/booking/new/booking-wizard.tsx`, `src/app/(main)/booking/[id]/booking-detail-client.tsx`, `src/components/review-form.tsx`, `src/app/(main)/technicians/apply/apply-form.tsx`, `src/app/admin/technicians/technicians-client.tsx`
+
+- **Service detail pages become much more decision-friendly when educational content lives beside the booking CTA:** Adding service-specific sections for what is included, when to choose the service, how to prepare before booking, and short FAQs closes the “what does this actually mean for me?” gap without needing a CMS or extra Firestore schema.
+  - Affected files: `src/app/(main)/services/[slug]/page.tsx`, `build-plan-tracker/06-services.md`

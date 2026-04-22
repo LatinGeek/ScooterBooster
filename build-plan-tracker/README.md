@@ -21,7 +21,7 @@ At the start of every session: read this file to know where to resume.
 | 03    | Authentication & User Profiles               | COMPLETE    |
 | 04    | Firestore Schema, Rules & Seed Data          | PARTIAL     |
 | 05    | Scooter Catalog                              | COMPLETE    |
-| 06    | Service Catalog + Legal Disclaimer           | PARTIAL     |
+| 06    | Service Catalog + Legal Disclaimer           | COMPLETE    |
 | 07    | Technicians (Onboarding, Profiles, Approval) | COMPLETE    |
 | 08    | Booking Flow                                 | COMPLETE    |
 | 09    | Payments (MercadoPago)                       | COMPLETE    |
@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Phase 16 cookie preferences and the local Phase 18 GA4 plumbing both moved forward in dev. The cookie banner now stores structured essential-vs-analytics consent, GA4 loads only after consent, and the app emits custom analytics events for signup, booking, payment return states, reviews, technician applications, and approvals. Full verification is green: `npm test` (`165`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
+- Completed: Phase 06 is now complete in dev, with richer service education blocks and FAQs on each service detail page. Phase 16 cookie preferences and the local Phase 18 GA4 plumbing also moved forward: the banner now stores structured essential-vs-analytics consent, GA4 loads only after consent, and the app emits custom analytics events for signup, booking, payment return states, reviews, technician applications, and approvals. Full verification is green: `npm test` (`165`), `npm run test:e2e` (`15`), `npm run lint`, and `npm run build`.
 - Next: Keep closing the remaining partial dev-addressable phases - especially Phase 20 authenticated desktop/manual QA, plus the remaining observability and testing polish before production-focused Phase 21 resumes.
