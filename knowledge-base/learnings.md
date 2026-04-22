@@ -276,3 +276,9 @@
 
 - **Desktop-authenticated QA gets much more trustworthy once it checks the post-login navbar state, not just protected routes:** Verifying that signed-in users see `Mi panel` while guest CTAs disappear catches session-hydration regressions early, and then a small set of admin/user/technician destination checks gives us broad desktop confidence without building a brittle mega-spec.
   - Affected files: `tests/e2e/desktop-authenticated-navigation.spec.ts`, `tests/e2e/support/auth.ts`, `build-plan-tracker/17-testing.md`, `build-plan-tracker/20-performance.md`
+
+- **Treating onboarding as part of the booking funnel catches “signed in but not yet usable” regressions that a normal booking smoke misses:** A separate Playwright path that starts with a brand-new authenticated user, completes `/onboarding`, and only then enters the booking wizard is a much better proxy for real first-use behavior than jumping straight into `/booking/new` with a pre-hydrated account.
+  - Affected files: `tests/e2e/signup-booking-flow.spec.ts`, `build-plan-tracker/17-testing.md`
+
+- **An internal observability panel is a good bridge when full platform integrations are still pending:** Showing health-check status, env readiness for Sentry/GA4/reminders, and quick links to `/api/health`, `/api/_test/sentry`, and audit history gives admins a practical checklist in dev without pretending external uptime monitors or source-map verification are already complete.
+  - Affected files: `src/app/admin/observability/page.tsx`, `src/app/admin/layout.tsx`, `src/app/admin/page.tsx`, `build-plan-tracker/18-observability.md`

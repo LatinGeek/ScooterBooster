@@ -241,6 +241,7 @@ export default async function AdminOverviewPage() {
           { href: "/admin/services", label: "Gestionar servicios" },
           { href: "/admin/reviews", label: "Moderar reseñas" },
           { href: "/admin/audit", label: "Ver auditoría", icon: Activity },
+          { href: "/admin/observability", label: "Observabilidad", icon: Activity },
           { href: "/admin/settings", label: "Configuración" },
         ].map((link) => (
           <Link
@@ -259,3 +260,4 @@ export default async function AdminOverviewPage() {
     </section>
   )
 }
+
