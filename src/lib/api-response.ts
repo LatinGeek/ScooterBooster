@@ -1,3 +1,4 @@
+import crypto from "crypto"
 import { NextResponse } from "next/server"
 import logger from "./logger"
 import { isAppError } from "./errors"
@@ -25,6 +26,16 @@ function logAtLevel(level: "info" | "warn" | "error", payload: Record<string, un
   }
 }
 
+function attachRequestId<T>(
+  response: NextResponse<ApiResponse<T>>,
+  requestId: string | null,
+): NextResponse<ApiResponse<T>> {
+  if (requestId) {
+    response.headers.set("x-request-id", requestId)
+  }
+  return response
+}
+
 /**
  * Wrap an async API route handler with consistent error handling.
  * Catches AppErrors and returns the correct status + Spanish user message.
@@ -44,7 +55,10 @@ export function withErrorHandling<T, Args extends unknown[]>(
       maybeRequest !== null &&
       "method" in maybeRequest &&
       "nextUrl" in maybeRequest
-    const req = isRequestLike ? (maybeRequest as { method: string; nextUrl: { pathname: string } }) : null
+    const req = isRequestLike
+      ? (maybeRequest as { method: string; nextUrl: { pathname: string }; headers: Headers })
+      : null
+    const requestId = req?.headers.get("x-request-id") ?? crypto.randomUUID()
 
     try {
       const response = await handler(...args)
@@ -55,12 +69,13 @@ export function withErrorHandling<T, Args extends unknown[]>(
             route: req.nextUrl.pathname,
             method: req.method,
             status: response.status,
+            requestId,
             durationMs: Date.now() - startedAt,
           },
           "API request completed"
         )
       }
-      return response
+      return attachRequestId(response, requestId)
     } catch (err: unknown) {
       if (isAppError(err)) {
         if (req) {
@@ -70,13 +85,14 @@ export function withErrorHandling<T, Args extends unknown[]>(
               route: req.nextUrl.pathname,
               method: req.method,
               status: err.statusCode,
+              requestId,
               durationMs: Date.now() - startedAt,
               error: err.userMessage,
             },
             "API request failed with handled error"
           )
         }
-        return fail(err.userMessage, err.statusCode)
+        return attachRequestId(fail(err.userMessage, err.statusCode), requestId)
       }
 
       logAtLevel(
@@ -84,12 +100,13 @@ export function withErrorHandling<T, Args extends unknown[]>(
         {
           route: req?.nextUrl.pathname,
           method: req?.method,
+          requestId,
           durationMs: Date.now() - startedAt,
           err,
         },
         "Unhandled API error"
       )
-      return fail("Error interno del servidor.", 500)
+      return attachRequestId(fail("Error interno del servidor.", 500), requestId)
     }
   }
 }

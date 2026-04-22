@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Phase 04 got a useful cleanup pass: MercadoPago preferences are now mirrored in a dedicated `paymentLinks` Firestore collection, so booking creation, payment re-initiation, webhook reconciliation, and refunds all keep payment-link history in a first-class DAL instead of only on booking documents. Verification stayed green with targeted payment route tests, `npm run lint`, and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases — especially deeper observability/testing polish and any remaining SEO/legal cleanup before we intentionally shift back toward Phase 21 deployment work.
+- Completed: Phase 18 got another useful dev-side hardening pass. API responses now carry `x-request-id`, pino logs include the same request ID for request-based handlers, and the admin observability panel now reflects structured logging readiness alongside health, Sentry, analytics, and reminder prerequisites. Verification stayed green with targeted observability tests, `npm run lint`, and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases — especially any final SEO/legal and testing polish before we intentionally shift back toward Phase 21 deployment work.

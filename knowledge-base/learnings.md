@@ -291,3 +291,6 @@
 
 - **MercadoPago preference metadata deserves its own Firestore collection once refunds and retries exist:** Storing only `paymentLinkId`/`paymentLinkUrl` on the booking works for the happy path, but a separate `paymentLinks` DAL gives us a cleaner history of regenerated preferences, webhook outcomes, and refunds without turning the booking document into a payment-event log.
   - Affected files: `src/lib/db/payment-links.ts`, `src/app/api/bookings/route.ts`, `src/app/api/payments/initiate/route.ts`, `src/app/api/payments/webhook/route.ts`, `src/app/api/payments/[id]/refund/route.ts`, `build-plan-tracker/04-firestore.md`, `build-plan-tracker/09-payments.md`
+
+- **Support gets much faster once every API response carries the same request ID that pino logs emit:** Adding `x-request-id` at the shared `withErrorHandling` layer means a browser report, an admin screenshot, and a server log line can all point to the same event without asking users to reproduce anything. Pairing that with an observability-panel readiness card makes the missing log-drain step obvious without blocking dev work.
+  - Affected files: `src/lib/api-response.ts`, `src/lib/api-response.test.ts`, `src/app/admin/observability/page.tsx`, `build-plan-tracker/18-observability.md`

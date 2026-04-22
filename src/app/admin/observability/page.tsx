@@ -59,6 +59,12 @@ export default async function AdminObservabilityPage() {
   const resendEnabled = Boolean(process.env.RESEND_API_KEY)
   const cronEnabled = Boolean(process.env.CRON_SECRET)
   const vercelSignalsEnabled = process.env.VERCEL === "1"
+  const logDrainConfigured = Boolean(
+    process.env.VERCEL_LOG_DRAIN_URL ||
+      process.env.LOGTAIL_SOURCE_TOKEN ||
+      process.env.AXIOM_DATASET ||
+      process.env.DATADOG_API_KEY,
+  )
 
   const statuses: StatusItem[] = [
     {
@@ -98,6 +104,14 @@ export default async function AdminObservabilityPage() {
       detail: vercelSignalsEnabled
         ? "Vercel Analytics y Speed Insights se montan automáticamente en despliegues reales."
         : "En local se mantienen apagados a propósito para evitar ruido en pruebas y Playwright.",
+      healthy: true,
+    },
+    {
+      label: "Structured logging",
+      value: logDrainConfigured ? "Request IDs + log drain" : "Request IDs activos",
+      detail: logDrainConfigured
+        ? "Cada respuesta API expone `x-request-id` y el entorno ya declara un destino para drenar logs estructurados."
+        : "La app ya emite `x-request-id` en respuestas API y pino registra route/method/status/duración; falta conectar un log drain real para cerrar la parte operativa.",
       healthy: true,
     },
   ]
