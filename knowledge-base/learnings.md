@@ -303,3 +303,6 @@
 
 - **DNS TXT verification is the cleanest way to close Search Console for this project because it keeps ownership independent of app deploy timing:** Once the property is verified at the DNS layer, the SEO phase can be treated as complete even if the optional meta-tag hook remains unused.
   - Affected files: `build-plan-tracker/16-seo-legal.md`, `build-plan-tracker/README.md`
+
+- **A successful Vercel preview build that explicitly reports `Successfully uploaded source maps to Sentry` is strong enough to close the source-map upload task without waiting for a manual issue screenshot:** once the deployment environment has `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT`, the build log itself becomes the fastest trustworthy proof point.
+  - Affected files: `build-plan-tracker/18-observability.md`, `build-plan-tracker/README.md`

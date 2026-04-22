@@ -42,5 +42,5 @@ At the start of every session: read this file to know where to resume.
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Search Console ownership was confirmed via DNS TXT verification, so Phase 16 is now fully complete alongside the existing SEO, metadata, JSON-LD, legal, and cookie-consent work.
-- Next: Continue through the remaining blocked external integrations one by one — hosted-payment callback confirmation and observability platform setup.
+- Completed: External integration closure continued. A fresh Vercel preview deployed successfully with Sentry auth envs present, and the build logs confirmed source maps uploaded to Sentry for the preview release. Phase 18 remains blocked only by the remaining platform-side pieces: log drains and uptime monitoring.
+- Next: Continue through the remaining blocked external integrations — hosted-payment callback confirmation for Phase 17, plus the last observability platform steps.
