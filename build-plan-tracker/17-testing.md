@@ -25,8 +25,8 @@
 - `npm run test:rules` is wired through the Firestore emulator and has been verified with the Java-backed local setup.
 - `npm run test:e2e` is green in local production mode after stabilizing loopback auth cookies, trusted-origin checks, and rate-limit exceptions for local E2E traffic.
 - Playwright coverage now includes auth redirects, disclaimer enforcement, public responsive checks, authenticated dashboards, admin technician approval, technician booking management, and MercadoPago checkout handoff.
-- Desktop-authenticated smoke coverage now also checks the authorized navbar state plus key user/admin/technician destinations: notifications, admin users, admin bookings, admin audit, and technician profile management.
+- Desktop-authenticated smoke coverage now also checks the authorized navbar state plus key user/admin/technician destinations: notifications, admin users, admin bookings, admin audit, observability, and technician profile management.
 - A fresh signed-in-user Playwright spec now covers the onboarding completion path before the booking wizard, so the core `signup -> book -> pay handoff` flow is also exercised in dev mode.
-- Playwright now also covers technician profile editing, and the local suite runs with a single worker in dev mode to avoid shared-auth flakiness across concurrent browser workers.
+- Playwright now also covers technician profile editing, grouped notification UX, user dashboard rendering with paid bookings, clearer booking-detail payment guidance, and technician earnings with completed bookings present.
 - The booking-payment handoff assertion is now deterministic in Playwright by capturing the generated checkout URL in an E2E-only branch instead of relying on flaky cross-site navigation during the test run.
 - The remaining payment gap is true confirmation back into ScooterBooster after the hosted MercadoPago flow, which still needs a publicly reachable callback/webhook target.

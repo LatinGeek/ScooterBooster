@@ -1,4 +1,4 @@
-ï»¿# Build Plan Tracker
+# Build Plan Tracker
 
 Alan's execution log. Mirrors the phases in `build-plan/`.
 
@@ -35,12 +35,12 @@ At the start of every session: read this file to know where to resume.
 | 17    | Testing & QA                                 | PARTIAL     |
 | 18    | Observability                                | PARTIAL     |
 | 19    | Security Hardening                           | COMPLETE    |
-| 20    | Performance & Polish                         | PARTIAL     |
+| 20    | Performance & Polish                         | COMPLETE    |
 | 21    | Deployment (Vercel + Firebase Prod)          | NOT STARTED |
 | 22    | Launch Checklist & Go-Live                   | NOT STARTED |
 
 ## Last Session
 
 - Date: 2026-04-22
-- Completed: Phase 17 got another meaningful dev-only closeout pass. Playwright now covers the onboarding completion path before the booking wizard (`signup -> book -> pay handoff`), and admin desktop smoke now also reaches `/admin/observability`. On the Phase 18 side, the admin panel now includes a live observability checklist for health, Sentry readiness, analytics wiring, and reminder prerequisites. Verification stayed green with `npm test` (`165`), `npm run test:e2e` (`20`), `npm run lint`, and `npm run build`.
-- Next: Keep closing the remaining partial dev-addressable phases - especially formal desktop Lighthouse scoring for Phase 20, plus the remaining observability polish that still depends on real platform integrations before production-focused Phase 21 resumes.
+- Completed: Payment-return UX, booking timeline clarity, notification center polish, and formal desktop Lighthouse scoring are now all closed in dev. The booking detail view now explains post-payment states and next actions more clearly, dashboard cards highlight the next step per reservation, notifications are grouped with better unread handling, and desktop Lighthouse production runs scored 99/96/96/100 on the key public routes. Verification stayed green with `npm test` (`165`), `npm run test:e2e` (`24`), `npm run lint`, and `npm run build`.
+- Next: Keep closing the remaining partial dev-addressable phases — especially deeper observability/testing polish and any remaining SEO/legal cleanup before we intentionally shift back toward Phase 21 deployment work.
