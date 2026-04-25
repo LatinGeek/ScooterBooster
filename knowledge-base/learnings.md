@@ -309,3 +309,6 @@
 
 - **If uptime monitoring is out of scope for the product, remove it from both the build plan and tracker instead of leaving it as a permanent fake blocker:** that keeps the remaining blocked list honest and makes Phase 18 about the observability pieces we actually intend to operate.
   - Affected files: `build-plan/18-observability.md`, `build-plan-tracker/18-observability.md`, `build-plan-tracker/README.md`
+
+- **For Vercel log drains, a real downstream signal beats CLI attachment visibility when the integration layer is opaque:** once `AXIOM_DATASET=scooterbooster` is present in the project config and live ScooterBooster logs are visibly arriving in the Axiom dataset, that is stronger operational proof than waiting for `vercel integration list` to expose the attachment.
+  - Affected files: `build-plan-tracker/18-observability.md`, `build-plan-tracker/README.md`

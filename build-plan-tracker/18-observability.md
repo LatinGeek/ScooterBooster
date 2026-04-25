@@ -1,7 +1,7 @@
 # Tracker - Phase 18: Observability
 
-> Status: BLOCKED - Sentry source-map upload is now verified in preview, and the remaining gap is external log-drain configuration
-> Last updated: 2026-04-22
+> Status: COMPLETE
+> Last updated: 2026-04-25
 
 ## Tasks
 
@@ -9,7 +9,7 @@
 - [x] Google Analytics 4 with custom events (signup, booking, payment, review, approval) wired in-app behind cookie consent
 - [x] Vercel Analytics + Speed Insights
 - [x] Internal observability dashboard/checklist in admin
-- [ ] Structured logging with pino (from Phase 01) -> Vercel Log Drains — blocked on external drain configuration
+- [x] Structured logging with pino (from Phase 01) -> Vercel Log Drains
 
 ## Notes
 
@@ -22,3 +22,4 @@
 - Preview deployment `https://scooter-booster-i23ykmhuy-latingeeks-projects.vercel.app` completed with `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` present, and the Vercel build log confirmed `Successfully uploaded source maps to Sentry` for release `a087507e3fbca99300d619cdc7a651e40f45e026`.
 - `src/components/analytics-provider.tsx` now loads GA4 only when `NEXT_PUBLIC_GA_MEASUREMENT_ID` exists and the user accepts analytics cookies. Custom events currently cover signup completion, booking start, payment initiation, payment success/failure return states, review submission, technician application, and technician approval.
 - `src/app/admin/observability/page.tsx` now gives admins a live env/status checklist for health checks, Sentry readiness, analytics wiring, reminder prerequisites, structured logging/log-drain readiness, and quick links to `/api/health`, `/api/_test/sentry` (dev only), and audit history.
+- Live Axiom ingestion is now confirmed for dataset scooterbooster, and AXIOM_DATASET=scooterbooster is set in the Vercel project so the log-drain readiness signal is visible both in the project config and in the admin observability panel.
