@@ -34,6 +34,11 @@ function buildHrefFromParams(params: URLSearchParams): string {
   return query ? `/technicians?${query}` : "/technicians"
 }
 
+function buildTechnicianProfileHref(id: string, params: URLSearchParams): string {
+  const query = params.toString()
+  return query ? `/technicians/${id}?${query}` : `/technicians/${id}`
+}
+
 interface ActiveFilterChip {
   key: string
   label: string
@@ -635,6 +640,7 @@ export default async function TechniciansPage({
                     key={tech.id}
                     technician={tech}
                     distanceKm={distanceByTechnicianId.get(tech.id) ?? null}
+                    href={buildTechnicianProfileHref(tech.id, currentSearchParams)}
                   />
                 ))}
               </div>

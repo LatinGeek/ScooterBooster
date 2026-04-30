@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { MapPin, Star } from "lucide-react"
 import type { Technician } from "@/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,9 +12,16 @@ import { WhatsAppButton } from "./whatsapp-button"
 interface TechnicianCardProps {
   technician: Technician
   distanceKm?: number | null
+  href?: string
 }
 
-export function TechnicianCard({ technician, distanceKm }: TechnicianCardProps) {
+function formatDistance(distanceKm: number): string {
+  return distanceKm < 10 ? distanceKm.toFixed(1) : String(Math.round(distanceKm))
+}
+
+export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardProps) {
+  const router = useRouter()
+  const technicianHref = href ?? `/technicians/${technician.id}`
   const initials = technician.displayName
     .split(" ")
     .map((n) => n[0])
@@ -20,7 +30,18 @@ export function TechnicianCard({ technician, distanceKm }: TechnicianCardProps) 
     .slice(0, 2)
 
   return (
-    <Card className="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <Card
+      role="link"
+      tabIndex={0}
+      onClick={() => router.push(technicianHref)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault()
+          router.push(technicianHref)
+        }
+      }}
+      className="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] focus-visible:ring-offset-2"
+    >
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           <Avatar className="h-14 w-14 flex-shrink-0">
@@ -34,7 +55,7 @@ export function TechnicianCard({ technician, distanceKm }: TechnicianCardProps) 
             <div className="flex items-start justify-between gap-2">
               <div>
                 <Link
-                  href={`/technicians/${technician.id}`}
+                  href={technicianHref}
                   className="font-semibold text-[#111827] transition-colors duration-200 hover:text-[#10b981]"
                 >
                   {technician.displayName}
@@ -44,7 +65,7 @@ export function TechnicianCard({ technician, distanceKm }: TechnicianCardProps) 
                   <span className="text-xs text-[#6b7280]">{technician.location}</span>
                   {distanceKm !== null && distanceKm !== undefined ? (
                     <span className="text-xs text-[#9ca3af]">
-                      · a {distanceKm < 10 ? distanceKm.toFixed(1) : Math.round(distanceKm)} km
+                      {" · "}a {formatDistance(distanceKm)} km
                     </span>
                   ) : null}
                 </div>
@@ -79,16 +100,21 @@ export function TechnicianCard({ technician, distanceKm }: TechnicianCardProps) 
 
         <div className="mt-4 flex items-center justify-between">
           <Link
-            href={`/technicians/${technician.id}`}
+            href={technicianHref}
             className="text-sm font-medium text-[#10b981] transition-colors duration-200 hover:text-[#059669]"
           >
             Ver perfil →
           </Link>
-          <WhatsAppButton
-            phoneNumber={technician.whatsappNumber}
-            message={`Hola ${technician.displayName}, vi tu perfil en ScooterBooster y me gustaría consultar sobre tus servicios.`}
-            variant="icon"
-          />
+          <div
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <WhatsAppButton
+              phoneNumber={technician.whatsappNumber}
+              message={`Hola ${technician.displayName}, vi tu perfil en ScooterBooster y me gustaría consultar sobre tus servicios.`}
+              variant="icon"
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -11,10 +11,18 @@ import {
   Navigation,
   Wrench,
   Clock,
+  MapPinned,
+  Route,
 } from "lucide-react"
+import { getActiveBrands } from "@/lib/db/brands"
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getReviewsByTechnician } from "@/lib/db/reviews"
 import { getServicesByIds } from "@/lib/db/services"
+import {
+  getDistanceToTechnician,
+  getTechnicianLocationPreset,
+} from "@/lib/search"
+import { getPresetBySlug } from "@/lib/uruguay-locations"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ReviewCard } from "@/components/review-card"
@@ -41,6 +49,14 @@ const DAY_LABELS: Record<string, string> = {
 
 const DAY_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 
+function getSingleSearchParam(value: string | string[] | undefined): string {
+  return typeof value === "string" ? value.trim() : ""
+}
+
+function formatDistance(distanceKm: number): string {
+  return distanceKm < 10 ? distanceKm.toFixed(1) : String(Math.round(distanceKm))
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -48,26 +64,77 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const technician = await getTechnicianById(id)
-  if (!technician) return { title: "Técnico no encontrado — ScooterBooster" }
+  if (!technician) return { title: "Técnico no encontrado - ScooterBooster" }
   return {
-    title: `${technician.displayName} — ScooterBooster`,
+    title: `${technician.displayName} - ScooterBooster`,
     description: `Técnico de scooters eléctricos en ${technician.location}. ${technician.bio}`,
   }
 }
 
 export default async function TechnicianDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{
+    q?: string | string[]
+    service?: string | string[]
+    brand?: string | string[]
+    location?: string | string[]
+    minRating?: string | string[]
+    minPrice?: string | string[]
+    maxPrice?: string | string[]
+    lat?: string | string[]
+    lng?: string | string[]
+    near?: string | string[]
+  }>
 }) {
-  const { id } = await params
+  const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams])
   const technician = await getTechnicianById(id)
   if (!technician) notFound()
 
-  const [reviews, services] = await Promise.all([
+  const latitudeRaw = getSingleSearchParam(resolvedSearchParams.lat)
+  const longitudeRaw = getSingleSearchParam(resolvedSearchParams.lng)
+  const near = getSingleSearchParam(resolvedSearchParams.near)
+  const location = getSingleSearchParam(resolvedSearchParams.location)
+  const latitude = latitudeRaw ? Number(latitudeRaw) : undefined
+  const longitude = longitudeRaw ? Number(longitudeRaw) : undefined
+  const hasCoordinates =
+    latitude !== undefined &&
+    longitude !== undefined &&
+    !Number.isNaN(latitude) &&
+    !Number.isNaN(longitude)
+
+  const [reviews, services, brands] = await Promise.all([
     getReviewsByTechnician(technician.id, 10),
     getServicesByIds(technician.services),
+    getActiveBrands(),
   ])
+
+  const currentSearch = new URLSearchParams()
+  for (const [key, rawValue] of Object.entries(resolvedSearchParams)) {
+    if (Array.isArray(rawValue)) {
+      for (const value of rawValue) {
+        if (value) currentSearch.append(key, value)
+      }
+      continue
+    }
+
+    if (rawValue) currentSearch.set(key, rawValue)
+  }
+
+  const backHref = currentSearch.toString() ? `/technicians?${currentSearch.toString()}` : "/technicians"
+  const locationPreset = getTechnicianLocationPreset(technician)
+  const searchPreset = near ? getPresetBySlug(near) : null
+  const approximateDistance = hasCoordinates
+    ? getDistanceToTechnician(technician, latitude, longitude)
+    : null
+  const distanceContextLabel =
+    near === "mi-ubicacion"
+      ? "tu ubicación"
+      : ((searchPreset?.label ?? location) || null)
+  const brandNames = new Map(brands.map((brand) => [brand.id, brand.name]))
+
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -115,18 +182,16 @@ export default async function TechnicianDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
 
-      {/* Breadcrumb */}
       <nav className="mb-6">
         <Link
-          href="/technicians"
+          href={backHref}
           className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-[#6b7280] transition-colors hover:text-[#10b981]"
         >
           <ChevronLeft className="h-4 w-4" />
-          Técnicos
+          Volver a técnicos
         </Link>
       </nav>
 
-      {/* Profile header */}
       <div className="mb-8 flex flex-col items-start gap-6 sm:flex-row sm:items-center">
         <Avatar className="h-24 w-24 flex-shrink-0">
           {technician.photoURL && (
@@ -161,7 +226,6 @@ export default async function TechnicianDetailPage({
           {technician.bio && <p className="mt-3 text-[#6b7280]">{technician.bio}</p>}
         </div>
 
-        {/* WhatsApp CTA */}
         <div className="flex flex-col gap-2">
           <WhatsAppButton
             phoneNumber={technician.whatsappNumber}
@@ -178,11 +242,17 @@ export default async function TechnicianDetailPage({
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left column: services + pricing */}
         <div className="space-y-8 lg:col-span-2">
-          {/* Services */}
           <section>
-            <h2 className="mb-4 text-xl font-bold text-[#111827]">Servicios y precios</h2>
+            <div className="mb-4 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-[#111827]">Servicios y precios</h2>
+                <p className="mt-1 text-sm text-[#6b7280]">
+                  Perfil público con servicios activos y precios base publicados por el técnico.
+                </p>
+              </div>
+            </div>
+
             <div className="space-y-3">
               {services.map((service) => {
                 const Icon = SERVICE_ICONS[service.category] ?? Wrench
@@ -215,11 +285,9 @@ export default async function TechnicianDetailPage({
             </div>
           </section>
 
-          {/* Reviews */}
           <section>
             <h2 className="mb-4 text-xl font-bold text-[#111827]">
-              Reseñas{" "}
-              <span className="text-base font-normal text-[#9ca3af]">({reviews.length})</span>
+              Reseñas <span className="text-base font-normal text-[#9ca3af]">({reviews.length})</span>
             </h2>
             {reviews.length === 0 ? (
               <p className="text-sm text-[#9ca3af]">Aún no hay reseñas para este técnico.</p>
@@ -233,8 +301,38 @@ export default async function TechnicianDetailPage({
           </section>
         </div>
 
-        {/* Right column: availability */}
         <div className="space-y-6">
+          <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5">
+            <h2 className="mb-4 text-base font-bold text-[#111827]">Ubicación aproximada</h2>
+            <div className="space-y-3 text-sm text-[#4b5563]">
+              <div className="flex items-start gap-3">
+                <MapPinned className="mt-0.5 h-4 w-4 text-[#10b981]" />
+                <div>
+                  <p className="font-semibold text-[#111827]">{technician.location}</p>
+                  <p className="mt-1 text-[#6b7280]">
+                    {locationPreset
+                      ? `Zona estimada: ${locationPreset.label}.`
+                      : "La ubicación pública se muestra de forma aproximada por privacidad."}
+                  </p>
+                </div>
+              </div>
+
+              {approximateDistance !== null && distanceContextLabel ? (
+                <div className="flex items-start gap-3 rounded-xl bg-[#f8fafc] px-3 py-3">
+                  <Route className="mt-0.5 h-4 w-4 text-[#2563eb]" />
+                  <div>
+                    <p className="font-semibold text-[#111827]">
+                      Aprox. a {formatDistance(approximateDistance)} km
+                    </p>
+                    <p className="mt-1 text-[#6b7280]">
+                      Distancia estimada desde {distanceContextLabel} usando la zona pública del perfil.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </section>
+
           <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5">
             <h2 className="mb-4 text-base font-bold text-[#111827]">Disponibilidad semanal</h2>
             <ul className="space-y-2">
@@ -245,7 +343,7 @@ export default async function TechnicianDetailPage({
                     <span className="text-[#374151]">{DAY_LABELS[day]}</span>
                     {avail?.isAvailable ? (
                       <span className="text-[#10b981]">
-                        {avail.start} – {avail.end}
+                        {avail.start} - {avail.end}
                       </span>
                     ) : (
                       <span className="text-[#9ca3af]">No disponible</span>
@@ -256,14 +354,13 @@ export default async function TechnicianDetailPage({
             </ul>
           </section>
 
-          {/* Supported brands */}
           {technician.supportedBrands.length > 0 && (
             <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5">
               <h2 className="mb-3 text-base font-bold text-[#111827]">Marcas soportadas</h2>
               <div className="flex flex-wrap gap-2">
                 {technician.supportedBrands.map((brandId) => (
                   <Badge key={brandId} variant="secondary" className="capitalize">
-                    {brandId.replace("brand-", "")}
+                    {brandNames.get(brandId) ?? brandId.replace("brand-", "")}
                   </Badge>
                 ))}
               </div>
