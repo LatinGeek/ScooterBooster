@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { DisclaimerModal } from "@/components/disclaimer-modal"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
+import { slugify } from "@/lib/slugs"
 import type { ScooterBrand, ScooterModel, Service, Technician } from "@/types"
 
 interface WizardState {
@@ -40,6 +41,14 @@ interface Props {
 }
 
 const SERVICE_FEE_PCT = 10
+const BRAND_LOGO_BACKGROUNDS: Record<string, string> = {
+  atom: "#4da2ff",
+  joyor: "#f4f9ff",
+  "mi-style": "#111827",
+  mistyle: "#111827",
+  navee: "#0f172a",
+  xiaomi: "#ff6900",
+}
 
 function calcPricing(basePrice: number) {
   const fee = Math.round(basePrice * (SERVICE_FEE_PCT / 100))
@@ -52,6 +61,14 @@ function formatUYU(amount: number) {
     currency: "UYU",
     maximumFractionDigits: 0,
   }).format(amount)
+}
+
+function getBrandLogoBackground(brand: ScooterBrand) {
+  return (
+    BRAND_LOGO_BACKGROUNDS[slugify(brand.slug)] ??
+    BRAND_LOGO_BACKGROUNDS[slugify(brand.name)] ??
+    "#f3f4f6"
+  )
 }
 
 const DAY_LABELS: Record<string, string> = {
@@ -239,7 +256,10 @@ function StepScooter({
                     onClick={() => setSelectedBrandId(brand.id)}
                     className="group flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-[#e5e7eb] bg-white p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#10b981] hover:shadow-sm"
                   >
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f3f4f6]">
+                    <div
+                      className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl"
+                      style={{ backgroundColor: getBrandLogoBackground(brand) }}
+                    >
                       {brand.logoURL ? (
                         <Image
                           src={brand.logoURL}
