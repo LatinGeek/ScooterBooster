@@ -323,7 +323,7 @@ function StepScooter({
                       : "border-[#e5e7eb] bg-white"
                   }`}
                 >
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#f3f4f6]">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
                     <Image
                       src={model.imageURL!}
                       alt={`Foto del ${model.name}`}
