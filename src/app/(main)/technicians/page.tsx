@@ -7,11 +7,10 @@ import { getDistanceToTechnician, searchTechnicians } from "@/lib/search"
 import {
   getPresetBySlug,
   URUGUAY_LOCATION_PRESETS,
-  type UruguayLocationPreset,
 } from "@/lib/uruguay-locations"
 import { TechnicianCard } from "@/components/technician-card"
 import { LocationSortControls } from "./location-sort-controls"
-
+import { RapidZoneControls } from "./rapid-zone-controls"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
@@ -28,18 +27,6 @@ function getMultiSearchParam(value: string | string[] | undefined): string[] {
   if (typeof value === "string") return value ? [value] : []
   if (Array.isArray(value)) return value.filter(Boolean)
   return []
-}
-
-function createLocationHref(
-  selectedPreset: UruguayLocationPreset,
-  currentParams: URLSearchParams
-): string {
-  const params = new URLSearchParams(currentParams.toString())
-  params.set("location", selectedPreset.label)
-  params.set("near", selectedPreset.slug)
-  params.delete("lat")
-  params.delete("lng")
-  return `/technicians?${params.toString()}`
 }
 
 function buildHrefFromParams(params: URLSearchParams): string {
@@ -121,9 +108,11 @@ export default async function TechniciansPage({
     currentSearchParams.append("service", serviceId)
   }
 
+  const nearPreset = near ? getPresetBySlug(near) : null
+  const nearbyLabel = near === "mi-ubicacion" ? "tu ubicación" : (nearPreset?.label ?? null)
   const activeFilterCount = [
     query,
-    location,
+    location && nearbyLabel !== location ? location : null,
     brand,
     minRatingValue,
     minPriceRaw,
@@ -131,9 +120,6 @@ export default async function TechniciansPage({
     near,
     ...selectedServices,
   ].filter(Boolean).length
-
-  const nearPreset = near ? getPresetBySlug(near) : null
-  const nearbyLabel = near === "mi-ubicacion" ? "tu ubicación" : (nearPreset?.label ?? null)
   const distanceByTechnicianId = new Map(
     technicians.map((technician) => [
       technician.id,
@@ -155,7 +141,7 @@ export default async function TechniciansPage({
           ),
         }
       : null,
-    location
+    location && nearbyLabel !== location
       ? {
           key: "location",
           label: `Ubicación: ${location}`,
@@ -236,6 +222,9 @@ export default async function TechniciansPage({
           href: buildHrefFromParams(
             (() => {
               const params = new URLSearchParams(currentSearchParams.toString())
+              if (location === nearbyLabel) {
+                params.delete("location")
+              }
               params.delete("near")
               params.delete("lat")
               params.delete("lng")
@@ -333,9 +322,9 @@ export default async function TechniciansPage({
                 </p>
                 <h2 className="mt-2 text-2xl font-bold text-[#111827]">Encontrá tu match</h2>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#ecfdf5] px-3 py-1 text-xs font-semibold text-[#047857]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#ecfdf5] px-3 py-1 text-xs font-semibold text-[#047857] whitespace-nowrap">
                 <SlidersHorizontal className="h-3.5 w-3.5" />
-                {activeFilterCount} activos
+                {activeFilterCount}
               </div>
             </div>
 
@@ -358,24 +347,12 @@ export default async function TechniciansPage({
                   </div>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {URUGUAY_LOCATION_PRESETS.map((preset) => {
-                    const isActive = near === preset.slug || location === preset.label
-                    return (
-                      <Link
-                        key={preset.slug}
-                        href={createLocationHref(preset, currentSearchParams)}
-                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 ${
-                          isActive
-                            ? "bg-[#111827] text-white"
-                            : "bg-white text-[#374151] hover:bg-[#e2e8f0]"
-                        }`}
-                      >
-                        {preset.label}
-                      </Link>
-                    )
-                  })}
-                </div>
+                <RapidZoneControls
+                  initialSearch={currentSearchParams.toString()}
+                  presets={URUGUAY_LOCATION_PRESETS}
+                  selectedNear={near}
+                  selectedLocation={location}
+                />
               </div>
             </div>
 
@@ -594,6 +571,7 @@ export default async function TechniciansPage({
                   </div>
                   <Link
                     href="/technicians"
+                    scroll={false}
                     className="text-sm font-semibold text-[#10b981] transition-colors duration-200 hover:text-[#059669]"
                   >
                     Limpiar todo
@@ -605,6 +583,7 @@ export default async function TechniciansPage({
                     <Link
                       key={filter.key}
                       href={filter.href}
+                      scroll={false}
                       className="rounded-full bg-[#f8fafc] px-3 py-1.5 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#e2e8f0]"
                     >
                       {filter.label} ×
