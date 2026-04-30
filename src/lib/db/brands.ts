@@ -8,13 +8,37 @@ import { slugify } from "@/lib/slugs"
 import type { ScooterBrand } from "@/types"
 
 const COLLECTION = "scooterBrands"
+const BRAND_LOGO_FALLBACKS: Record<string, string> = {
+  atom: "/assets/brand-logos/atom.jpg",
+  joyor: "/assets/brand-logos/joyor.jpg",
+  "mi-style": "/assets/brand-logos/mistyle.png",
+  mistyle: "/assets/brand-logos/mistyle.png",
+  navee: "/assets/brand-logos/navee.jpg",
+  xiaomi: "/assets/brand-logos/xiaomi.png",
+}
+
+function resolveBrandLogo(
+  name: string,
+  slug: string,
+  logoURL: string | null | undefined,
+): string | null {
+  if (logoURL) return logoURL
+
+  const slugKey = slugify(slug)
+  const nameKey = slugify(name)
+  return BRAND_LOGO_FALLBACKS[slugKey] ?? BRAND_LOGO_FALLBACKS[nameKey] ?? null
+}
 
 function docToScooterBrand(id: string, data: FirebaseFirestore.DocumentData): ScooterBrand {
+  const name = data["name"] as string
+  const slug = data["slug"] as string
+  const logoURL = (data["logoURL"] as string | null) ?? null
+
   return {
     id,
-    name: data["name"] as string,
-    slug: data["slug"] as string,
-    logoURL: (data["logoURL"] as string | null) ?? null,
+    name,
+    slug,
+    logoURL: resolveBrandLogo(name, slug, logoURL),
     isActive: Boolean(data["isActive"]),
     searchTokens: (data["searchTokens"] as string[]) ?? [],
     createdAt:

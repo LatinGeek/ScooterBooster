@@ -73,9 +73,36 @@ const STEPS: { label: string; icon: React.FC<{ className?: string }> }[] = [
 ]
 
 function Stepper({ currentStep }: { currentStep: Step }) {
+  const currentIndex = currentStep - 1
+  const currentLabel = STEPS[currentIndex]?.label ?? ""
+
   return (
-    <nav aria-label="Pasos de la reserva" className="mb-8">
-      <ol className="flex items-center justify-between">
+    <nav
+      aria-label="Pasos de la reserva"
+      className="mb-8 rounded-2xl border border-[#e5e7eb] bg-[linear-gradient(135deg,#f8fffb_0%,#ffffff_45%,#f3f4f6_100%)] p-4 sm:p-5"
+    >
+      <div className="mb-4 flex items-center justify-between gap-4 sm:hidden">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9ca3af]">
+            Paso {currentStep} de {STEPS.length}
+          </p>
+          <p className="mt-1 text-base font-semibold text-[#111827]">{currentLabel}</p>
+        </div>
+        <div className="rounded-full bg-[#d1fae5] px-3 py-1 text-xs font-semibold text-[#059669]">
+          {Math.round((currentStep / STEPS.length) * 100)}%
+        </div>
+      </div>
+
+      <div className="mb-4 sm:hidden">
+        <div className="h-2 overflow-hidden rounded-full bg-[#e5e7eb]">
+          <div
+            className="h-full rounded-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)] transition-all duration-300"
+            style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <ol className="grid grid-cols-5 gap-2 sm:flex sm:items-start sm:justify-between sm:gap-0">
         {STEPS.map((step, idx) => {
           const stepNum = (idx + 1) as Step
           const done = stepNum < currentStep
@@ -83,36 +110,47 @@ function Stepper({ currentStep }: { currentStep: Step }) {
           const Icon = step.icon
 
           return (
-            <li key={step.label} className="flex flex-1 flex-col items-center">
-              <div className="flex w-full items-center">
-                {idx > 0 && (
-                  <div
-                    className={`h-0.5 flex-1 transition-colors duration-300 ${done ? "bg-[#10b981]" : "bg-[#e5e7eb]"}`}
-                  />
-                )}
-                <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300 ${
-                    done
-                      ? "border-[#10b981] bg-[#10b981] text-white"
-                      : active
-                        ? "border-[#10b981] bg-white text-[#10b981]"
-                        : "border-[#e5e7eb] bg-white text-[#9ca3af]"
-                  }`}
-                  aria-current={active ? "step" : undefined}
-                >
-                  {done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-                </div>
+            <li
+              key={step.label}
+              className="relative flex min-w-0 flex-col items-center sm:flex-1"
+            >
+              <div className="hidden sm:block sm:absolute sm:left-1/2 sm:right-0 sm:top-5">
                 {idx < STEPS.length - 1 && (
-                  <div
-                    className={`h-0.5 flex-1 transition-colors duration-300 ${done ? "bg-[#10b981]" : "bg-[#e5e7eb]"}`}
-                  />
+                  <div className="mx-5 h-[2px] overflow-hidden rounded-full bg-[#e5e7eb]">
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        done ? "w-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)]" : "w-0"
+                      }`}
+                    />
+                  </div>
                 )}
               </div>
-              <span
-                className={`mt-1 text-xs font-medium ${active ? "text-[#10b981]" : done ? "text-[#10b981]" : "text-[#9ca3af]"}`}
+
+              <div
+                className={`relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border text-sm transition-all duration-300 sm:h-10 sm:w-10 sm:rounded-full ${
+                  done
+                    ? "border-[#10b981] bg-[#10b981] text-white shadow-[0_10px_24px_rgba(16,185,129,0.24)]"
+                    : active
+                      ? "border-[#10b981] bg-white text-[#10b981] shadow-[0_12px_28px_rgba(16,185,129,0.16)] ring-4 ring-[#d1fae5]"
+                      : "border-[#e5e7eb] bg-white text-[#9ca3af]"
+                }`}
+                aria-current={active ? "step" : undefined}
               >
-                {step.label}
-              </span>
+                {done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+              </div>
+
+              <div className="mt-2 text-center">
+                <p
+                  className={`text-[11px] font-semibold sm:text-xs ${
+                    active || done ? "text-[#111827]" : "text-[#9ca3af]"
+                  }`}
+                >
+                  {step.label}
+                </p>
+                <p className="mt-0.5 hidden text-[11px] sm:block">
+                  <span className={active ? "text-[#10b981]" : "text-[#cbd5e1]"}>0{stepNum}</span>
+                </p>
+              </div>
             </li>
           )
         })}
