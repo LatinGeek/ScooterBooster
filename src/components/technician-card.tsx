@@ -2,12 +2,11 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowRight, MapPin, MessageCircle, Star, Wrench } from "lucide-react"
+import { ArrowRight, MapPin, Star, Wrench } from "lucide-react"
 import type { Technician } from "@/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { WhatsAppButton } from "./whatsapp-button"
 
 interface TechnicianCardProps {
   technician: Technician
@@ -160,22 +159,6 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
               Ver perfil completo
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
-            <div
-              className="rounded-full border border-[#d1fae5] bg-[#f0fdf4] p-1"
-              onClick={(event) => event.stopPropagation()}
-              onKeyDown={(event) => event.stopPropagation()}
-            >
-              <WhatsAppButton
-                phoneNumber={technician.whatsappNumber}
-                message={`Hola ${technician.displayName}, vi tu perfil en ScooterBooster y me gustaria consultar sobre tus servicios.`}
-                variant="icon"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-[#6b7280]">
-            <MessageCircle className="h-3.5 w-3.5 text-[#10b981]" />
-            Responde consultas directas por WhatsApp
           </div>
         </div>
       </CardContent>

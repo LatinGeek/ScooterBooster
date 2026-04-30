@@ -1,32 +1,31 @@
-import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import {
-  MapPin,
-  Star,
-  ChevronLeft,
   CheckCircle,
-  Gauge,
-  Cpu,
-  Navigation,
-  Wrench,
+  ChevronLeft,
   Clock,
+  Cpu,
+  Gauge,
+  MapPin,
   MapPinned,
+  Navigation,
   Route,
+  Star,
+  Wrench,
 } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { ReviewCard } from "@/components/review-card"
 import { getActiveBrands } from "@/lib/db/brands"
-import { getTechnicianByIdentifier } from "@/lib/db/technicians"
 import { getReviewsByTechnician } from "@/lib/db/reviews"
 import { getServicesByIds } from "@/lib/db/services"
+import { getTechnicianByIdentifier } from "@/lib/db/technicians"
 import {
   getDistanceToTechnician,
   getTechnicianLocationPreset,
 } from "@/lib/search"
 import { getPresetBySlug } from "@/lib/uruguay-locations"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ReviewCard } from "@/components/review-card"
-import { WhatsAppButton } from "@/components/whatsapp-button"
 
 export const dynamic = "force-dynamic"
 
@@ -40,10 +39,10 @@ const SERVICE_ICONS: Record<string, React.ElementType> = {
 const DAY_LABELS: Record<string, string> = {
   monday: "Lunes",
   tuesday: "Martes",
-  wednesday: "Miércoles",
+  wednesday: "Miercoles",
   thursday: "Jueves",
   friday: "Viernes",
-  saturday: "Sábado",
+  saturday: "Sabado",
   sunday: "Domingo",
 }
 
@@ -64,10 +63,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const technician = await getTechnicianByIdentifier(id)
-  if (!technician) return { title: "Técnico no encontrado - ScooterBooster" }
+  if (!technician) return { title: "Tecnico no encontrado - ScooterBooster" }
+
   return {
     title: `${technician.displayName} - ScooterBooster`,
-    description: `Técnico de scooters eléctricos en ${technician.location}. ${technician.bio}`,
+    description: `Tecnico de scooters electricos en ${technician.location}. ${technician.bio}`,
   }
 }
 
@@ -123,16 +123,16 @@ export default async function TechnicianDetailPage({
     if (rawValue) currentSearch.set(key, rawValue)
   }
 
-  const backHref = currentSearch.toString() ? `/technicians?${currentSearch.toString()}` : "/technicians"
+  const backHref = currentSearch.toString()
+    ? `/technicians?${currentSearch.toString()}`
+    : "/technicians"
   const locationPreset = getTechnicianLocationPreset(technician)
   const searchPreset = near ? getPresetBySlug(near) : null
   const approximateDistance = hasCoordinates
     ? getDistanceToTechnician(technician, latitude, longitude)
     : null
   const distanceContextLabel =
-    near === "mi-ubicacion"
-      ? "tu ubicación"
-      : ((searchPreset?.label ?? location) || null)
+    near === "mi-ubicacion" ? "tu ubicacion" : (searchPreset?.label ?? location ?? null)
   const brandNames = new Map(brands.map((brand) => [brand.id, brand.name]))
 
   const localBusinessJsonLd = {
@@ -170,7 +170,7 @@ export default async function TechnicianDetailPage({
 
   const initials = technician.displayName
     .split(" ")
-    .map((n) => n[0])
+    .map((chunk) => chunk[0])
     .join("")
     .toUpperCase()
     .slice(0, 2)
@@ -188,7 +188,7 @@ export default async function TechnicianDetailPage({
           className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-[#6b7280] transition-colors hover:text-[#10b981]"
         >
           <ChevronLeft className="h-4 w-4" />
-          Volver a técnicos
+          Volver a tecnicos
         </Link>
       </nav>
 
@@ -219,7 +219,7 @@ export default async function TechnicianDetailPage({
               <span className="text-sm font-semibold text-[#111827]">
                 {technician.rating.toFixed(1)}
               </span>
-              <span className="text-sm text-[#9ca3af]">({technician.reviewCount} reseñas)</span>
+              <span className="text-sm text-[#9ca3af]">({technician.reviewCount} resenas)</span>
             </div>
           </div>
 
@@ -227,11 +227,6 @@ export default async function TechnicianDetailPage({
         </div>
 
         <div className="flex flex-col gap-2">
-          <WhatsAppButton
-            phoneNumber={technician.whatsappNumber}
-            message={`Hola ${technician.displayName}, vi tu perfil en ScooterBooster y me gustaría consultar sobre tus servicios.`}
-            variant="default"
-          />
           <Link
             href={`/booking?technicianId=${technician.id}`}
             className="cursor-pointer rounded-lg bg-[#10b981] px-5 py-2.5 text-center text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
@@ -248,7 +243,7 @@ export default async function TechnicianDetailPage({
               <div>
                 <h2 className="text-xl font-bold text-[#111827]">Servicios y precios</h2>
                 <p className="mt-1 text-sm text-[#6b7280]">
-                  Perfil público con servicios activos y precios base publicados por el técnico.
+                  Perfil publico con servicios activos y precios base publicados por el tecnico.
                 </p>
               </div>
             </div>
@@ -257,6 +252,7 @@ export default async function TechnicianDetailPage({
               {services.map((service) => {
                 const Icon = SERVICE_ICONS[service.category] ?? Wrench
                 const pricing = technician.pricing[service.id]
+
                 return (
                   <div
                     key={service.id}
@@ -287,10 +283,10 @@ export default async function TechnicianDetailPage({
 
           <section>
             <h2 className="mb-4 text-xl font-bold text-[#111827]">
-              Reseñas <span className="text-base font-normal text-[#9ca3af]">({reviews.length})</span>
+              Resenas <span className="text-base font-normal text-[#9ca3af]">({reviews.length})</span>
             </h2>
             {reviews.length === 0 ? (
-              <p className="text-sm text-[#9ca3af]">Aún no hay reseñas para este técnico.</p>
+              <p className="text-sm text-[#9ca3af]">Aun no hay resenas para este tecnico.</p>
             ) : (
               <div className="space-y-3">
                 {reviews.map((review) => (
@@ -303,7 +299,7 @@ export default async function TechnicianDetailPage({
 
         <div className="space-y-6">
           <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-[#111827]">Ubicación aproximada</h2>
+            <h2 className="mb-4 text-base font-bold text-[#111827]">Ubicacion aproximada</h2>
             <div className="space-y-3 text-sm text-[#4b5563]">
               <div className="flex items-start gap-3">
                 <MapPinned className="mt-0.5 h-4 w-4 text-[#10b981]" />
@@ -312,7 +308,7 @@ export default async function TechnicianDetailPage({
                   <p className="mt-1 text-[#6b7280]">
                     {locationPreset
                       ? `Zona estimada: ${locationPreset.label}.`
-                      : "La ubicación pública se muestra de forma aproximada por privacidad."}
+                      : "La ubicacion publica se muestra de forma aproximada por privacidad."}
                   </p>
                 </div>
               </div>
@@ -325,7 +321,8 @@ export default async function TechnicianDetailPage({
                       Aprox. a {formatDistance(approximateDistance)} km
                     </p>
                     <p className="mt-1 text-[#6b7280]">
-                      Distancia estimada desde {distanceContextLabel} usando la zona pública del perfil.
+                      Distancia estimada desde {distanceContextLabel} usando la zona publica del
+                      perfil.
                     </p>
                   </div>
                 </div>
@@ -337,13 +334,14 @@ export default async function TechnicianDetailPage({
             <h2 className="mb-4 text-base font-bold text-[#111827]">Disponibilidad semanal</h2>
             <ul className="space-y-2">
               {DAY_ORDER.map((day) => {
-                const avail = technician.availability[day]
+                const availability = technician.availability[day]
+
                 return (
                   <li key={day} className="flex items-center justify-between text-sm">
                     <span className="text-[#374151]">{DAY_LABELS[day]}</span>
-                    {avail?.isAvailable ? (
+                    {availability?.isAvailable ? (
                       <span className="text-[#10b981]">
-                        {avail.start} - {avail.end}
+                        {availability.start} - {availability.end}
                       </span>
                     ) : (
                       <span className="text-[#9ca3af]">No disponible</span>

@@ -79,7 +79,7 @@ const technician: Technician = {
   bio: "Bio",
   photoURL: "",
   phone: "",
-  whatsappNumber: "",
+  whatsappNumber: "59899123456",
   location: "Montevideo",
   services: ["service-1"],
   supportedBrands: ["brand-1"],
@@ -184,5 +184,46 @@ describe("BookingDetailClient", () => {
     expect(mocks.refresh).toHaveBeenCalledTimes(1)
 
     vi.useRealTimers()
+  })
+
+  it("shows the WhatsApp CTA only after payment and places it between guidance and timeline", () => {
+    const { rerender } = render(
+      <BookingDetailClient
+        booking={createBooking()}
+        technician={technician}
+        service={service}
+        scooterModel={scooterModel}
+        role="user"
+        userId="user-1"
+      />
+    )
+
+    expect(screen.queryByText("Contactar técnico por WhatsApp")).toBeNull()
+
+    rerender(
+      <BookingDetailClient
+        booking={createBooking({
+          status: "confirmed",
+          paymentStatus: "paid",
+        })}
+        technician={technician}
+        service={service}
+        scooterModel={scooterModel}
+        role="user"
+        userId="user-1"
+      />
+    )
+
+    const button = screen.getByText("Contactar técnico por WhatsApp")
+    const guidanceHeading = screen.getByText("Qué sigue ahora")
+    const timelineHeading = screen.getByText("Seguimiento de la reserva")
+
+    expect(button).toBeTruthy()
+    expect(
+      guidanceHeading.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+    expect(
+      button.compareDocumentPosition(timelineHeading) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 })

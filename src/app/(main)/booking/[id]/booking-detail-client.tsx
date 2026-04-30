@@ -531,6 +531,10 @@ export function BookingDetailClient({
     }
   }
 
+  const canContactTechnician =
+    booking.paymentStatus === "paid" &&
+    ["confirmed", "in_progress", "completed"].includes(booking.status)
+
   const whatsappUrl = technician?.whatsappNumber
     ? buildWhatsAppUrl(
         technician.whatsappNumber,
@@ -588,6 +592,17 @@ export function BookingDetailClient({
           </span>
         </div>
       </div>
+
+      {canContactTechnician && whatsappUrl && (
+        <div className="mb-6">
+          <Button asChild className="w-full sm:w-auto">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4" />
+              Contactar técnico por WhatsApp
+            </a>
+          </Button>
+        </div>
+      )}
 
       <div className="mb-6">
         <BookingTimeline booking={booking} />
@@ -662,15 +677,6 @@ export function BookingDetailClient({
           onInitiatePayment={handleInitiatePayment}
           initiatingPayment={initiatingPayment}
         />
-
-        {whatsappUrl && !["cancelled_by_user", "cancelled_by_technician", "expired"].includes(booking.status) && (
-          <Button variant="outline" asChild className="w-full sm:w-auto">
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-4 w-4" />
-              Contactar técnico por WhatsApp
-            </a>
-          </Button>
-        )}
       </div>
 
       {booking.status === "completed" && role === "user" && technician && (

@@ -181,7 +181,9 @@ function BookingCard({
   const showPayCTA = booking.status === "pending" && booking.paymentLinkUrl && !isPastPending
   const showGeneratePayCTA = booking.status === "pending" && !booking.paymentLinkUrl && !isPastPending
   const showWhatsApp =
-    (booking.status === "confirmed" || booking.status === "in_progress") && technician?.whatsappNumber
+    booking.paymentStatus === "paid" &&
+    (booking.status === "confirmed" || booking.status === "in_progress") &&
+    technician?.whatsappNumber
   const showCancel = booking.status === "pending" || booking.status === "confirmed"
   const showReview = booking.status === "completed" && !hasReviewMap[booking.id]
 
