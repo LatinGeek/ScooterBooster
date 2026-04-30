@@ -312,3 +312,6 @@
 
 - **For Vercel log drains, a real downstream signal beats CLI attachment visibility when the integration layer is opaque:** once `AXIOM_DATASET=scooterbooster` is present in the project config and live ScooterBooster logs are visibly arriving in the Axiom dataset, that is stronger operational proof than waiting for `vercel integration list` to expose the attachment.
   - Affected files: `build-plan-tracker/18-observability.md`, `build-plan-tracker/README.md`
+
+- **MercadoPago MCP is safest here as a repo-local `mcp-remote` bridge that loads `.env.local`:** the remote server accepts auth headers, but editor MCP configs should not duplicate secrets. A small Node wrapper can load `MERCADOPAGO_ACCESS_TOKEN` from the project env file once and serve Codex, Cursor, and VS Code from the same entrypoint.
+  - Affected files: `.mcp.json`, `.cursor/mcp.json`, `.vscode/mcp.json`, `scripts/mercadopago-mcp-proxy.mjs`

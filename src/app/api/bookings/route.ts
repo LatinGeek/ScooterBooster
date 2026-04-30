@@ -125,7 +125,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
         bookingId: booking.id,
         serviceName: service.name,
         scooterModelName: scooterModel.name,
-        totalPrice: booking.totalPrice,
+        serviceFee: booking.serviceFee,
       })
       await updateBookingPaymentLink(booking.id, preferenceId, initPoint)
       await upsertPaymentLinkRecord({
@@ -155,7 +155,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
         userId: session.uid,
         bookingId: booking.id,
         serviceName: service.name,
-        totalPrice: booking.totalPrice,
+        serviceFee: booking.serviceFee,
       }),
       addAuditLogEntry({
         action: "booking_created",
@@ -196,7 +196,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
                 dateStyle: "full",
                 timeStyle: "short",
               }),
-              totalPrice: formatPrice(booking.totalPrice),
+              serviceFee: formatPrice(booking.serviceFee),
+              technicianPrice: formatPrice(booking.basePrice),
             }),
           ]
         : []),

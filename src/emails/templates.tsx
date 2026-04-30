@@ -25,12 +25,14 @@ interface BookingEmailProps {
   detailUrl: string
 }
 
-export function BookingCreatedEmail(props: BookingEmailProps & { totalPrice: string }) {
+export function BookingCreatedEmail(
+  props: BookingEmailProps & { serviceFee: string; technicianPrice: string },
+) {
   return (
     <BaseEmail
       preview="Tu reserva ya fue creada y está esperando el pago."
       title="Tu reserva ya fue creada"
-      intro="Ya registramos tu solicitud en ScooterBooster. Falta completar el pago para confirmar el turno con el técnico."
+      intro="Ya registramos tu solicitud en ScooterBooster. Falta pagar la reserva online para confirmar el turno. El importe del servicio con el técnico se coordina y paga por fuera de la plataforma."
       ctaLabel="Ver reserva"
       ctaHref={props.detailUrl}
     >
@@ -40,7 +42,8 @@ export function BookingCreatedEmail(props: BookingEmailProps & { totalPrice: str
           { label: "Servicio", value: props.serviceName },
           { label: "Técnico", value: props.technicianName },
           { label: "Fecha", value: props.scheduledDate },
-          { label: "Total", value: props.totalPrice },
+          { label: "Reserva online", value: props.serviceFee },
+          { label: "Pago al técnico", value: props.technicianPrice },
         ]}
       />
     </BaseEmail>
@@ -52,7 +55,7 @@ export function BookingConfirmedEmail(props: BookingEmailProps) {
     <BaseEmail
       preview="Tu turno ya está confirmado."
       title="Reserva confirmada"
-      intro="El pago fue aprobado y tu turno quedó confirmado. Ya podés revisar el detalle y coordinar cualquier ajuste con tu técnico."
+      intro="El pago de la reserva fue aprobado y tu turno quedó confirmado. Ya podés revisar el detalle y coordinar con tu técnico el pago del servicio por fuera de ScooterBooster."
       ctaLabel="Abrir detalle"
       ctaHref={props.detailUrl}
     >

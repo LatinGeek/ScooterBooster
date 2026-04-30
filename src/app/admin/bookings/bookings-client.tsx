@@ -225,7 +225,8 @@ export function AdminBookingsClient({ bookings: initialBookings, users, technici
                     <p><strong className="text-[#374151]">Usuario:</strong> {user?.displayName ?? booking.userId}</p>
                     <p><strong className="text-[#374151]">Tecnico:</strong> {technician?.displayName ?? booking.technicianId}</p>
                     <p><strong className="text-[#374151]">Fecha:</strong> {formatDate(booking.scheduledDate)}</p>
-                    <p><strong className="text-[#374151]">Total:</strong> {formatMoney(booking.totalPrice)}</p>
+                    <p><strong className="text-[#374151]">Reserva online:</strong> {formatMoney(booking.serviceFee)}</p>
+                    <p><strong className="text-[#374151]">Pago al técnico:</strong> {formatMoney(booking.basePrice)}</p>
                   </div>
                   {booking.paymentId ? (
                     <p className="text-xs text-[#6b7280]">Payment ID: <span className="font-mono">{booking.paymentId}</span></p>

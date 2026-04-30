@@ -111,8 +111,8 @@ export function TechnicianServicesClient({ tech, allServices, allBrands }: Props
         <div className="mb-4 flex items-start gap-2 rounded-lg bg-[#f0fdf4] px-3 py-2 text-xs text-[#065f46]">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            La plataforma agrega un 10% de comisión sobre el precio base. El cliente paga precio
-            base + comisión.
+            La plataforma cobra un 10% sobre tu precio base para confirmar la reserva. El cliente
+            te paga tu precio base directamente a vos por fuera de ScooterBooster.
           </span>
         </div>
         <div className="flex flex-col gap-4">
@@ -168,7 +168,8 @@ export function TechnicianServicesClient({ tech, allServices, allBrands }: Props
                           />
                         </div>
                         <span className="text-xs text-[#6b7280]">
-                          → cliente paga {formatPrice(Math.round(currentPrice * 1.1))}
+                          → reserva online {formatPrice(Math.round(currentPrice * 0.1))} + cobrás{" "}
+                          {formatPrice(currentPrice)} por fuera de la plataforma
                         </span>
                       </div>
                     )}

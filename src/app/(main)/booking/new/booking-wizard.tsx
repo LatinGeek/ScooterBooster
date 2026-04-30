@@ -297,9 +297,9 @@ function StepTechnician({
                 <p className="mt-0.5 truncate text-sm text-[#6b7280]">{t.location}</p>
                 {pricing && (
                   <p className="mt-1 text-sm font-semibold text-[#10b981]">
-                    {formatUYU(total)}{" "}
+                    Reserva online {formatUYU(fee)}{" "}
                     <span className="text-xs font-normal text-[#9ca3af]">
-                      (base {formatUYU(basePrice)} + {SERVICE_FEE_PCT}% servicio {formatUYU(fee)})
+                      (técnico {formatUYU(basePrice)} por fuera de la plataforma)
                     </span>
                   </p>
                 )}
@@ -440,17 +440,21 @@ function StepConfirm({
         {wizardState.notes && <Row label="Notas" value={wizardState.notes} />}
         <div className="px-4 py-3">
           <div className="flex justify-between text-sm text-[#6b7280]">
-            <span>Precio base</span>
+            <span>Pago al técnico</span>
             <span>{formatUYU(basePrice)}</span>
           </div>
           <div className="flex justify-between text-sm text-[#6b7280]">
-            <span>Fee de servicio ({SERVICE_FEE_PCT}%)</span>
+            <span>Reserva online ({SERVICE_FEE_PCT}%)</span>
             <span>{formatUYU(fee)}</span>
           </div>
           <div className="mt-2 flex justify-between font-bold text-[#111827]">
-            <span>Total</span>
+            <span>Total de referencia</span>
             <span className="text-[#10b981]">{formatUYU(total)}</span>
           </div>
+          <p className="mt-3 text-xs text-[#6b7280]">
+            Pagás {formatUYU(fee)} ahora para confirmar la reserva. Los {formatUYU(basePrice)} del
+            servicio se coordinan directamente con el técnico.
+          </p>
         </div>
       </div>
       {requiresBookingDisclaimer(service) && wizardState.disclaimerAccepted && (
@@ -460,8 +464,8 @@ function StepConfirm({
         </div>
       )}
       <p className="mt-4 text-sm text-[#6b7280]">
-        Al confirmar, se creará la reserva con estado <strong>pendiente de pago</strong>. Recibirás
-        el link de pago a continuación.
+        Al confirmar, se creará la reserva con estado <strong>pendiente de pago</strong>. A
+        continuación recibirás el link para pagar solo la reserva online.
       </p>
     </div>
   )
@@ -593,7 +597,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
       const json = (await res.json()) as {
         success: boolean
-        data?: { booking: { id: string; totalPrice?: number }; paymentLinkUrl?: string | null }
+        data?: { booking: { id: string; serviceFee?: number }; paymentLinkUrl?: string | null }
         error?: string
       }
 
@@ -612,12 +616,12 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
       // If MP payment link is available, redirect to MercadoPago checkout
       if (paymentLinkUrl) {
-        trackAnalyticsEvent("payment_initiated", {
-          booking_id: bookingId,
-          service_id: state.serviceId,
-          technician_id: state.technicianId,
-          total_price: json.data?.booking.totalPrice ?? 0,
-        })
+          trackAnalyticsEvent("payment_initiated", {
+            booking_id: bookingId,
+            service_id: state.serviceId,
+            technician_id: state.technicianId,
+            service_fee: json.data?.booking.serviceFee ?? 0,
+          })
         if (process.env.NEXT_PUBLIC_E2E_AUTH === "enabled") {
           window.sessionStorage.setItem("sb:e2e-payment-link", paymentLinkUrl)
           return
@@ -731,11 +735,11 @@ export function BookingWizard({ models, services, technicians }: Props) {
           (() => {
             const pricing = technician.pricing[service.id]
             if (!pricing) return null
-            const { total } = calcPricing(pricing.basePrice)
+            const { fee } = calcPricing(pricing.basePrice)
             return (
               <div className="mt-4 flex items-center justify-between rounded-lg bg-[#d1fae5] px-4 py-3">
-                <span className="text-sm text-[#065f46]">Total estimado</span>
-                <span className="text-lg font-bold text-[#10b981]">{formatUYU(total)}</span>
+                <span className="text-sm text-[#065f46]">Reserva online a pagar ahora</span>
+                <span className="text-lg font-bold text-[#10b981]">{formatUYU(fee)}</span>
               </div>
             )
           })()}

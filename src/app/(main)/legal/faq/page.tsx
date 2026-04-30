@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const FAQS = [
   {
     q: "¿Cómo funciona ScooterBooster?",
-    a: "Buscás tu modelo de scooter, elegís el servicio que necesitás, seleccionás un técnico disponible, coordinás fecha y hora, y pagás en línea. El técnico va a tu domicilio o taller.",
+    a: "Buscás tu modelo de scooter, elegís el servicio que necesitás, seleccionás un técnico disponible, coordinás fecha y hora, pagás la reserva online y luego arreglás directamente con el técnico el pago del servicio.",
   },
   {
     q: "¿Es legal eliminar el límite de velocidad?",
@@ -18,7 +18,7 @@ const FAQS = [
   },
   {
     q: "¿Cómo se calculan los precios?",
-    a: "Cada técnico fija su precio base por servicio. ScooterBooster agrega una comisión de servicio (generalmente 10%) sobre ese precio. El precio total que pagás incluye ambos.",
+    a: "Cada técnico fija su precio base por servicio. ScooterBooster cobra una reserva online (generalmente 10% del precio base) para confirmar el turno. El resto del servicio se paga directamente al técnico.",
   },
   {
     q: "¿Puedo cancelar una reserva?",
@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: "¿Cómo recibo pagos como técnico?",
-    a: "Los pagos se procesan vía MercadoPago. Recibirás el precio base de cada servicio completado. La comisión de la plataforma es descontada antes del pago.",
+    a: "ScooterBooster solo cobra la reserva online. Vos coordinás y cobrás directamente al cliente el precio base de cada servicio, sin intermediación de la plataforma.",
   },
   {
     q: "¿Mis datos están seguros?",
@@ -42,7 +42,7 @@ const FAQS = [
   },
   {
     q: "¿Qué formas de pago aceptan?",
-    a: "Aceptamos tarjetas de crédito/débito, transferencias y pagos en efectivo a través de MercadoPago (RedPagos, Abitab).",
+    a: "La reserva online se puede pagar con los medios habilitados por MercadoPago. El pago del servicio al técnico se coordina por separado entre ambas partes.",
   },
   {
     q: "¿Tienen soporte técnico?",

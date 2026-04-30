@@ -9,7 +9,7 @@ interface CreatePaymentLinkParams {
   bookingId: string
   serviceName: string
   scooterModelName: string
-  totalPrice: number
+  serviceFee: number
 }
 
 export async function createPaymentLink(params: CreatePaymentLinkParams): Promise<PaymentLink> {
@@ -28,9 +28,9 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
       items: [
         {
           id: params.bookingId,
-          title: `Servicio: ${params.serviceName} - ${params.scooterModelName}`,
+          title: `Reserva ScooterBooster: ${params.serviceName} - ${params.scooterModelName}`,
           quantity: 1,
-          unit_price: params.totalPrice,
+          unit_price: params.serviceFee,
           currency_id: "UYU",
         },
       ],

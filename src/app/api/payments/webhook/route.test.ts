@@ -194,11 +194,13 @@ describe("/api/payments/webhook", () => {
   it("confirms the booking when MercadoPago reports an approved payment", async () => {
     mocks.paymentGet.mockResolvedValue({
       status: "approved",
+      transaction_amount: 180,
       external_reference: "booking_booking-1",
     })
     mocks.getBookingByExternalReference.mockResolvedValue({
       id: "booking-1",
       paymentLinkId: "pref-1",
+      serviceFee: 180,
     })
 
     const response = await POST(
@@ -239,6 +241,7 @@ describe("/api/payments/webhook", () => {
   it("marks unknown external references as processed without mutating bookings", async () => {
     mocks.paymentGet.mockResolvedValue({
       status: "approved",
+      transaction_amount: 180,
       external_reference: "booking_missing",
     })
     mocks.getBookingByExternalReference.mockResolvedValue(null)
@@ -272,11 +275,13 @@ describe("/api/payments/webhook", () => {
   it("keeps the booking pending when MercadoPago rejects the payment", async () => {
     mocks.paymentGet.mockResolvedValue({
       status: "rejected",
+      transaction_amount: 180,
       external_reference: "booking_booking-1",
     })
     mocks.getBookingByExternalReference.mockResolvedValue({
       id: "booking-1",
       paymentLinkId: "pref-1",
+      serviceFee: 180,
     })
 
     const response = await POST(
@@ -301,6 +306,45 @@ describe("/api/payments/webhook", () => {
       status: "rejected",
       paymentId: "payment-1",
       lastWebhookEventId: "event-1",
+    })
+  })
+
+  it("does not confirm the booking if MercadoPago approves a different amount", async () => {
+    mocks.paymentGet.mockResolvedValue({
+      status: "approved",
+      transaction_amount: 1980,
+      external_reference: "booking_booking-1",
+    })
+    mocks.getBookingByExternalReference.mockResolvedValue({
+      id: "booking-1",
+      paymentLinkId: "pref-1",
+      serviceFee: 180,
+    })
+
+    const response = await POST(
+      createWebhookRequest(
+        {
+          id: "event-1",
+          type: "payment",
+          data: { id: "payment-1" },
+        },
+        {
+          "x-request-id": "request-1",
+          "x-signature": buildSignature("webhook-secret", "payment-1", "request-1"),
+        }
+      )
+    )
+    const json = (await response.json()) as { success: boolean }
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(mocks.updateBookingPaymentStatus).not.toHaveBeenCalled()
+    expect(mocks.processedEvents.get("event-1")).toMatchObject({
+      eventType: "payment",
+      paymentId: "payment-1",
+      mpStatus: "approved",
+      bookingId: "booking-1",
+      result: "amount_mismatch",
     })
   })
 

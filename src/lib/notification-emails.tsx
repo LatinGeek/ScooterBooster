@@ -23,7 +23,7 @@ interface BookingEmailBase {
 }
 
 export async function sendBookingCreatedEmail(
-  input: BookingEmailBase & { totalPrice: string },
+  input: BookingEmailBase & { serviceFee: string; technicianPrice: string },
 ) {
   return sendEmail({
     to: input.to,

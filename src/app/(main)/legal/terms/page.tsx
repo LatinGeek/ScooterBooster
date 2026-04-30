@@ -60,10 +60,10 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-[#111827]">4. Comisiones y Pagos</h2>
           <p>
-            ScooterBooster cobra una comision de servicio (porcentaje configurable, minimo 10 %)
-            sobre el precio base del tecnico. Los pagos se procesan a traves de MercadoPago. Los
-            tecnicos reciben el precio base acordado; la comision de la plataforma es retenida por
-            ScooterBooster.
+            ScooterBooster cobra una reserva online (porcentaje configurable, minimo 10 %) sobre
+            el precio base del tecnico para confirmar el turno. Ese importe se procesa a traves de
+            MercadoPago. El pago del servicio prestado por el tecnico se coordina y realiza
+            directamente entre usuario y tecnico, sin intermediacion de ScooterBooster.
           </p>
         </section>
 

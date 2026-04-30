@@ -166,6 +166,7 @@ describe("/api/bookings", () => {
     })
     mocks.createBooking.mockResolvedValue({
       id: "booking-1",
+      serviceFee: 180,
       totalPrice: 1980,
     })
     mocks.createPaymentLink.mockResolvedValue({
@@ -210,6 +211,12 @@ describe("/api/bookings", () => {
       preferenceId: "pref-1",
       bookingId: "booking-1",
       initPoint: "https://mp.test/pay/booking-1",
+    })
+    expect(mocks.createPaymentLink).toHaveBeenCalledWith({
+      bookingId: "booking-1",
+      serviceName: "Firmware",
+      scooterModelName: "Xiaomi 1S",
+      serviceFee: 180,
     })
   })
 
@@ -310,6 +317,7 @@ describe("/api/bookings", () => {
     })
     mocks.createBooking.mockResolvedValue({
       id: "booking-1",
+      serviceFee: 180,
       totalPrice: 1980,
     })
     mocks.createPaymentLink.mockRejectedValue(new Error("MP down"))
@@ -357,6 +365,7 @@ describe("/api/bookings", () => {
     })
     mocks.createBooking.mockResolvedValue({
       id: "booking-1",
+      serviceFee: 180,
       totalPrice: 1980,
       notes: null,
     })

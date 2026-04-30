@@ -115,19 +115,19 @@ function formatPrice(amount: number): string {
 }
 
 function getPaymentLabel(booking: Booking) {
-  if (booking.paymentStatus === "paid") return "Pago confirmado"
-  if (booking.paymentStatus === "refunded") return "Reembolsado"
-  return "Pago pendiente"
+  if (booking.paymentStatus === "paid") return "Reserva online paga"
+  if (booking.paymentStatus === "refunded") return "Reserva online reembolsada"
+  return "Reserva online pendiente"
 }
 
 function getNextStepCopy(booking: Booking) {
   switch (booking.status) {
     case "pending":
       return booking.paymentLinkUrl
-        ? "Falta completar el pago para confirmar el turno."
+        ? "Falta completar el pago de la reserva online para confirmar el turno."
         : "La reserva está creada y esperando el link de pago."
     case "confirmed":
-      return "Ya está confirmada. Solo queda esperar la fecha o coordinar detalles."
+      return "Ya está confirmada. Coordiná con el técnico los detalles finales y el pago del servicio."
     case "in_progress":
       return "El técnico ya marcó el servicio como en curso."
     case "completed":
@@ -201,7 +201,7 @@ function BookingCard({
         </span>
         <span className="flex items-center gap-1.5">
           <CreditCard className="h-4 w-4 shrink-0 text-[#10b981]" />
-          {formatPrice(booking.totalPrice)}
+          {formatPrice(booking.serviceFee)}
         </span>
       </div>
 

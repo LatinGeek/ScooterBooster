@@ -7,7 +7,7 @@ type NotificationEvent =
       userId: string
       bookingId: string
       serviceName: string
-      totalPrice: number
+      serviceFee: number
     }
   | {
       type: "bookingReminder"
@@ -78,7 +78,7 @@ export async function notify(event: NotificationEvent) {
           currency: "UYU",
           maximumFractionDigits: 0,
         },
-      ).format(event.totalPrice)} para confirmarla.`,
+      ).format(event.serviceFee)} para confirmar tu turno. El pago del servicio al técnico se coordina por fuera de ScooterBooster.`,
       href: `/booking/${event.bookingId}`,
     })
     return

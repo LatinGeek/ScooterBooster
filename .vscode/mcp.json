@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "mercadopago": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./scripts/mercadopago-mcp-proxy.mjs"]
+    }
+  }
+}

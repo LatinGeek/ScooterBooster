@@ -21,7 +21,7 @@ describe("notify", () => {
       userId: "user-1",
       bookingId: "booking-1",
       serviceName: "Firmware",
-      totalPrice: 1980,
+      serviceFee: 180,
     })
 
     expect(mocks.createUserNotification).toHaveBeenCalledWith(

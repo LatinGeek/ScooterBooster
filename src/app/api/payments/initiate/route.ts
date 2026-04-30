@@ -63,7 +63,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     bookingId: booking.id,
     serviceName: service.name,
     scooterModelName: scooterModel.name,
-    totalPrice: booking.totalPrice,
+    serviceFee: booking.serviceFee,
   })
 
   await updateBookingPaymentLink(booking.id, preferenceId, initPoint)

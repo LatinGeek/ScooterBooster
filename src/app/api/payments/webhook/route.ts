@@ -103,6 +103,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const mpStatus = payment.status
     const externalRef = payment.external_reference ?? ""
+    const transactionAmount =
+      typeof payment.transaction_amount === "number" ? payment.transaction_amount : null
     logger.info({ paymentId, mpStatus, externalRef }, "MP payment fetched")
 
     const booking = await getBookingByExternalReference(externalRef)
@@ -117,6 +119,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     await setBookingPaymentReference(booking.id, paymentId)
 
     if (mpStatus === "approved") {
+      if (transactionAmount !== null && transactionAmount !== booking.serviceFee) {
+        logger.error(
+          {
+            bookingId: booking.id,
+            paymentId,
+            transactionAmount,
+            expectedAmount: booking.serviceFee,
+          },
+          "Approved payment amount does not match booking fee",
+        )
+
+        if (eventId) {
+          await markEventProcessed(eventId, {
+            eventType,
+            paymentId,
+            mpStatus,
+            bookingId: booking.id,
+            result: "amount_mismatch",
+          })
+        }
+
+        return NextResponse.json({ success: true })
+      }
+
       await updateBookingPaymentStatus(booking.id, "paid", "confirmed")
       logger.info({ bookingId: booking.id }, "Booking confirmed after payment approval")
     } else if (mpStatus === "refunded" || mpStatus === "charged_back") {

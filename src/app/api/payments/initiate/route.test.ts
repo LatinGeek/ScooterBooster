@@ -111,6 +111,7 @@ describe("/api/payments/initiate", () => {
       userId: "user-1",
       serviceId: "service-1",
       scooterModelId: "model-1",
+      serviceFee: 180,
       totalPrice: 1980,
       status: "pending",
     })
@@ -142,6 +143,12 @@ describe("/api/payments/initiate", () => {
       preferenceId: "pref-1",
       bookingId: "booking-1",
       initPoint: "https://mp.test/pay",
+    })
+    expect(mocks.createPaymentLink).toHaveBeenCalledWith({
+      bookingId: "booking-1",
+      serviceName: "Firmware",
+      scooterModelName: "Xiaomi 1S",
+      serviceFee: 180,
     })
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })

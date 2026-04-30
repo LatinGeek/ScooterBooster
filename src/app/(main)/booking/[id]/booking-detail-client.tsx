@@ -105,12 +105,12 @@ function formatDate(iso: string) {
 
 function getPaymentBadge(booking: Booking) {
   if (booking.paymentStatus === "paid") {
-    return { label: "Pago confirmado", tone: "text-[#065f46] bg-[#d1fae5]" }
+    return { label: "Reserva online paga", tone: "text-[#065f46] bg-[#d1fae5]" }
   }
   if (booking.paymentStatus === "refunded") {
-    return { label: "Pago reembolsado", tone: "text-amber-700 bg-amber-50" }
+    return { label: "Reserva online reembolsada", tone: "text-amber-700 bg-amber-50" }
   }
-  return { label: "Pago pendiente", tone: "text-amber-700 bg-amber-50" }
+  return { label: "Reserva online pendiente", tone: "text-amber-700 bg-amber-50" }
 }
 
 function getTimelineStepState(target: BookingStatus, booking: Booking) {
@@ -129,21 +129,21 @@ function getBookingGuidance(booking: Booking, paymentReturnStatus?: string) {
   if (paymentReturnStatus === "success" && booking.paymentStatus !== "paid") {
     return {
       title: "Estamos validando tu pago",
-      body: "Mercado Pago ya nos devolvió al sitio, pero la confirmación final puede tardar unos segundos. Si este estado no cambia, refrescá la página.",
+      body: "Mercado Pago ya nos devolvió al sitio, pero la confirmación final de la reserva online puede tardar unos segundos. Si este estado no cambia, refrescá la página.",
     }
   }
 
   if (booking.status === "pending") {
     return {
       title: "Te falta completar el pago",
-      body: "La reserva ya quedó creada. Cuando Mercado Pago confirme el cobro, la pasamos a confirmada automáticamente.",
+      body: "La reserva ya quedó creada. Cuando Mercado Pago confirme el cobro de la reserva online, la pasamos a confirmada automáticamente.",
     }
   }
 
   if (booking.status === "confirmed") {
     return {
       title: "Tu turno ya está confirmado",
-      body: "Ahora solo queda esperar la fecha elegida o coordinar algún detalle puntual con el técnico.",
+      body: "Ahora solo queda coordinar con el técnico cualquier detalle final, incluido el pago del servicio por fuera de ScooterBooster.",
     }
   }
 
@@ -188,7 +188,7 @@ function PaymentReturnBanner({
           <div>
             <p className="font-semibold text-[#065f46]">Pago acreditado y reserva confirmada</p>
             <p className="mt-1 text-sm text-[#047857]">
-              Ya quedó registrado en ScooterBooster. Más abajo tenés el próximo paso y el contacto del técnico.
+              Ya quedó registrado en ScooterBooster. Más abajo tenés el contacto del técnico para coordinar el servicio y su pago directo.
             </p>
           </div>
         </div>
@@ -234,7 +234,7 @@ function PaymentReturnBanner({
           <div className="flex-1">
             <p className="font-semibold text-red-700">El pago no se pudo completar</p>
             <p className="mt-1 text-sm text-red-600">
-              La reserva sigue creada pero sin confirmar. Podés reintentar el pago desde este mismo detalle cuando quieras.
+              La reserva sigue creada pero sin confirmar. Podés reintentar el pago de la reserva online desde este mismo detalle cuando quieras.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {booking.paymentLinkUrl ? (
@@ -581,24 +581,28 @@ export function BookingDetailClient({
           <p className="mb-3 text-xs font-semibold tracking-wider text-[#9ca3af] uppercase">Precio</p>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between text-[#6b7280]">
-              <span>Precio base</span>
+              <span>Pago al técnico</span>
               <span>{formatUYU(booking.basePrice)}</span>
             </div>
             <div className="flex justify-between text-[#6b7280]">
-              <span>Fee de servicio</span>
+              <span>Reserva online</span>
               <span>{formatUYU(booking.serviceFee)}</span>
             </div>
             <div className="flex justify-between border-t border-[#e5e7eb] pt-2 font-bold text-[#111827]">
-              <span>Total</span>
+              <span>Total de referencia</span>
               <span className="text-[#10b981]">{formatUYU(booking.totalPrice)}</span>
             </div>
+            <p className="pt-2 text-xs text-[#6b7280]">
+              ScooterBooster cobra solo la reserva online. El pago del servicio al técnico se
+              coordina directamente con él.
+            </p>
           </div>
         </div>
 
         <div className="px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
             <CreditCard className="h-4 w-4 text-[#10b981]" />
-            <span className="text-[#6b7280]">Estado del pago:</span>
+            <span className="text-[#6b7280]">Estado de la reserva online:</span>
             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${paymentBadge.tone}`}>{paymentBadge.label}</span>
           </div>
         </div>
