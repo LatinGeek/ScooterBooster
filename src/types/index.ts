@@ -16,6 +16,7 @@ export interface User {
 
 export interface Technician {
   id: string
+  slug: string
   userId: string
   displayName: string
   bio: string

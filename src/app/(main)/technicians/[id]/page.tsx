@@ -15,7 +15,7 @@ import {
   Route,
 } from "lucide-react"
 import { getActiveBrands } from "@/lib/db/brands"
-import { getTechnicianById } from "@/lib/db/technicians"
+import { getTechnicianByIdentifier } from "@/lib/db/technicians"
 import { getReviewsByTechnician } from "@/lib/db/reviews"
 import { getServicesByIds } from "@/lib/db/services"
 import {
@@ -63,7 +63,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const technician = await getTechnicianById(id)
+  const technician = await getTechnicianByIdentifier(id)
   if (!technician) return { title: "Técnico no encontrado - ScooterBooster" }
   return {
     title: `${technician.displayName} - ScooterBooster`,
@@ -90,7 +90,7 @@ export default async function TechnicianDetailPage({
   }>
 }) {
   const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams])
-  const technician = await getTechnicianById(id)
+  const technician = await getTechnicianByIdentifier(id)
   if (!technician) notFound()
 
   const latitudeRaw = getSingleSearchParam(resolvedSearchParams.lat)

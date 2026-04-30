@@ -21,7 +21,7 @@ function formatDistance(distanceKm: number): string {
 
 export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardProps) {
   const router = useRouter()
-  const technicianHref = href ?? `/technicians/${technician.id}`
+  const technicianHref = href ?? `/technicians/${technician.slug}`
   const initials = technician.displayName
     .split(" ")
     .map((n) => n[0])

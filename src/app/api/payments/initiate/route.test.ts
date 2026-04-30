@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   getModelById: vi.fn(),
   createPaymentLink: vi.fn(),
   loggerInfo: vi.fn(),
+  loggerError: vi.fn(),
 }))
 
 vi.mock("@/lib/session", () => ({
@@ -40,6 +41,7 @@ vi.mock("@/lib/mercadopago", () => ({
 vi.mock("@/lib/logger", () => ({
   default: {
     info: mocks.loggerInfo,
+    error: mocks.loggerError,
   },
 }))
 
@@ -104,6 +106,34 @@ describe("/api/payments/initiate", () => {
     expect(json.error).toContain("pendiente de pago")
   })
 
+  it("reuses an existing payment link for a pending booking", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-1",
+      scheduledDate: "2099-04-20T15:00:00.000Z",
+      paymentLinkId: "pref-existing",
+      paymentLinkUrl: "https://mp.test/existing",
+      status: "pending",
+    })
+
+    const response = await POST(createPostRequest({ bookingId: "booking-1" }))
+    const json = (await response.json()) as {
+      success: boolean
+      data: { initPoint: string; preferenceId: string }
+    }
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(json.data).toEqual({
+      initPoint: "https://mp.test/existing",
+      preferenceId: "pref-existing",
+    })
+    expect(mocks.createPaymentLink).not.toHaveBeenCalled()
+    expect(mocks.updateBookingPaymentLink).not.toHaveBeenCalled()
+    expect(mocks.upsertPaymentLinkRecord).not.toHaveBeenCalled()
+  })
+
   it("creates a payment link for a pending booking", async () => {
     mocks.getSession.mockResolvedValue({ uid: "user-1" })
     mocks.getBookingById.mockResolvedValue({
@@ -115,6 +145,8 @@ describe("/api/payments/initiate", () => {
       serviceFee: 180,
       totalPrice: 1980,
       status: "pending",
+      paymentLinkId: null,
+      paymentLinkUrl: null,
     })
     mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware" })
     mocks.getModelById.mockResolvedValue({ id: "model-1", name: "Xiaomi 1S" })
@@ -154,6 +186,32 @@ describe("/api/payments/initiate", () => {
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
 
+  it("returns a handled error when payment link creation fails", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-1",
+      serviceId: "service-1",
+      scooterModelId: "model-1",
+      scheduledDate: "2099-04-20T15:00:00.000Z",
+      serviceFee: 180,
+      status: "pending",
+      paymentLinkId: null,
+      paymentLinkUrl: null,
+    })
+    mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware" })
+    mocks.getModelById.mockResolvedValue({ id: "model-1", name: "Xiaomi 1S" })
+    mocks.createPaymentLink.mockRejectedValue(new Error("PA_UNAUTHORIZED_RESULT_FROM_POLICIES"))
+
+    const response = await POST(createPostRequest({ bookingId: "booking-1" }))
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(503)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("No se pudo generar el link de pago")
+    expect(mocks.loggerError).toHaveBeenCalled()
+  })
+
   it("blocks payment recreation for past bookings", async () => {
     mocks.getSession.mockResolvedValue({ uid: "user-1" })
     mocks.getBookingById.mockResolvedValue({
@@ -172,5 +230,3 @@ describe("/api/payments/initiate", () => {
     expect(mocks.createPaymentLink).not.toHaveBeenCalled()
   })
 })
-
-

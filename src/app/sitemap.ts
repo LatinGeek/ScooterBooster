@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
 
   const technicianRoutes: MetadataRoute.Sitemap = technicians.map((t) => ({
-    url: `${BASE_URL}/technicians/${t.id}`,
+    url: `${BASE_URL}/technicians/${t.slug}`,
     lastModified: new Date(t.updatedAt),
     changeFrequency: "weekly" as const,
     priority: 0.8,

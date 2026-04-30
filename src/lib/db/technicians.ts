@@ -6,6 +6,7 @@ import { unstable_cache as nextCache } from "next/cache"
 import { adminDb } from "@/lib/firebase-admin"
 import { getBrandById } from "@/lib/db/brands"
 import { getServicesByIds } from "@/lib/db/services"
+import { slugify } from "@/lib/slugs"
 import type { Technician } from "@/types"
 
 const COLLECTION = "technicians"
@@ -39,6 +40,7 @@ function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Tech
 
   return {
     id,
+    slug: (data["slug"] as string | undefined) ?? slugify(data["displayName"] as string),
     userId: data["userId"] as string,
     displayName: data["displayName"] as string,
     bio: data["bio"] as string,
@@ -119,6 +121,24 @@ export async function getTechnicianById(id: string): Promise<Technician | null> 
   const doc = await adminDb.collection(COLLECTION).doc(id).get()
   if (!doc.exists) return null
   return docToTechnician(doc.id, doc.data()!)
+}
+
+export async function getTechnicianBySlug(slug: string): Promise<Technician | null> {
+  const snap = await adminDb.collection(COLLECTION).where("slug", "==", slug).limit(1).get()
+  if (!snap.empty) {
+    const doc = snap.docs[0]
+    if (doc) return docToTechnician(doc.id, doc.data())
+  }
+
+  const allTechnicians = await getAllTechnicians()
+  return allTechnicians.find((technician) => technician.slug === slug) ?? null
+}
+
+export async function getTechnicianByIdentifier(identifier: string): Promise<Technician | null> {
+  const byId = await getTechnicianById(identifier)
+  if (byId) return byId
+
+  return getTechnicianBySlug(identifier)
 }
 
 /** Get a technician profile by userId (Firebase Auth UID) */
@@ -208,6 +228,7 @@ export async function createTechnicianApplication(
     .doc(input.id)
     .set({
       userId: input.userId,
+      slug: slugify(input.displayName),
       displayName: input.displayName,
       bio: input.bio,
       photoURL: input.photoURL,
@@ -289,6 +310,7 @@ export async function updateTechnicianProfile(
     ])
 
     updates["normalizedLocation"] = normalizeSearchText(location)
+    updates["slug"] = slugify(displayName)
     updates["searchTokens"] = buildSearchTokens(
       displayName,
       bio,

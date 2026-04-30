@@ -640,7 +640,7 @@ export default async function TechniciansPage({
                     key={tech.id}
                     technician={tech}
                     distanceKm={distanceByTechnicianId.get(tech.id) ?? null}
-                    href={buildTechnicianProfileHref(tech.id, currentSearchParams)}
+                    href={buildTechnicianProfileHref(tech.slug, currentSearchParams)}
                   />
                 ))}
               </div>

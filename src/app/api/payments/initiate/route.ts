@@ -1,16 +1,16 @@
 import { NextRequest } from "next/server"
+import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
-import { getSession } from "@/lib/session"
 import { getBookingById, updateBookingPaymentLink } from "@/lib/db/bookings"
 import { upsertPaymentLinkRecord } from "@/lib/db/payment-links"
-import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
-import { createPaymentLink } from "@/lib/mercadopago"
-import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { getServiceById } from "@/lib/db/services"
+import { AppError, AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import logger from "@/lib/logger"
+import { createPaymentLink } from "@/lib/mercadopago"
 import { enforceRateLimit } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
-import { z } from "zod"
+import { getSession } from "@/lib/session"
 
 export const dynamic = "force-dynamic"
 
@@ -26,8 +26,8 @@ function isPastScheduledDate(iso: string): boolean {
 
 /**
  * POST /api/payments/initiate
- * Creates (or re-creates) a MercadoPago Checkout Pro preference for a pending booking.
- * Returns { initPoint } — the URL to redirect the user to.
+ * Creates or reuses a Mercado Pago Checkout Pro preference for a pending booking.
+ * Returns { initPoint } - the URL to redirect the user to.
  */
 export const POST = withErrorHandling(async (req: NextRequest) => {
   assertTrustedOrigin(req)
@@ -39,7 +39,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const body: unknown = await req.json()
   const parsed = schema.safeParse(body)
   if (!parsed.success) {
-    throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")
+    throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos invalidos")
   }
 
   const { bookingId } = parsed.data
@@ -47,19 +47,27 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const booking = await getBookingById(bookingId)
   if (!booking) throw new NotFoundError("Reserva no encontrada")
 
-  // Only the booking owner can initiate payment
   if (booking.userId !== session.uid) throw new ForbiddenError()
 
-  // Only pending bookings can be paid
   if (booking.status !== "pending") {
-    throw new ValidationError("Esta reserva no está pendiente de pago")
+    throw new ValidationError("Esta reserva no esta pendiente de pago")
   }
 
   if (isPastScheduledDate(booking.scheduledDate)) {
-    throw new ValidationError("No podÃ©s generar un link de pago para una reserva vencida")
+    throw new ValidationError("No podes generar un link de pago para una reserva vencida")
   }
 
-  // Fetch related data for the preference title
+  if (booking.paymentLinkId && booking.paymentLinkUrl) {
+    logger.info(
+      { bookingId, preferenceId: booking.paymentLinkId },
+      "Reusing existing payment preference"
+    )
+    return ok({
+      initPoint: booking.paymentLinkUrl,
+      preferenceId: booking.paymentLinkId,
+    })
+  }
+
   const [service, scooterModel] = await Promise.all([
     getServiceById(booking.serviceId),
     getModelById(booking.scooterModelId),
@@ -69,21 +77,35 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     throw new NotFoundError("Datos de reserva incompletos")
   }
 
-  const { preferenceId, initPoint } = await createPaymentLink({
-    bookingId: booking.id,
-    serviceName: service.name,
-    scooterModelName: scooterModel.name,
-    serviceFee: booking.serviceFee,
-  })
+  let preferenceId: string
+  let initPoint: string
 
-  await updateBookingPaymentLink(booking.id, preferenceId, initPoint)
-  await upsertPaymentLinkRecord({
-    preferenceId,
-    bookingId: booking.id,
-    initPoint,
-  })
+  try {
+    const paymentLink = await createPaymentLink({
+      bookingId: booking.id,
+      serviceName: service.name,
+      scooterModelName: scooterModel.name,
+      serviceFee: booking.serviceFee,
+    })
+    preferenceId = paymentLink.preferenceId
+    initPoint = paymentLink.initPoint
 
-  logger.info({ bookingId, preferenceId }, "Payment preference (re)created")
+    await updateBookingPaymentLink(booking.id, preferenceId, initPoint)
+    await upsertPaymentLinkRecord({
+      preferenceId,
+      bookingId: booking.id,
+      initPoint,
+    })
+  } catch (err) {
+    logger.error({ bookingId, err }, "Failed to create payment preference")
+    throw new AppError(
+      "Failed to create payment preference",
+      "No se pudo generar el link de pago en este momento. Intenta de nuevo en unos minutos.",
+      503
+    )
+  }
+
+  logger.info({ bookingId, preferenceId }, "Payment preference created")
 
   return ok({ initPoint, preferenceId })
 })
