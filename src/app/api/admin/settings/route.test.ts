@@ -49,7 +49,6 @@ function createPatchRequest(body: unknown) {
 describe("/api/admin/settings", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.SERVICE_FEE_PERCENTAGE = "10"
   })
 
   it("requires admin auth on GET", async () => {
@@ -60,10 +59,10 @@ describe("/api/admin/settings", () => {
 
     expect(response.status).toBe(401)
     expect(json.success).toBe(false)
-    expect(json.error).toContain("iniciar sesión")
+    expect(json.error).toContain("iniciar sesi")
   })
 
-  it("falls back to env config when the Firestore doc does not exist", async () => {
+  it("falls back to the fixed fee when the Firestore doc does not exist", async () => {
     mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
     mocks.doc.get.mockResolvedValue({
       exists: false,
@@ -72,41 +71,41 @@ describe("/api/admin/settings", () => {
     const response = await GET()
     const json = (await response.json()) as {
       success: boolean
-      data: { serviceFeePercentage: number }
+      data: { serviceFeeAmount: number }
     }
 
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
-    expect(json.data.serviceFeePercentage).toBe(10)
+    expect(json.data.serviceFeeAmount).toBe(100)
   })
 
   it("validates settings updates", async () => {
     mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
 
-    const response = await PATCH(createPatchRequest({ serviceFeePercentage: 99 }))
+    const response = await PATCH(createPatchRequest({ serviceFeeAmount: -1 }))
     const json = (await response.json()) as { success: boolean; error: string }
 
     expect(response.status).toBe(400)
     expect(json.success).toBe(false)
-    expect(json.error).toContain("entre 0 y 50")
+    expect(json.error).toContain("no puede ser negativo")
     expect(mocks.doc.set).not.toHaveBeenCalled()
   })
 
   it("persists valid settings changes", async () => {
     mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
 
-    const response = await PATCH(createPatchRequest({ serviceFeePercentage: 12 }))
+    const response = await PATCH(createPatchRequest({ serviceFeeAmount: 100 }))
     const json = (await response.json()) as {
       success: boolean
-      data: { serviceFeePercentage: number; updatedAt: string }
+      data: { serviceFeeAmount: number; updatedAt: string }
     }
 
     expect(response.status).toBe(200)
     expect(json.success).toBe(true)
-    expect(json.data.serviceFeePercentage).toBe(12)
+    expect(json.data.serviceFeeAmount).toBe(100)
     expect(mocks.doc.set).toHaveBeenCalledWith(
       expect.objectContaining({
-        serviceFeePercentage: 12,
+        serviceFeeAmount: 100,
         updatedAt: expect.any(String),
         updatedBy: "admin-1",
       }),
@@ -115,5 +114,3 @@ describe("/api/admin/settings", () => {
     expect(mocks.loggerInfo).toHaveBeenCalled()
   })
 })
-
-

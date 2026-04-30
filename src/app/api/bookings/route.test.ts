@@ -102,9 +102,9 @@ describe("/api/bookings", () => {
 
     mocks.calculatePricing.mockReturnValue({
       basePrice: 1800,
-      serviceFee: 180,
-      totalPrice: 1980,
-      feePercentage: 10,
+      serviceFee: 100,
+      totalPrice: 1900,
+      feeAmount: 100,
     })
 
     mocks.getSession.mockResolvedValue({
@@ -166,8 +166,8 @@ describe("/api/bookings", () => {
     })
     mocks.createBooking.mockResolvedValue({
       id: "booking-1",
-      serviceFee: 180,
-      totalPrice: 1980,
+      serviceFee: 100,
+      totalPrice: 1900,
     })
     mocks.createPaymentLink.mockResolvedValue({
       preferenceId: "pref-1",
@@ -198,8 +198,8 @@ describe("/api/bookings", () => {
         serviceId: "service-1",
         scooterModelId: "model-1",
         basePrice: 1800,
-        serviceFee: 180,
-        totalPrice: 1980,
+        serviceFee: 100,
+        totalPrice: 1900,
       })
     )
     expect(mocks.updateBookingPaymentLink).toHaveBeenCalledWith(
@@ -216,7 +216,7 @@ describe("/api/bookings", () => {
       bookingId: "booking-1",
       serviceName: "Firmware",
       scooterModelName: "Xiaomi 1S",
-      serviceFee: 180,
+      serviceFee: 100,
     })
   })
 
@@ -317,8 +317,8 @@ describe("/api/bookings", () => {
     })
     mocks.createBooking.mockResolvedValue({
       id: "booking-1",
-      serviceFee: 180,
-      totalPrice: 1980,
+      serviceFee: 100,
+      totalPrice: 1900,
     })
     mocks.createPaymentLink.mockRejectedValue(new Error("MP down"))
 
@@ -365,8 +365,8 @@ describe("/api/bookings", () => {
     })
     mocks.createBooking.mockResolvedValue({
       id: "booking-1",
-      serviceFee: 180,
-      totalPrice: 1980,
+      serviceFee: 100,
+      totalPrice: 1900,
       notes: null,
     })
     mocks.createPaymentLink.mockResolvedValue({

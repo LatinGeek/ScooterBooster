@@ -1,18 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Settings, CheckCircle, Loader2, Info } from "lucide-react"
+import { useEffect, useState } from "react"
+import { CheckCircle, Info, Loader2, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Config {
-  serviceFeePercentage: number
+  serviceFeeAmount: number
   updatedAt?: string
   updatedBy?: string
 }
 
 export default function AdminSettingsPage() {
   const [config, setConfig] = useState<Config | null>(null)
-  const [fee, setFee] = useState(10)
+  const [fee, setFee] = useState(100)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -24,10 +24,10 @@ export default function AdminSettingsPage() {
       .then((json: { data?: Config }) => {
         if (json.data) {
           setConfig(json.data)
-          setFee(json.data.serviceFeePercentage)
+          setFee(json.data.serviceFeeAmount)
         }
       })
-      .catch(() => setError("Error al cargar la configuración."))
+      .catch(() => setError("Error al cargar la configuracion."))
       .finally(() => setLoading(false))
   }, [])
 
@@ -39,7 +39,7 @@ export default function AdminSettingsPage() {
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ serviceFeePercentage: fee }),
+        body: JSON.stringify({ serviceFeeAmount: fee }),
       })
       if (!res.ok) {
         const data = (await res.json()) as { error?: string }
@@ -51,7 +51,7 @@ export default function AdminSettingsPage() {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch {
-      setError("Error de conexión.")
+      setError("Error de conexion.")
     } finally {
       setSaving(false)
     }
@@ -66,13 +66,13 @@ export default function AdminSettingsPage() {
   }
 
   const exampleBase = 1000
-  const exampleFee = Math.round(exampleBase * (fee / 100))
+  const exampleFee = fee
   const exampleTotal = exampleBase + exampleFee
 
   return (
     <section>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#111827]">Configuración de la plataforma</h1>
+        <h1 className="text-2xl font-bold text-[#111827]">Configuracion de la plataforma</h1>
         <p className="mt-1 text-sm text-[#6b7280]">
           Estos cambios aplican a todas las reservas nuevas.
         </p>
@@ -86,7 +86,7 @@ export default function AdminSettingsPage() {
       {saved && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-[#a7f3d0] bg-[#d1fae5] px-4 py-3 text-sm text-[#065f46]">
           <CheckCircle className="h-4 w-4" />
-          Configuración guardada. Efectiva en las próximas reservas.
+          Configuracion guardada. Efectiva en las proximas reservas.
         </div>
       )}
 
@@ -96,37 +96,35 @@ export default function AdminSettingsPage() {
             <Settings className="h-5 w-5 text-amber-600" />
           </div>
           <div>
-            <h2 className="font-semibold text-[#111827]">Comisión de la plataforma</h2>
+            <h2 className="font-semibold text-[#111827]">Comision de la plataforma</h2>
             <p className="text-sm text-[#6b7280]">
-              Porcentaje que ScooterBooster agrega sobre el precio base del técnico.
+              Monto fijo que ScooterBooster cobra para confirmar cada reserva online.
             </p>
           </div>
         </div>
 
         <div className="mb-4 flex items-center gap-4">
           <label htmlFor="fee" className="shrink-0 text-sm font-medium text-[#374151]">
-            Porcentaje (0–50%):
+            Monto fijo:
           </label>
           <input
             id="fee"
             type="number"
             min={0}
-            max={50}
             value={fee}
-            onChange={(e) => setFee(Math.min(50, Math.max(0, parseInt(e.target.value) || 0)))}
+            onChange={(e) => setFee(Math.max(0, parseInt(e.target.value, 10) || 0))}
             className="w-24 rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm text-[#111827] focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
           />
-          <span className="text-2xl font-bold text-[#111827]">{fee}%</span>
+          <span className="text-2xl font-bold text-[#111827]">${fee.toLocaleString("es-UY")}</span>
         </div>
 
-        {/* Visual example */}
         <div className="mb-6 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#1d4ed8]" />
           <div className="text-sm text-[#1d4ed8]">
             <p className="font-medium">Ejemplo con precio base $1.000:</p>
             <ul className="mt-1 space-y-0.5">
-              <li>Técnico recibe: <strong>${exampleBase.toLocaleString("es-UY")}</strong></li>
-              <li>Comisión plataforma: <strong>${exampleFee.toLocaleString("es-UY")}</strong></li>
+              <li>Tecnico recibe: <strong>${exampleBase.toLocaleString("es-UY")}</strong></li>
+              <li>Comision plataforma: <strong>${exampleFee.toLocaleString("es-UY")}</strong></li>
               <li>Cliente paga: <strong>${exampleTotal.toLocaleString("es-UY")}</strong></li>
             </ul>
           </div>
@@ -134,8 +132,7 @@ export default function AdminSettingsPage() {
 
         {config?.updatedAt && (
           <p className="mb-4 text-xs text-[#9ca3af]">
-            Última actualización:{" "}
-            {new Date(config.updatedAt).toLocaleString("es-UY")}
+            Ultima actualizacion: {new Date(config.updatedAt).toLocaleString("es-UY")}
           </p>
         )}
 
@@ -143,10 +140,10 @@ export default function AdminSettingsPage() {
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Guardando…
+              Guardando...
             </>
           ) : (
-            "Guardar configuración"
+            "Guardar configuracion"
           )}
         </Button>
       </div>

@@ -179,7 +179,7 @@ export interface PricingBreakdown {
   basePrice: number
   serviceFee: number
   totalPrice: number
-  feePercentage: number
+  feeAmount: number
 }
 
 export type NotificationType =

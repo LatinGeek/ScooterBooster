@@ -1,9 +1,6 @@
 import { MercadoPagoConfig, Preference } from "mercadopago"
+import { calculatePricing } from "@/lib/pricing"
 import type { PaymentLink } from "@/types"
-
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
-})
 
 interface CreatePaymentLinkParams {
   bookingId: string
@@ -20,6 +17,14 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
     }
   }
 
+  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN?.trim()
+  if (!accessToken) {
+    throw new Error("Missing MERCADOPAGO_ACCESS_TOKEN")
+  }
+
+  const client = new MercadoPagoConfig({
+    accessToken,
+  })
   const preference = new Preference(client)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://scooterbooster.uy"
 
@@ -51,11 +56,4 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
   }
 }
 
-export function calculatePricing(
-  basePrice: number,
-  feePercentage: number = parseInt(process.env.SERVICE_FEE_PERCENTAGE || "10")
-) {
-  const serviceFee = Math.round(basePrice * (feePercentage / 100))
-  const totalPrice = basePrice + serviceFee
-  return { basePrice, serviceFee, totalPrice, feePercentage }
-}
+export { calculatePricing }

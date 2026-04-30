@@ -4,19 +4,17 @@ import { ChevronRight, MapPinned, Search, ShieldCheck, SlidersHorizontal } from 
 import { getActiveBrands } from "@/lib/db/brands"
 import { getActiveServices } from "@/lib/db/services"
 import { getDistanceToTechnician, searchTechnicians } from "@/lib/search"
-import {
-  getPresetBySlug,
-  URUGUAY_LOCATION_PRESETS,
-} from "@/lib/uruguay-locations"
+import { getPresetBySlug, URUGUAY_LOCATION_PRESETS } from "@/lib/uruguay-locations"
 import { TechnicianCard } from "@/components/technician-card"
 import { LocationSortControls } from "./location-sort-controls"
 import { RapidZoneControls } from "./rapid-zone-controls"
+
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Técnicos - ScooterBooster",
+  title: "Tecnicos - ScooterBooster",
   description:
-    "Encontrá técnicos verificados para tu scooter eléctrico en Uruguay. Especialistas en Xiaomi, Segway, Dualtron, Kaabo, VSETT, Zero e Inokim.",
+    "Encontra tecnicos verificados para tu scooter electrico en Uruguay. Especialistas en Xiaomi, Segway, Dualtron, Kaabo, VSETT, Zero e Inokim.",
 }
 
 function getSingleSearchParam(value: string | string[] | undefined): string {
@@ -114,7 +112,7 @@ export default async function TechniciansPage({
   }
 
   const nearPreset = near ? getPresetBySlug(near) : null
-  const nearbyLabel = near === "mi-ubicacion" ? "tu ubicación" : (nearPreset?.label ?? null)
+  const nearbyLabel = near === "mi-ubicacion" ? "tu ubicacion" : (nearPreset?.label ?? null)
   const activeFilterCount = [
     query,
     location && nearbyLabel !== location ? location : null,
@@ -125,23 +123,25 @@ export default async function TechniciansPage({
     near,
     ...selectedServices,
   ].filter(Boolean).length
+
   const distanceByTechnicianId = new Map(
     technicians.map((technician) => [
       technician.id,
       hasCoordinates ? getDistanceToTechnician(technician, latitude, longitude) : null,
     ])
   )
+
   const selectedBrandName = brands.find((item) => item.id === brand)?.name
   const activeFilters: ActiveFilterChip[] = [
     query
       ? {
           key: "q",
-          label: `Búsqueda: ${query}`,
+          label: `Busqueda: ${query}`,
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("q")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("q")
+              return nextParams
             })()
           ),
         }
@@ -149,15 +149,15 @@ export default async function TechniciansPage({
     location && nearbyLabel !== location
       ? {
           key: "location",
-          label: `Ubicación: ${location}`,
+          label: `Ubicacion: ${location}`,
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("location")
-              params.delete("near")
-              params.delete("lat")
-              params.delete("lng")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("location")
+              nextParams.delete("near")
+              nextParams.delete("lat")
+              nextParams.delete("lng")
+              return nextParams
             })()
           ),
         }
@@ -168,9 +168,9 @@ export default async function TechniciansPage({
           label: `Marca: ${selectedBrandName}`,
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("brand")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("brand")
+              return nextParams
             })()
           ),
         }
@@ -181,9 +181,9 @@ export default async function TechniciansPage({
           label: `Rating desde ${minRatingValue}`,
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("minRating")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("minRating")
+              return nextParams
             })()
           ),
         }
@@ -194,10 +194,10 @@ export default async function TechniciansPage({
           label: `Precio: ${minPriceRaw || "0"}-${maxPriceRaw || "sin tope"} UYU`,
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("minPrice")
-              params.delete("maxPrice")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("minPrice")
+              nextParams.delete("maxPrice")
+              return nextParams
             })()
           ),
         }
@@ -210,45 +210,48 @@ export default async function TechniciansPage({
         label: `Servicio: ${service.name}`,
         href: buildHrefFromParams(
           (() => {
-            const params = new URLSearchParams(currentSearchParams.toString())
-            const remainingServices = params.getAll("service").filter((value) => value !== service.id)
-            params.delete("service")
+            const nextParams = new URLSearchParams(currentSearchParams.toString())
+            const remainingServices = nextParams
+              .getAll("service")
+              .filter((value) => value !== service.id)
+            nextParams.delete("service")
             for (const remainingService of remainingServices) {
-              params.append("service", remainingService)
+              nextParams.append("service", remainingService)
             }
-            return params
+            return nextParams
           })()
         ),
       })),
     nearbyLabel
       ? {
           key: "near",
-          label: `Cercanía: ${nearbyLabel}`,
+          label: `Cercania: ${nearbyLabel}`,
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
               if (location === nearbyLabel) {
-                params.delete("location")
+                nextParams.delete("location")
               }
-              params.delete("near")
-              params.delete("lat")
-              params.delete("lng")
-              return params
+              nextParams.delete("near")
+              nextParams.delete("lat")
+              nextParams.delete("lng")
+              return nextParams
             })()
           ),
         }
       : null,
   ].filter((item): item is ActiveFilterChip => Boolean(item))
+
   const zeroStateSuggestions = [
-    query ? { label: "Quitar búsqueda", href: activeFilters.find((item) => item.key === "q")?.href } : null,
+    query ? { label: "Quitar busqueda", href: activeFilters.find((item) => item.key === "q")?.href } : null,
     selectedServices.length > 0
       ? {
           label: "Quitar servicios",
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("service")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("service")
+              return nextParams
             })()
           ),
         }
@@ -258,9 +261,9 @@ export default async function TechniciansPage({
           label: "Ver todas las marcas",
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("brand")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("brand")
+              return nextParams
             })()
           ),
         }
@@ -270,11 +273,11 @@ export default async function TechniciansPage({
           label: "Relajar precio y rating",
           href: buildHrefFromParams(
             (() => {
-              const params = new URLSearchParams(currentSearchParams.toString())
-              params.delete("minPrice")
-              params.delete("maxPrice")
-              params.delete("minRating")
-              return params
+              const nextParams = new URLSearchParams(currentSearchParams.toString())
+              nextParams.delete("minPrice")
+              nextParams.delete("maxPrice")
+              nextParams.delete("minRating")
+              return nextParams
             })()
           ),
         }
@@ -285,19 +288,19 @@ export default async function TechniciansPage({
     <main>
       <section className="bg-gradient-to-b from-[#f0fdf4] to-white px-4 py-14 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight text-[#111827] md:text-5xl">
-          Técnicos Verificados
+          Tecnicos Verificados
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-lg text-[#6b7280]">
-          Filtrá por servicio, marca, ubicación y rango de precio para encontrar el mejor técnico
-          para tu scooter eléctrico.
+          Filtra por servicio, marca, ubicacion y rango de precio para encontrar el mejor tecnico
+          para tu scooter electrico.
         </p>
         <div className="mt-6 flex items-center justify-center gap-2 text-sm text-[#10b981]">
           <ShieldCheck className="h-5 w-5" />
-          <span className="font-semibold">{technicians.length} técnicos activos</span>
+          <span className="font-semibold">{technicians.length} tecnicos activos</span>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-10">
+      <section className="mx-auto max-w-7xl px-4 py-10">
         <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-[#e5e7eb] bg-[#111827] p-6 text-white shadow-sm lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold tracking-[0.2em] text-[#6ee7b7] uppercase">
@@ -318,248 +321,247 @@ export default async function TechniciansPage({
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="h-fit rounded-[2rem] border border-[#e5e7eb] bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold tracking-[0.2em] text-[#10b981] uppercase">
-                  Filtros
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-[#111827]">Encontrá tu match</h2>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#ecfdf5] px-3 py-1 text-xs font-semibold text-[#047857] whitespace-nowrap">
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                {activeFilterCount}
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <LocationSortControls
-                initialSearch={currentSearchParams.toString()}
-                hasNearbySort={hasCoordinates}
-              />
-
-              <div className="rounded-3xl border border-[#e5e7eb] bg-[#f8fafc] p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eff6ff]">
-                    <MapPinned className="h-5 w-5 text-[#2563eb]" />
+        <div className="space-y-6">
+          <div className="rounded-[2rem] border border-[#dbe4ea] bg-white shadow-[0_18px_50px_-30px_rgba(15,23,42,0.45)] lg:sticky lg:top-4 lg:z-20">
+            <div className="border-b border-[#eef2f7] px-5 py-5 sm:px-6">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[#ecfdf5] px-3 py-1 text-xs font-semibold text-[#047857]">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    {activeFilterCount} filtro{activeFilterCount === 1 ? "" : "s"} activos
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#111827]">Zonas rápidas</p>
-                    <p className="mt-1 text-xs leading-5 text-[#6b7280]">
-                      Elegí una zona popular para ordenar y filtrar sin escribirla manualmente.
-                    </p>
-                  </div>
-                </div>
-
-                <RapidZoneControls
-                  initialSearch={currentSearchParams.toString()}
-                  presets={URUGUAY_LOCATION_PRESETS}
-                  selectedNear={near}
-                  selectedLocation={location}
-                />
-              </div>
-            </div>
-
-            <details className="group mt-6 overflow-hidden rounded-[2rem] border border-[#dbe4ea] bg-[#f8fafc] shadow-sm">
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 sm:px-5 [&::-webkit-details-marker]:hidden">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-[#111827]">Filtros estándar</p>
-                    <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64748b]">
-                      Opcional
-                    </span>
-                  </div>
-                  <p className="mt-2 max-w-sm text-sm leading-5 text-[#6b7280]">
-                    Ajustá búsqueda manual, marca, servicios, precio y rating cuando quieras
-                    afinar más el resultado.
+                  <h2 className="mt-3 text-2xl font-bold text-[#111827]">Descubri tu tecnico ideal</h2>
+                  <p className="mt-1 text-sm text-[#6b7280]">
+                    Busca por nombre, zona o marca y deja el directorio listo para comparar perfiles.
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#475569]">
-                  <span className="hidden sm:inline">Abrir</span>
-                  <ChevronRight className="h-4 w-4 transition-transform duration-200 group-open:rotate-90" />
+
+                <div className="flex items-center gap-3 rounded-full bg-[#f8fafc] px-4 py-2 text-sm text-[#475569]">
+                  <span className="font-semibold text-[#111827]">{technicians.length}</span>
+                  resultado{technicians.length === 1 ? "" : "s"}
                 </div>
-              </summary>
+              </div>
+            </div>
 
-              <div className="border-t border-[#e5e7eb] bg-white/70 px-4 py-4 sm:px-5">
-                <form action="/technicians" className="space-y-4">
-                  <div className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
-                    <div className="mb-4">
-                      <p className="text-sm font-semibold text-[#111827]">Búsqueda base</p>
-                      <p className="mt-1 text-xs leading-5 text-[#6b7280]">
-                        Encontrá por nombre, zona o marca compatible.
-                      </p>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label htmlFor="tech-search" className="text-sm font-semibold text-[#111827]">
-                          Buscar
-                        </label>
-                        <div className="mt-2 flex items-center gap-2 rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 focus-within:border-[#10b981] focus-within:bg-white">
-                          <Search className="h-4 w-4 text-[#6b7280]" />
-                          <input
-                            id="tech-search"
-                            name="q"
-                            defaultValue={query}
-                            placeholder="Nombre, barrio o especialidad"
-                            className="h-12 w-full bg-transparent text-sm text-[#111827] outline-none placeholder:text-[#9ca3af]"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
-                        <div>
-                          <label htmlFor="tech-location" className="text-sm font-semibold text-[#111827]">
-                            Ubicación
-                          </label>
-                          <input
-                            id="tech-location"
-                            name="location"
-                            defaultValue={location}
-                            placeholder="Ej.: Montevideo, Pocitos"
-                            className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] focus:border-[#10b981] focus:bg-white"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="tech-brand" className="text-sm font-semibold text-[#111827]">
-                            Marca
-                          </label>
-                          <select
-                            id="tech-brand"
-                            name="brand"
-                            defaultValue={brand}
-                            className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none focus:border-[#10b981] focus:bg-white"
-                          >
-                            <option value="">Todas las marcas</option>
-                            {brands.map((item) => (
-                              <option key={item.id} value={item.id}>
-                                {item.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
+            <div className="px-5 py-5 sm:px-6">
+              <form action="/technicians" className="space-y-4">
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(220px,0.8fr)_220px_auto]">
+                  <div>
+                    <label htmlFor="tech-search" className="text-sm font-semibold text-[#111827]">
+                      Buscar
+                    </label>
+                    <div className="mt-2 flex items-center gap-2 rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 focus-within:border-[#10b981] focus-within:bg-white">
+                      <Search className="h-4 w-4 text-[#6b7280]" />
+                      <input
+                        id="tech-search"
+                        name="q"
+                        defaultValue={query}
+                        placeholder="Nombre, barrio o especialidad"
+                        className="h-12 w-full bg-transparent text-sm text-[#111827] outline-none placeholder:text-[#9ca3af]"
+                      />
                     </div>
                   </div>
 
-                  <div className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
-                    <div className="mb-4">
-                      <p className="text-sm font-semibold text-[#111827]">Servicios</p>
-                      <p className="mt-1 text-xs leading-5 text-[#6b7280]">
-                        Elegí uno o varios tipos de trabajo.
-                      </p>
-                    </div>
+                  <div>
+                    <label htmlFor="tech-location" className="text-sm font-semibold text-[#111827]">
+                      Ubicacion
+                    </label>
+                    <input
+                      id="tech-location"
+                      name="location"
+                      defaultValue={location}
+                      placeholder="Ej.: Montevideo, Pocitos"
+                      className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] focus:border-[#10b981] focus:bg-white"
+                    />
+                  </div>
 
-                    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-                      {services.map((service) => (
-                        <label
-                          key={service.id}
-                          className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-3 py-3 text-sm text-[#374151] transition-colors duration-200 hover:border-[#10b981] hover:bg-[#f0fdf4]"
-                        >
-                          <input
-                            type="checkbox"
-                            name="service"
-                            value={service.id}
-                            defaultChecked={selectedServices.includes(service.id)}
-                            className="h-4 w-4 rounded border-[#d1d5db] text-[#10b981] focus:ring-[#10b981]"
-                          />
-                          <span className="leading-5">{service.name}</span>
-                        </label>
+                  <div>
+                    <label htmlFor="tech-brand" className="text-sm font-semibold text-[#111827]">
+                      Marca
+                    </label>
+                    <select
+                      id="tech-brand"
+                      name="brand"
+                      defaultValue={brand}
+                      className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none focus:border-[#10b981] focus:bg-white"
+                    >
+                      <option value="">Todas las marcas</option>
+                      {brands.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
 
-                  <div className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
-                    <div className="mb-4">
-                      <p className="text-sm font-semibold text-[#111827]">Precio y confianza</p>
-                      <p className="mt-1 text-xs leading-5 text-[#6b7280]">
-                        Definí tu rango ideal y el nivel mínimo de calificación.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 xl:grid-cols-1">
-                      <div>
-                        <label htmlFor="tech-min-rating" className="text-sm font-semibold text-[#111827]">
-                          Calificación mínima
-                        </label>
-                        <select
-                          id="tech-min-rating"
-                          name="minRating"
-                          defaultValue={minRatingValue}
-                          className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none focus:border-[#10b981] focus:bg-white"
-                        >
-                          <option value="">Cualquiera</option>
-                          <option value="4">4.0 o más</option>
-                          <option value="4.5">4.5 o más</option>
-                          <option value="4.8">4.8 o más</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label htmlFor="tech-min-price" className="text-sm font-semibold text-[#111827]">
-                          Precio mínimo
-                        </label>
-                        <input
-                          id="tech-min-price"
-                          name="minPrice"
-                          type="number"
-                          min="0"
-                          step="100"
-                          defaultValue={minPriceRaw}
-                          placeholder="UYU"
-                          className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] focus:border-[#10b981] focus:bg-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label htmlFor="tech-max-price" className="text-sm font-semibold text-[#111827]">
-                          Precio máximo
-                        </label>
-                        <input
-                          id="tech-max-price"
-                          name="maxPrice"
-                          type="number"
-                          min="0"
-                          step="100"
-                          defaultValue={maxPriceRaw}
-                          placeholder="UYU"
-                          className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] focus:border-[#10b981] focus:bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3 sm:flex-row">
+                  <div className="flex flex-col gap-2 sm:flex-row lg:flex-col xl:justify-end">
                     <button
                       type="submit"
-                      className="inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-2xl bg-[#10b981] px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669] sm:flex-1"
+                      className="inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-2xl bg-[#10b981] px-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
                     >
-                      Aplicar filtros
+                      Aplicar
                     </button>
                     <Link
                       href="/technicians"
-                      className="inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-2xl border border-[#d1d5db] bg-white px-4 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#f8fafc] sm:flex-1"
+                      className="inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-2xl border border-[#d1d5db] bg-white px-4 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#f8fafc]"
                     >
-                      Limpiar filtros
+                      Limpiar
                     </Link>
                   </div>
-                </form>
-              </div>
-            </details>
-          </aside>
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <LocationSortControls
+                    initialSearch={currentSearchParams.toString()}
+                    hasNearbySort={hasCoordinates}
+                  />
+
+                  <div className="rounded-3xl border border-[#e5e7eb] bg-[#f8fafc] p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eff6ff]">
+                        <MapPinned className="h-5 w-5 text-[#2563eb]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#111827]">Zonas rapidas</p>
+                        <p className="mt-1 text-xs leading-5 text-[#6b7280]">
+                          Cambia de zona con un toque para comparar tecnicos mas cerca de vos.
+                        </p>
+                      </div>
+                    </div>
+
+                    <RapidZoneControls
+                      initialSearch={currentSearchParams.toString()}
+                      presets={URUGUAY_LOCATION_PRESETS}
+                      selectedNear={near}
+                      selectedLocation={location}
+                    />
+                  </div>
+                </div>
+
+                <details className="group overflow-hidden rounded-[1.75rem] border border-[#dbe4ea] bg-[#f8fafc] shadow-sm">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-4 px-4 py-4 sm:px-5 [&::-webkit-details-marker]:hidden">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold text-[#111827]">Filtros avanzados</p>
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64748b]">
+                          Opcional
+                        </span>
+                      </div>
+                      <p className="mt-2 max-w-2xl text-sm leading-5 text-[#6b7280]">
+                        Suma servicios, rating minimo y rango de precio para depurar el listado sin
+                        perder el foco en las tarjetas.
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#475569]">
+                      <span className="hidden sm:inline">Abrir</span>
+                      <ChevronRight className="h-4 w-4 transition-transform duration-200 group-open:rotate-90" />
+                    </div>
+                  </summary>
+
+                  <div className="border-t border-[#e5e7eb] bg-white/70 px-4 py-4 sm:px-5">
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
+                      <div className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
+                        <div className="mb-4">
+                          <p className="text-sm font-semibold text-[#111827]">Servicios</p>
+                          <p className="mt-1 text-xs leading-5 text-[#6b7280]">
+                            Elige uno o varios tipos de trabajo.
+                          </p>
+                        </div>
+
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {services.map((service) => (
+                            <label
+                              key={service.id}
+                              className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-3 py-3 text-sm text-[#374151] transition-colors duration-200 hover:border-[#10b981] hover:bg-[#f0fdf4]"
+                            >
+                              <input
+                                type="checkbox"
+                                name="service"
+                                value={service.id}
+                                defaultChecked={selectedServices.includes(service.id)}
+                                className="h-4 w-4 rounded border-[#d1d5db] text-[#10b981] focus:ring-[#10b981]"
+                              />
+                              <span className="leading-5">{service.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
+                        <div className="mb-4">
+                          <p className="text-sm font-semibold text-[#111827]">Precio y confianza</p>
+                          <p className="mt-1 text-xs leading-5 text-[#6b7280]">
+                            Ajusta tu presupuesto y la reputacion minima deseada.
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                          <div>
+                            <label htmlFor="tech-min-rating" className="text-sm font-semibold text-[#111827]">
+                              Calificacion minima
+                            </label>
+                            <select
+                              id="tech-min-rating"
+                              name="minRating"
+                              defaultValue={minRatingValue}
+                              className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none focus:border-[#10b981] focus:bg-white"
+                            >
+                              <option value="">Cualquiera</option>
+                              <option value="4">4.0 o mas</option>
+                              <option value="4.5">4.5 o mas</option>
+                              <option value="4.8">4.8 o mas</option>
+                            </select>
+                          </div>
+
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                              <label htmlFor="tech-min-price" className="text-sm font-semibold text-[#111827]">
+                                Precio minimo
+                              </label>
+                              <input
+                                id="tech-min-price"
+                                name="minPrice"
+                                type="number"
+                                min="0"
+                                step="100"
+                                defaultValue={minPriceRaw}
+                                placeholder="UYU"
+                                className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] focus:border-[#10b981] focus:bg-white"
+                              />
+                            </div>
+
+                            <div>
+                              <label htmlFor="tech-max-price" className="text-sm font-semibold text-[#111827]">
+                                Precio maximo
+                              </label>
+                              <input
+                                id="tech-max-price"
+                                name="maxPrice"
+                                type="number"
+                                min="0"
+                                step="100"
+                                defaultValue={maxPriceRaw}
+                                placeholder="UYU"
+                                className="mt-2 h-12 w-full rounded-2xl border border-[#dbe4ea] bg-[#f8fafc] px-4 text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] focus:border-[#10b981] focus:bg-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              </form>
+            </div>
+          </div>
 
           <div>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold text-[#111827]">Directorio de técnicos</h2>
+                <h2 className="text-2xl font-bold text-[#111827]">Tecnicos destacados para tu busqueda</h2>
                 <p className="text-sm text-[#6b7280]">
-                  Compartí esta búsqueda por URL o afiná el resultado con filtros.
+                  Elige rapido desde las tarjetas y abre perfiles solo cuando quieras profundizar.
                 </p>
-              </div>
-              <div className="rounded-full bg-[#f8fafc] px-4 py-2 text-sm text-[#6b7280]">
-                {technicians.length} resultado{technicians.length === 1 ? "" : "s"}
               </div>
             </div>
 
@@ -571,7 +573,7 @@ export default async function TechniciansPage({
                       Filtros activos ({activeFilters.length})
                     </p>
                     <p className="mt-1 text-xs text-[#6b7280]">
-                      Tocá una chip para quitar solo ese filtro sin perder el resto de la búsqueda.
+                      Toca una chip para quitar solo ese filtro sin perder el resto de la busqueda.
                     </p>
                   </div>
                   <Link
@@ -591,7 +593,7 @@ export default async function TechniciansPage({
                       scroll={false}
                       className="rounded-full bg-[#f8fafc] px-3 py-1.5 text-sm font-semibold text-[#374151] transition-colors duration-200 hover:bg-[#e2e8f0]"
                     >
-                      {filter.label} ×
+                      {filter.label} x
                     </Link>
                   ))}
                 </div>
@@ -600,7 +602,7 @@ export default async function TechniciansPage({
 
             {nearbyLabel ? (
               <div className="mb-5 rounded-3xl border border-[#d1fae5] bg-[#f0fdf4] px-4 py-3 text-sm text-[#047857]">
-                Ordenado por cercanía aproximada a {nearbyLabel}.
+                Ordenado por cercania aproximada a {nearbyLabel}.
               </div>
             ) : null}
 
@@ -608,10 +610,10 @@ export default async function TechniciansPage({
               <div className="rounded-[2rem] border border-dashed border-[#cbd5e1] bg-white px-6 py-16 text-center text-[#6b7280] shadow-sm">
                 <Search className="mx-auto h-10 w-10 text-[#94a3b8]" />
                 <h3 className="mt-4 text-2xl font-bold text-[#111827]">
-                  No hay técnicos para esta combinación
+                  No hay tecnicos para esta combinacion
                 </h3>
                 <p className="mt-2">
-                  Probá cambiando la ubicación, relajando el precio o quitando algún servicio.
+                  Prueba cambiando la ubicacion, relajando el precio o quitando algun servicio.
                 </p>
                 {zeroStateSuggestions.length > 0 ? (
                   <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -630,11 +632,11 @@ export default async function TechniciansPage({
                   href="/technicians"
                   className="mt-6 inline-flex cursor-pointer rounded-full bg-[#10b981] px-5 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
                 >
-                  Ver todos los técnicos
+                  Ver todos los tecnicos
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
                 {technicians.map((tech) => (
                   <TechnicianCard
                     key={tech.id}
@@ -650,15 +652,15 @@ export default async function TechniciansPage({
       </section>
 
       <section className="border-t border-[#e5e7eb] bg-[#f9fafb] px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold text-[#111827]">¿Sos técnico de scooters?</h2>
+        <h2 className="text-2xl font-bold text-[#111827]">Sos tecnico de scooters?</h2>
         <p className="mt-2 text-[#6b7280]">
-          Unite a nuestra red de técnicos verificados y recibí reservas directamente.
+          Unite a nuestra red de tecnicos verificados y recibi reservas directamente.
         </p>
         <Link
           href="/technicians/apply"
           className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#10b981] px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#059669]"
         >
-          Aplicar como técnico
+          Aplicar como tecnico
           <ChevronRight className="h-4 w-4" />
         </Link>
       </section>

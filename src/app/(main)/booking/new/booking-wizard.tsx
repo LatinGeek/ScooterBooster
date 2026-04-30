@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { DisclaimerModal } from "@/components/disclaimer-modal"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
+import { calculatePricing, DEFAULT_SERVICE_FEE_AMOUNT } from "@/lib/pricing"
 import { slugify } from "@/lib/slugs"
 import type { ScooterBrand, ScooterModel, Service, Technician } from "@/types"
 
@@ -40,7 +41,6 @@ interface Props {
   technicians: Technician[]
 }
 
-const SERVICE_FEE_PCT = 10
 const BRAND_LOGO_BACKGROUNDS: Record<string, string> = {
   atom: "#3b9bef",
   joyor: "#ffffff",
@@ -48,11 +48,6 @@ const BRAND_LOGO_BACKGROUNDS: Record<string, string> = {
   mistyle: "#020203",
   navee: "#000000",
   xiaomi: "#ff6700",
-}
-
-function calcPricing(basePrice: number) {
-  const fee = Math.round(basePrice * (SERVICE_FEE_PCT / 100))
-  return { basePrice, fee, total: basePrice + fee }
 }
 
 function formatUYU(amount: number) {
@@ -444,7 +439,7 @@ function StepTechnician({
       <div className="space-y-3">
         {available.map((technician) => {
           const pricing = service ? technician.pricing[service.id] : undefined
-          const { basePrice } = pricing ? calcPricing(pricing.basePrice) : { basePrice: 0 }
+          const { basePrice } = pricing ? calculatePricing(pricing.basePrice) : { basePrice: 0 }
 
           return (
             <button
@@ -653,9 +648,9 @@ function StepConfirm({
   technician: Technician | undefined
 }) {
   const pricing = technician && service ? technician.pricing[service.id] : undefined
-  const { basePrice, fee, total } = pricing
-    ? calcPricing(pricing.basePrice)
-    : { basePrice: 0, fee: 0, total: 0 }
+  const { basePrice, serviceFee, totalPrice } = pricing
+    ? calculatePricing(pricing.basePrice)
+    : { basePrice: 0, serviceFee: 0, totalPrice: 0 }
 
   const scheduled = wizardState.scheduledDate
     ? new Intl.DateTimeFormat("es-UY", {
@@ -679,15 +674,15 @@ function StepConfirm({
             <span>{formatUYU(basePrice)}</span>
           </div>
           <div className="flex justify-between text-sm text-[#6b7280]">
-            <span>Reserva online ({SERVICE_FEE_PCT}%)</span>
-            <span>{formatUYU(fee)}</span>
+            <span>Reserva online (fijo)</span>
+            <span>{formatUYU(serviceFee)}</span>
           </div>
           <div className="mt-2 flex justify-between font-bold text-[#111827]">
             <span>Total de referencia</span>
-            <span className="text-[#10b981]">{formatUYU(total)}</span>
+            <span className="text-[#10b981]">{formatUYU(totalPrice)}</span>
           </div>
           <p className="mt-3 text-xs text-[#6b7280]">
-            Pagas {formatUYU(fee)} ahora para confirmar la reserva. Los{" "}
+            Pagas {formatUYU(serviceFee)} ahora para confirmar la reserva. Los{" "}
             {formatUYU(basePrice)} del servicio se coordinan directamente con el tecnico.
           </p>
         </div>
@@ -965,12 +960,16 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
           (() => {
             const pricing = technician.pricing[service.id]
             if (!pricing) return null
-            const { fee } = calcPricing(pricing.basePrice)
+            const { serviceFee } = calculatePricing(pricing.basePrice)
 
             return (
               <div className="mt-4 flex items-center justify-between rounded-lg bg-[#d1fae5] px-4 py-3">
-                <span className="text-sm text-[#065f46]">Reserva online a pagar ahora</span>
-                <span className="text-lg font-bold text-[#10b981]">{formatUYU(fee)}</span>
+                <span className="text-sm text-[#065f46]">
+                  Reserva online fija a pagar ahora ({formatUYU(DEFAULT_SERVICE_FEE_AMOUNT)})
+                </span>
+                <span className="text-lg font-bold text-[#10b981]">
+                  {formatUYU(serviceFee)}
+                </span>
               </div>
             )
           })()}
