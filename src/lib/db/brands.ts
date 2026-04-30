@@ -13,7 +13,7 @@ const BRAND_LOGO_FALLBACKS: Record<string, string> = {
   joyor: "/assets/brand-logos/joyor.jpg",
   "mi-style": "/assets/brand-logos/mistyle.png",
   mistyle: "/assets/brand-logos/mistyle.png",
-  navee: "/assets/brand-logos/navee.jpg",
+  navee: "/assets/brand-logos/navee.png",
   xiaomi: "/assets/brand-logos/xiaomi.png",
 }
 
