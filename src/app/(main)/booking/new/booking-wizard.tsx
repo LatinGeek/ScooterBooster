@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Bike,
@@ -62,6 +62,38 @@ const DAY_LABELS: Record<string, string> = {
   friday: "Viernes",
   saturday: "Sabado",
   sunday: "Domingo",
+}
+
+const DAY_KEYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const
+
+function getDayKey(dateValue: string): string | null {
+  if (!dateValue) return null
+  const date = new Date(`${dateValue}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return null
+  return DAY_KEYS[date.getDay()] ?? null
+}
+
+function buildHourSlots(start: string, end: string) {
+  const [startHour = "0", startMinute = "0"] = start.split(":")
+  const [endHour = "0", endMinute = "0"] = end.split(":")
+  const startMinutes = parseInt(startHour, 10) * 60 + parseInt(startMinute, 10)
+  const endMinutes = parseInt(endHour, 10) * 60 + parseInt(endMinute, 10)
+
+  return Array.from({ length: 24 }, (_, hour) => hour)
+    .map((hour) => hour * 60)
+    .filter((slotStart) => slotStart >= startMinutes && slotStart < endMinutes)
+    .map((slotStart) => {
+      const hour = String(Math.floor(slotStart / 60)).padStart(2, "0")
+      return `${hour}:00`
+    })
 }
 
 const STEPS: { label: string; icon: React.FC<{ className?: string }> }[] = [
@@ -453,17 +485,49 @@ function StepDateTime({
   onDateChange: (v: string) => void
   onNotesChange: (v: string) => void
 }) {
+  const selectedDate = scheduledDate.slice(0, 10)
+  const selectedTime = scheduledDate.slice(11, 16)
+
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
-  const minDate = tomorrow.toISOString().slice(0, 16)
+  const minDate = tomorrow.toISOString().slice(0, 10)
 
   const maxDate = new Date()
   maxDate.setMonth(maxDate.getMonth() + 3)
-  const maxDateStr = maxDate.toISOString().slice(0, 16)
+  const maxDateStr = maxDate.toISOString().slice(0, 10)
 
   const availabilityEntries = technician
     ? Object.entries(technician.availability).filter(([, day]) => day.isAvailable)
     : []
+  const selectedDayKey = getDayKey(selectedDate)
+  const selectedDayAvailability =
+    technician && selectedDayKey ? technician.availability[selectedDayKey] : undefined
+  const selectedDaySlots = useMemo(() => {
+    if (!selectedDayAvailability?.isAvailable) return []
+    return buildHourSlots(selectedDayAvailability.start, selectedDayAvailability.end)
+  }, [selectedDayAvailability])
+
+  function handleDateSelection(dateValue: string) {
+    if (!dateValue) {
+      onDateChange("")
+      return
+    }
+
+    const dayKey = getDayKey(dateValue)
+    const availability = dayKey && technician ? technician.availability[dayKey] : undefined
+    const slots =
+      availability?.isAvailable ? buildHourSlots(availability.start, availability.end) : []
+    const nextTime = slots.includes(selectedTime) ? selectedTime : ""
+    onDateChange(nextTime ? `${dateValue}T${nextTime}` : `${dateValue}T`)
+  }
+
+  function handleTimeSelection(timeValue: string) {
+    if (!selectedDate) {
+      onDateChange("")
+      return
+    }
+    onDateChange(`${selectedDate}T${timeValue}`)
+  }
 
   return (
     <div>
@@ -492,17 +556,49 @@ function StepDateTime({
       <div className="space-y-4">
         <div>
           <label htmlFor="scheduled-date" className="block text-sm font-medium text-[#374151]">
-            Fecha y hora de la cita *
+            Fecha de la cita *
           </label>
           <input
             id="scheduled-date"
-            type="datetime-local"
+            type="date"
             min={minDate}
             max={maxDateStr}
-            value={scheduledDate}
-            onChange={(e) => onDateChange(e.target.value)}
+            value={selectedDate}
+            onChange={(e) => handleDateSelection(e.target.value)}
             className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-1 focus:ring-[#10b981]"
           />
+        </div>
+
+        <div>
+          <label htmlFor="scheduled-time" className="block text-sm font-medium text-[#374151]">
+            Hora de la cita *
+          </label>
+          <select
+            id="scheduled-time"
+            value={selectedDaySlots.includes(selectedTime) ? selectedTime : ""}
+            onChange={(e) => handleTimeSelection(e.target.value)}
+            disabled={!selectedDate || selectedDaySlots.length === 0}
+            className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] disabled:cursor-not-allowed disabled:bg-[#f3f4f6] disabled:text-[#9ca3af] focus:border-[#10b981] focus:outline-none focus:ring-1 focus:ring-[#10b981]"
+          >
+            <option value="">
+              {!selectedDate
+                ? "Elegi primero una fecha"
+                : selectedDaySlots.length === 0
+                  ? "No hay horas disponibles ese dia"
+                  : "Selecciona una hora"}
+            </option>
+            {selectedDaySlots.map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
+          </select>
+          {selectedDate && selectedDayAvailability?.isAvailable ? (
+            <p className="mt-1 text-xs text-[#6b7280]">
+              Horarios disponibles para {DAY_LABELS[selectedDayKey ?? ""] ?? "ese dia"}:{" "}
+              {selectedDayAvailability.start} - {selectedDayAvailability.end}
+            </p>
+          ) : null}
         </div>
 
         <div>
