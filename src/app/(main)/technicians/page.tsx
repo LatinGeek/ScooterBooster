@@ -339,6 +339,46 @@ export default async function TechniciansPage({
               </div>
             </div>
 
+            <div className="mt-6 space-y-4">
+              <LocationSortControls
+                initialSearch={currentSearchParams.toString()}
+                hasNearbySort={hasCoordinates}
+              />
+
+              <div className="rounded-3xl border border-[#e5e7eb] bg-[#f8fafc] p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eff6ff]">
+                    <MapPinned className="h-5 w-5 text-[#2563eb]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#111827]">Zonas rápidas</p>
+                    <p className="mt-1 text-xs leading-5 text-[#6b7280]">
+                      Elegí una zona popular para ordenar y filtrar sin escribirla manualmente.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {URUGUAY_LOCATION_PRESETS.map((preset) => {
+                    const isActive = near === preset.slug || location === preset.label
+                    return (
+                      <Link
+                        key={preset.slug}
+                        href={createLocationHref(preset, currentSearchParams)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 ${
+                          isActive
+                            ? "bg-[#111827] text-white"
+                            : "bg-white text-[#374151] hover:bg-[#e2e8f0]"
+                        }`}
+                      >
+                        {preset.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
             <form action="/technicians" className="mt-6 space-y-6">
               <div>
                 <label htmlFor="tech-search" className="text-sm font-semibold text-[#111827]">
@@ -475,46 +515,6 @@ export default async function TechniciansPage({
                 </Link>
               </div>
             </form>
-
-            <div className="mt-6 space-y-4">
-              <LocationSortControls
-                initialSearch={currentSearchParams.toString()}
-                hasNearbySort={hasCoordinates}
-              />
-
-              <div className="rounded-3xl border border-[#e5e7eb] bg-[#f8fafc] p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eff6ff]">
-                    <MapPinned className="h-5 w-5 text-[#2563eb]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#111827]">Zonas rápidas</p>
-                    <p className="mt-1 text-xs leading-5 text-[#6b7280]">
-                      Elegí una zona popular para ordenar y filtrar sin escribirla manualmente.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {URUGUAY_LOCATION_PRESETS.map((preset) => {
-                    const isActive = near === preset.slug || location === preset.label
-                    return (
-                      <Link
-                        key={preset.slug}
-                        href={createLocationHref(preset, currentSearchParams)}
-                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 ${
-                          isActive
-                            ? "bg-[#111827] text-white"
-                            : "bg-white text-[#374151] hover:bg-[#e2e8f0]"
-                        }`}
-                      >
-                        {preset.label}
-                      </Link>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
           </aside>
 
           <div>
