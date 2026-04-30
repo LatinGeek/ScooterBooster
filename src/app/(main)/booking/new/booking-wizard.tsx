@@ -42,12 +42,12 @@ interface Props {
 
 const SERVICE_FEE_PCT = 10
 const BRAND_LOGO_BACKGROUNDS: Record<string, string> = {
-  atom: "#4da2ff",
-  joyor: "#f4f9ff",
-  "mi-style": "#111827",
-  mistyle: "#111827",
-  navee: "#0f172a",
-  xiaomi: "#ff6900",
+  atom: "#3b9bef",
+  joyor: "#ffffff",
+  "mi-style": "#020203",
+  mistyle: "#020203",
+  navee: "#000000",
+  xiaomi: "#ff6700",
 }
 
 function calcPricing(basePrice: number) {
