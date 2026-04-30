@@ -114,6 +114,12 @@ function formatPrice(amount: number): string {
   }).format(amount)
 }
 
+function isPastScheduledDate(booking: Booking): boolean {
+  const scheduledAt = new Date(booking.scheduledDate).getTime()
+  if (Number.isNaN(scheduledAt)) return false
+  return scheduledAt < Date.now()
+}
+
 function getPaymentLabel(booking: Booking) {
   if (booking.paymentStatus === "paid") return "Reserva online paga"
   if (booking.paymentStatus === "refunded") return "Reserva online reembolsada"
@@ -465,8 +471,12 @@ export function DashboardBookingsClient({
     }
   }
 
-  const upcoming = bookings.filter((b) => UPCOMING_STATUSES.includes(b.status))
-  const past = bookings.filter((b) => PAST_STATUSES.includes(b.status))
+  const upcoming = bookings.filter(
+    (b) => UPCOMING_STATUSES.includes(b.status) && !isPastScheduledDate(b),
+  )
+  const past = bookings.filter(
+    (b) => PAST_STATUSES.includes(b.status) || (b.status === "pending" && isPastScheduledDate(b)),
+  )
   const cancelled = bookings.filter((b) => CANCELLED_STATUSES.includes(b.status))
 
   const tabGroups: Record<Tab, Booking[]> = { upcoming, past, cancelled }
