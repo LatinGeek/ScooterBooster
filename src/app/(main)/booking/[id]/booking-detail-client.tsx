@@ -319,10 +319,14 @@ function ActionBar({
   booking,
   role,
   onStatusChange,
+  onInitiatePayment,
+  initiatingPayment,
 }: {
   booking: Booking
   role: string
   onStatusChange: (status: BookingStatus) => Promise<void>
+  onInitiatePayment: () => Promise<void>
+  initiatingPayment: boolean
 }) {
   const [loading, setLoading] = useState<string | null>(null)
 
@@ -343,6 +347,16 @@ function ActionBar({
               <CreditCard className="h-4 w-4" />
               Pagar ahora
             </a>
+          </Button>
+        )}
+        {!booking.paymentLinkUrl && (
+          <Button onClick={() => onInitiatePayment()} disabled={initiatingPayment}>
+            {initiatingPayment ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CreditCard className="h-4 w-4" />
+            )}
+            Generar link de pago
           </Button>
         )}
         {role === "user" && (
@@ -412,6 +426,7 @@ export function BookingDetailClient({
   const router = useRouter()
   const [booking, setBooking] = useState<Booking>(initialBooking)
   const [error, setError] = useState<string | null>(null)
+  const [initiatingPayment, setInitiatingPayment] = useState(false)
 
   const statusCfg = STATUS_CONFIG[booking.status]
   const StatusIcon = statusCfg.icon
@@ -438,6 +453,41 @@ export function BookingDetailClient({
       router.refresh()
     } catch {
       setError("Error de conexión. Intentá de nuevo.")
+    }
+  }
+
+  async function handleInitiatePayment() {
+    setError(null)
+    setInitiatingPayment(true)
+    try {
+      const res = await fetch("/api/payments/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: booking.id }),
+      })
+      const json = (await res.json()) as {
+        success: boolean
+        data?: { initPoint: string; preferenceId: string }
+        error?: string
+      }
+
+      if (!res.ok || !json.success || !json.data?.initPoint) {
+        setError(json.error ?? "No se pudo generar el link de pago.")
+        return
+      }
+
+      setBooking((current) => ({
+        ...current,
+        paymentLinkId: json.data?.preferenceId ?? current.paymentLinkId,
+        paymentLinkUrl: json.data?.initPoint ?? current.paymentLinkUrl,
+      }))
+
+      window.open(json.data.initPoint, "_blank", "noopener,noreferrer")
+      router.refresh()
+    } catch {
+      setError("No se pudo generar el link de pago.")
+    } finally {
+      setInitiatingPayment(false)
     }
   }
 
@@ -561,7 +611,13 @@ export function BookingDetailClient({
       )}
 
       <div className="mt-6 space-y-3">
-        <ActionBar booking={booking} role={role} onStatusChange={handleStatusChange} />
+        <ActionBar
+          booking={booking}
+          role={role}
+          onStatusChange={handleStatusChange}
+          onInitiatePayment={handleInitiatePayment}
+          initiatingPayment={initiatingPayment}
+        />
 
         {whatsappUrl && !["cancelled_by_user", "cancelled_by_technician", "expired"].includes(booking.status) && (
           <Button variant="outline" asChild className="w-full sm:w-auto">

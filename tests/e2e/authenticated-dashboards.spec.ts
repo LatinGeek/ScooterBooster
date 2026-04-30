@@ -58,6 +58,45 @@ test.describe("authenticated dashboards", () => {
     }
   })
 
+  test("signed-in users can regenerate a missing payment link from Mis reservas", async ({
+    page,
+    context,
+  }) => {
+    const bookingId = `e2e-dashboard-payment-link-${Date.now()}`
+
+    await createTechnicianBookingFixture({
+      bookingId,
+      userId: "e2e-user-1",
+      technicianId: "tech-demo-1",
+      scheduledDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+      status: "pending",
+      notes: "Reserva pendiente para regenerar link de pago",
+    })
+
+    try {
+      await signInAs(page, {
+        uid: "e2e-user-1",
+        role: "user",
+        email: "e2e-user-1@example.com",
+        displayName: "E2E User",
+      })
+
+      await page.goto("/dashboard")
+
+      await expect(page.getByText("La reserva está creada y esperando el link de pago.")).toBeVisible()
+
+      const popupPromise = context.waitForEvent("page")
+      await page.getByRole("button", { name: "Generar link de pago" }).click()
+      const popup = await popupPromise
+
+      await popup.waitForLoadState()
+      await expect(popup).toHaveURL(/mercadopago/)
+      await expect(page.getByRole("link", { name: "Pagar ahora" })).toBeVisible()
+    } finally {
+      await deleteFixture("bookings", bookingId)
+    }
+  })
+
   test("signed-in users see clearer payment return guidance on booking detail", async ({ page }) => {
     const bookingId = `e2e-booking-return-${Date.now()}`
 

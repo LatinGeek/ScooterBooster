@@ -147,15 +147,29 @@ interface BookingCardProps {
   service?: Service
   model?: ScooterModel
   onCancel: (id: string) => void
+  onInitiatePayment: (booking: Booking) => void
   cancelling: string | null
+  initiatingPayment: string | null
   hasReviewMap: Record<string, boolean>
 }
 
-function BookingCard({ booking, technician, service, model, onCancel, cancelling, hasReviewMap }: BookingCardProps) {
+function BookingCard({
+  booking,
+  technician,
+  service,
+  model,
+  onCancel,
+  onInitiatePayment,
+  cancelling,
+  initiatingPayment,
+  hasReviewMap,
+}: BookingCardProps) {
   const cfg = STATUS_CONFIG[booking.status]
   const StatusIcon = cfg.icon
   const isCancelling = cancelling === booking.id
+  const isInitiatingPayment = initiatingPayment === booking.id
   const showPayCTA = booking.status === "pending" && booking.paymentLinkUrl
+  const showGeneratePayCTA = booking.status === "pending" && !booking.paymentLinkUrl
   const showWhatsApp =
     (booking.status === "confirmed" || booking.status === "in_progress") && technician?.whatsappNumber
   const showCancel = booking.status === "pending" || booking.status === "confirmed"
@@ -209,7 +223,7 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
         </div>
       </div>
 
-      {(showPayCTA || showWhatsApp || showCancel || showReview) && (
+      {(showPayCTA || showGeneratePayCTA || showWhatsApp || showCancel || showReview) && (
         <div className="flex flex-wrap gap-2 border-t border-[#f3f4f6] pt-4">
           {showPayCTA && (
             <Button size="sm" asChild>
@@ -217,6 +231,22 @@ function BookingCard({ booking, technician, service, model, onCancel, cancelling
                 <CreditCard className="mr-1.5 h-4 w-4" />
                 Pagar ahora
               </a>
+            </Button>
+          )}
+
+          {showGeneratePayCTA && (
+            <Button size="sm" onClick={() => onInitiatePayment(booking)} disabled={isInitiatingPayment}>
+              {isInitiatingPayment ? (
+                <span className="flex items-center gap-1.5">
+                  <Wrench className="h-4 w-4 animate-spin" />
+                  Generando link…
+                </span>
+              ) : (
+                <>
+                  <CreditCard className="mr-1.5 h-4 w-4" />
+                  Generar link de pago
+                </>
+              )}
             </Button>
           )}
 
@@ -320,6 +350,7 @@ export function DashboardBookingsClient({
   const [bookings, setBookings] = useState<Booking[]>(initialBookings)
   const [activeTab, setActiveTab] = useState<Tab>("upcoming")
   const [cancelling, setCancelling] = useState<string | null>(null)
+  const [initiatingPayment, setInitiatingPayment] = useState<string | null>(null)
   const [hasReviewMap, setHasReviewMap] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
@@ -393,6 +424,47 @@ export function DashboardBookingsClient({
     }
   }
 
+  async function handleInitiatePayment(booking: Booking) {
+    setInitiatingPayment(booking.id)
+    try {
+      const res = await fetch("/api/payments/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: booking.id }),
+      })
+
+      const json = (await res.json()) as {
+        success: boolean
+        data?: { initPoint: string; preferenceId: string }
+        error?: string
+      }
+
+      if (!res.ok || !json.success || !json.data?.initPoint) {
+        toast.error(json.error ?? "No se pudo generar el link de pago.")
+        return
+      }
+
+      setBookings((current) =>
+        current.map((item) =>
+          item.id === booking.id
+            ? {
+                ...item,
+                paymentLinkId: json.data?.preferenceId ?? item.paymentLinkId,
+                paymentLinkUrl: json.data?.initPoint ?? item.paymentLinkUrl,
+              }
+            : item,
+        ),
+      )
+
+      window.open(json.data.initPoint, "_blank", "noopener,noreferrer")
+      toast.success("Link de pago generado.")
+    } catch {
+      toast.error("No se pudo generar el link de pago.")
+    } finally {
+      setInitiatingPayment(null)
+    }
+  }
+
   const upcoming = bookings.filter((b) => UPCOMING_STATUSES.includes(b.status))
   const past = bookings.filter((b) => PAST_STATUSES.includes(b.status))
   const cancelled = bookings.filter((b) => CANCELLED_STATUSES.includes(b.status))
@@ -451,7 +523,9 @@ export function DashboardBookingsClient({
               service={services[booking.serviceId]}
               model={models[booking.scooterModelId]}
               onCancel={handleCancel}
+              onInitiatePayment={handleInitiatePayment}
               cancelling={cancelling}
+              initiatingPayment={initiatingPayment}
               hasReviewMap={hasReviewMap}
             />
           ))}
