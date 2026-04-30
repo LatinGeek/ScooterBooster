@@ -17,6 +17,7 @@ export default async function NewBookingPage() {
     getActiveServices(),
     getActiveTechnicians(),
   ])
+  const modelsWithImages = models.filter((model) => Boolean(model.imageURL))
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -27,7 +28,7 @@ export default async function NewBookingPage() {
         </p>
       </div>
       <Suspense fallback={<WizardSkeleton />}>
-        <BookingWizard models={models} services={services} technicians={technicians} />
+        <BookingWizard models={modelsWithImages} services={services} technicians={technicians} />
       </Suspense>
     </main>
   )
