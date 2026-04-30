@@ -24,7 +24,7 @@ describe("withErrorHandling", () => {
   })
 
   it("logs successful API requests and adds an x-request-id header", async () => {
-    const handler = withErrorHandling(async () =>
+    const handler = withErrorHandling(async (_request: NextRequest) =>
       NextResponse.json({ success: true, data: { ok: true } }, { status: 200 }),
     )
     const request = new NextRequest("http://localhost:3000/api/health", {
@@ -49,7 +49,7 @@ describe("withErrorHandling", () => {
   })
 
   it("adds request IDs to handled errors too", async () => {
-    const handler = withErrorHandling(async () => {
+    const handler = withErrorHandling(async (_request: NextRequest) => {
       throw new ValidationError("Dato inválido")
     })
     const request = new NextRequest("http://localhost:3000/api/bookings", {

@@ -1,29 +1,16 @@
 import { NextRequest } from "next/server"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppError } from "@/lib/errors"
 import { assertTrustedOrigin, getTrustedOrigins } from "@/lib/security"
 
 describe("security origin checks", () => {
-  const originalNodeEnv = process.env.NODE_ENV
-  const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL
-
   beforeEach(() => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://scooterbooster.uy"
-    process.env.NODE_ENV = "test"
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://scooterbooster.uy")
+    vi.stubEnv("NODE_ENV", "test")
   })
 
   afterEach(() => {
-    if (originalNodeEnv === undefined) {
-      delete process.env.NODE_ENV
-    } else {
-      process.env.NODE_ENV = originalNodeEnv
-    }
-
-    if (originalAppUrl === undefined) {
-      delete process.env.NEXT_PUBLIC_APP_URL
-    } else {
-      process.env.NEXT_PUBLIC_APP_URL = originalAppUrl
-    }
+    vi.unstubAllEnvs()
   })
 
   it("accepts trusted origins configured for the app", () => {
