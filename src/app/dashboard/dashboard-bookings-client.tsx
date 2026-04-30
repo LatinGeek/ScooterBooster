@@ -129,6 +129,9 @@ function getPaymentLabel(booking: Booking) {
 function getNextStepCopy(booking: Booking) {
   switch (booking.status) {
     case "pending":
+      if (isPastScheduledDate(booking)) {
+        return "La fecha de esta reserva ya pasó y ya no admite pago online."
+      }
       return booking.paymentLinkUrl
         ? "Falta completar el pago de la reserva online para confirmar el turno."
         : "La reserva está creada y esperando el link de pago."
@@ -171,11 +174,12 @@ function BookingCard({
   hasReviewMap,
 }: BookingCardProps) {
   const cfg = STATUS_CONFIG[booking.status]
+  const isPastPending = booking.status === "pending" && isPastScheduledDate(booking)
   const StatusIcon = cfg.icon
   const isCancelling = cancelling === booking.id
   const isInitiatingPayment = initiatingPayment === booking.id
-  const showPayCTA = booking.status === "pending" && booking.paymentLinkUrl
-  const showGeneratePayCTA = booking.status === "pending" && !booking.paymentLinkUrl
+  const showPayCTA = booking.status === "pending" && booking.paymentLinkUrl && !isPastPending
+  const showGeneratePayCTA = booking.status === "pending" && !booking.paymentLinkUrl && !isPastPending
   const showWhatsApp =
     (booking.status === "confirmed" || booking.status === "in_progress") && technician?.whatsappNumber
   const showCancel = booking.status === "pending" || booking.status === "confirmed"

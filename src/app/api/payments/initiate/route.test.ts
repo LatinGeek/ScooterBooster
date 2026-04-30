@@ -111,6 +111,7 @@ describe("/api/payments/initiate", () => {
       userId: "user-1",
       serviceId: "service-1",
       scooterModelId: "model-1",
+      scheduledDate: "2099-04-20T15:00:00.000Z",
       serviceFee: 180,
       totalPrice: 1980,
       status: "pending",
@@ -151,6 +152,24 @@ describe("/api/payments/initiate", () => {
       serviceFee: 180,
     })
     expect(mocks.loggerInfo).toHaveBeenCalled()
+  })
+
+  it("blocks payment recreation for past bookings", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-1",
+      status: "pending",
+      scheduledDate: "2020-04-20T15:00:00.000Z",
+    })
+
+    const response = await POST(createPostRequest({ bookingId: "booking-1" }))
+    const json = (await response.json()) as { success: boolean; error: string }
+
+    expect(response.status).toBe(400)
+    expect(json.success).toBe(false)
+    expect(json.error).toContain("reserva vencida")
+    expect(mocks.createPaymentLink).not.toHaveBeenCalled()
   })
 })
 

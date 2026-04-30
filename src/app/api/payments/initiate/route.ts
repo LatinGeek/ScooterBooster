@@ -18,6 +18,12 @@ const schema = z.object({
   bookingId: z.string().min(1),
 })
 
+function isPastScheduledDate(iso: string): boolean {
+  const scheduledAt = new Date(iso).getTime()
+  if (Number.isNaN(scheduledAt)) return false
+  return scheduledAt < Date.now()
+}
+
 /**
  * POST /api/payments/initiate
  * Creates (or re-creates) a MercadoPago Checkout Pro preference for a pending booking.
@@ -47,6 +53,10 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   // Only pending bookings can be paid
   if (booking.status !== "pending") {
     throw new ValidationError("Esta reserva no está pendiente de pago")
+  }
+
+  if (isPastScheduledDate(booking.scheduledDate)) {
+    throw new ValidationError("No podÃ©s generar un link de pago para una reserva vencida")
   }
 
   // Fetch related data for the preference title

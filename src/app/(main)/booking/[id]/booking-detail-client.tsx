@@ -103,6 +103,12 @@ function formatDate(iso: string) {
   }).format(new Date(iso))
 }
 
+function isPastScheduledDate(booking: Booking) {
+  const scheduledAt = new Date(booking.scheduledDate).getTime()
+  if (Number.isNaN(scheduledAt)) return false
+  return scheduledAt < Date.now()
+}
+
 function getPaymentBadge(booking: Booking) {
   if (booking.paymentStatus === "paid") {
     return { label: "Reserva online paga", tone: "text-[#065f46] bg-[#d1fae5]" }
@@ -134,6 +140,13 @@ function getBookingGuidance(booking: Booking, paymentReturnStatus?: string) {
   }
 
   if (booking.status === "pending") {
+    if (isPastScheduledDate(booking)) {
+      return {
+        title: "La reserva ya venció",
+        body: "La fecha agendada ya pasó sin pago confirmado. Esta reserva quedó solo como registro y ya no puede generar un nuevo link de pago.",
+      }
+    }
+
     return {
       title: "Te falta completar el pago",
       body: "La reserva ya quedó creada. Cuando Mercado Pago confirme el cobro de la reserva online, la pasamos a confirmada automáticamente.",
@@ -329,6 +342,7 @@ function ActionBar({
   initiatingPayment: boolean
 }) {
   const [loading, setLoading] = useState<string | null>(null)
+  const isPastPending = booking.status === "pending" && isPastScheduledDate(booking)
 
   async function transition(status: BookingStatus) {
     setLoading(status)
@@ -341,7 +355,7 @@ function ActionBar({
   if (status === "pending") {
     return (
       <div className="flex flex-wrap gap-3">
-        {booking.paymentLinkUrl && (
+        {booking.paymentLinkUrl && !isPastPending && (
           <Button asChild>
             <a href={booking.paymentLinkUrl} target="_blank" rel="noopener noreferrer">
               <CreditCard className="h-4 w-4" />
@@ -349,7 +363,7 @@ function ActionBar({
             </a>
           </Button>
         )}
-        {!booking.paymentLinkUrl && (
+        {!booking.paymentLinkUrl && !isPastPending && (
           <Button onClick={() => onInitiatePayment()} disabled={initiatingPayment}>
             {initiatingPayment ? (
               <Loader2 className="h-4 w-4 animate-spin" />
