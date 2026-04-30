@@ -19,6 +19,7 @@ const mocks = vi.hoisted(() => {
   return {
     processedEvents,
     paymentGet: vi.fn(),
+    getBookingById: vi.fn(),
     getBookingByExternalReference: vi.fn(),
     setBookingPaymentReference: vi.fn(),
     updateBookingPaymentStatus: vi.fn(),
@@ -48,6 +49,7 @@ vi.mock("mercadopago", () => ({
 }))
 
 vi.mock("@/lib/db/bookings", () => ({
+  getBookingById: mocks.getBookingById,
   getBookingByExternalReference: mocks.getBookingByExternalReference,
   setBookingPaymentReference: mocks.setBookingPaymentReference,
   updateBookingPaymentStatus: mocks.updateBookingPaymentStatus,
@@ -124,6 +126,15 @@ describe("/api/payments/webhook", () => {
     mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware" })
     mocks.getTechnicianById.mockResolvedValue({ id: "tech-1", displayName: "Carlos" })
     mocks.getUserById.mockResolvedValue({ uid: "user-1", email: "user@example.com" })
+    mocks.getBookingById.mockImplementation(async (bookingId: string) => ({
+      id: bookingId,
+      serviceId: "service-1",
+      technicianId: "tech-1",
+      userId: "user-1",
+      scheduledDate: "2099-04-20T15:00:00.000Z",
+      paymentLinkId: "pref-1",
+      serviceFee: 180,
+    }))
   })
 
   it("rejects invalid signatures when a webhook secret is configured", async () => {

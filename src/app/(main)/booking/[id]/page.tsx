@@ -5,6 +5,7 @@ import { getTechnicianById, getTechnicianByUserId } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
 import { getReviewByBooking } from "@/lib/db/reviews"
+import { syncMercadoPagoPayment } from "@/lib/mercadopago-payment-sync"
 import { BookingDetailClient } from "./booking-detail-client"
 
 export const dynamic = "force-dynamic"
@@ -21,15 +22,23 @@ export default async function BookingDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ status?: string }>
+  searchParams: Promise<{
+    return_status?: string
+    status?: string
+    payment_id?: string
+    collection_id?: string
+  }>
 }) {
   const session = await getSession()
   if (!session) redirect("/login?redirect=/booking")
 
   const { id } = await params
-  const { status: paymentStatus } = await searchParams
+  const { return_status: paymentReturnStatus, status: mercadoPagoStatus, payment_id, collection_id } =
+    await searchParams
 
-  const booking = await getBookingById(id)
+  const returnPaymentId = payment_id ?? collection_id
+
+  let booking = await getBookingById(id)
   if (!booking) notFound()
 
   const role = (session["role"] as string | undefined) ?? "user"
@@ -46,6 +55,26 @@ export default async function BookingDetailPage({
   }
 
   if (!hasAccess) notFound()
+
+  if (
+    returnPaymentId &&
+    (paymentReturnStatus === "success" || mercadoPagoStatus === "approved") &&
+    booking.paymentStatus !== "paid"
+  ) {
+    try {
+      const syncResult = await syncMercadoPagoPayment({
+        paymentId: returnPaymentId,
+        expectedBookingId: booking.id,
+      })
+
+      if (syncResult.result === "processed") {
+        const refreshedBooking = await getBookingById(id)
+        if (refreshedBooking) booking = refreshedBooking
+      }
+    } catch {
+      // Let the page render the current booking state; the client keeps polling as fallback.
+    }
+  }
 
   // Fetch related entities in parallel
   const [technician, service, scooterModel, existingReview] = await Promise.all([
@@ -64,7 +93,7 @@ export default async function BookingDetailPage({
         scooterModel={scooterModel}
         role={role}
         userId={session.uid}
-        paymentReturnStatus={paymentStatus}
+        paymentReturnStatus={paymentReturnStatus}
         hasReview={!!existingReview}
       />
     </main>

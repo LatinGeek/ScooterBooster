@@ -674,7 +674,7 @@ function StepConfirm({
             <span>{formatUYU(basePrice)}</span>
           </div>
           <div className="flex justify-between text-sm text-[#6b7280]">
-            <span>Reserva online (fijo)</span>
+            <span>Reserva online</span>
             <span>{formatUYU(serviceFee)}</span>
           </div>
           <div className="mt-2 flex justify-between font-bold text-[#111827]">

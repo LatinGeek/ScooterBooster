@@ -27,6 +27,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
   })
   const preference = new Preference(client)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://scooterbooster.uy"
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
 
   const result = await preference.create({
     body: {
@@ -40,13 +41,15 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
         },
       ],
       back_urls: {
-        success: `${appUrl}/booking/${params.bookingId}?status=success`,
-        failure: `${appUrl}/booking/${params.bookingId}?status=failure`,
-        pending: `${appUrl}/booking/${params.bookingId}?status=pending`,
+        success: `${appUrl}/booking/${params.bookingId}/success`,
+        failure: `${appUrl}/booking/${params.bookingId}/failure`,
+        pending: `${appUrl}/booking/${params.bookingId}/pending`,
       },
       auto_return: "approved",
       notification_url: `${appUrl}/api/payments/webhook`,
       external_reference: `booking_${params.bookingId}`,
+      expires: true,
+      expiration_date_to: expiresAt,
     },
   })
 

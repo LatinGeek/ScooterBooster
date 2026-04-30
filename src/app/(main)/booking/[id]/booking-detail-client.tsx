@@ -217,7 +217,7 @@ function PaymentReturnBanner({
           <div className="flex-1">
             <p className="font-semibold text-amber-800">Pago en revisión</p>
             <p className="mt-1 text-sm text-amber-700">
-              Mercado Pago todavía puede tardar un poco en terminar la confirmación. Si en unos segundos sigue pendiente, refrescá esta pantalla.
+              Mercado Pago todavía puede tardar un poco en terminar la confirmación. Vamos a revisar el estado automáticamente durante los próximos segundos y también podés refrescar manualmente.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button type="button" variant="outline" size="sm" onClick={onRefresh}>
@@ -441,6 +441,7 @@ export function BookingDetailClient({
   const [booking, setBooking] = useState<Booking>(initialBooking)
   const [error, setError] = useState<string | null>(null)
   const [initiatingPayment, setInitiatingPayment] = useState(false)
+  const [paymentRefreshAttempts, setPaymentRefreshAttempts] = useState(0)
 
   const statusCfg = STATUS_CONFIG[booking.status]
   const StatusIcon = statusCfg.icon
@@ -449,6 +450,31 @@ export function BookingDetailClient({
     () => getBookingGuidance(booking, paymentReturnStatus),
     [booking, paymentReturnStatus],
   )
+  const shouldAutoRefreshPayment =
+    (paymentReturnStatus === "success" || paymentReturnStatus === "pending") &&
+    booking.status === "pending" &&
+    booking.paymentStatus !== "paid"
+
+  useEffect(() => {
+    setBooking(initialBooking)
+  }, [initialBooking])
+
+  useEffect(() => {
+    if (!shouldAutoRefreshPayment) {
+      setPaymentRefreshAttempts(0)
+    }
+  }, [shouldAutoRefreshPayment])
+
+  useEffect(() => {
+    if (!shouldAutoRefreshPayment || paymentRefreshAttempts >= 5) return
+
+    const timeoutId = window.setTimeout(() => {
+      setPaymentRefreshAttempts((current) => current + 1)
+      router.refresh()
+    }, 3000)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [paymentRefreshAttempts, router, shouldAutoRefreshPayment])
 
   async function handleStatusChange(status: BookingStatus) {
     setError(null)

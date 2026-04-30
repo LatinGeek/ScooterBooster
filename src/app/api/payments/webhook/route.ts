@@ -1,18 +1,13 @@
 import crypto from "crypto"
 import { NextRequest, NextResponse } from "next/server"
-import { MercadoPagoConfig, Payment } from "mercadopago"
-import {
-  getBookingByExternalReference,
-  setBookingPaymentReference,
-  updateBookingPaymentStatus,
-} from "@/lib/db/bookings"
-import { updatePaymentLinkStatus } from "@/lib/db/payment-links"
+import { getBookingById } from "@/lib/db/bookings"
 import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getUserById } from "@/lib/db/users"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
 import { adminDb } from "@/lib/firebase-admin"
 import logger from "@/lib/logger"
+import { syncMercadoPagoPayment } from "@/lib/mercadopago-payment-sync"
 import { notify } from "@/lib/notifications"
 import { sendBookingCancelledEmail, sendBookingConfirmedEmail } from "@/lib/notification-emails"
 
@@ -95,78 +90,47 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const mpClient = new MercadoPagoConfig({
-      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
+    const syncResult = await syncMercadoPagoPayment({
+      paymentId,
+      lastWebhookEventId: eventId || null,
     })
-    const paymentClient = new Payment(mpClient)
-    const payment = await paymentClient.get({ id: paymentId })
+    const mpStatus = syncResult.mpStatus
 
-    const mpStatus = payment.status
-    const externalRef = payment.external_reference ?? ""
-    const transactionAmount =
-      typeof payment.transaction_amount === "number" ? payment.transaction_amount : null
-    logger.info({ paymentId, mpStatus, externalRef }, "MP payment fetched")
-
-    const booking = await getBookingByExternalReference(externalRef)
-    if (!booking) {
-      logger.warn({ externalRef }, "No booking found for MP external_reference")
+    if (syncResult.result === "no_booking") {
       if (eventId) {
         await markEventProcessed(eventId, { eventType, paymentId, mpStatus, result: "no_booking" })
       }
       return NextResponse.json({ success: true })
     }
 
-    await setBookingPaymentReference(booking.id, paymentId)
-
-    if (mpStatus === "approved") {
-      if (transactionAmount !== null && transactionAmount !== booking.serviceFee) {
-        logger.error(
-          {
-            bookingId: booking.id,
-            paymentId,
-            transactionAmount,
-            expectedAmount: booking.serviceFee,
-          },
-          "Approved payment amount does not match booking fee",
-        )
-
-        if (eventId) {
-          await markEventProcessed(eventId, {
-            eventType,
-            paymentId,
-            mpStatus,
-            bookingId: booking.id,
-            result: "amount_mismatch",
-          })
-        }
-
-        return NextResponse.json({ success: true })
+    if (syncResult.result === "amount_mismatch") {
+      if (eventId) {
+        await markEventProcessed(eventId, {
+          eventType,
+          paymentId,
+          mpStatus,
+          bookingId: syncResult.bookingId,
+          result: "amount_mismatch",
+        })
       }
 
-      await updateBookingPaymentStatus(booking.id, "paid", "confirmed")
-      logger.info({ bookingId: booking.id }, "Booking confirmed after payment approval")
-    } else if (mpStatus === "refunded" || mpStatus === "charged_back") {
-      await updateBookingPaymentStatus(booking.id, "refunded", "cancelled_by_user")
-      logger.info({ bookingId: booking.id }, "Booking cancelled after refund/chargeback")
-    } else if (mpStatus === "rejected" || mpStatus === "cancelled") {
-      await updateBookingPaymentStatus(booking.id, "pending")
-      logger.info({ bookingId: booking.id, mpStatus }, "Payment rejected - booking stays pending")
+      return NextResponse.json({ success: true })
     }
 
-    if (booking.paymentLinkId) {
-      const mappedStatus =
+    if (syncResult.result === "processed" && syncResult.bookingId) {
+      logger.info(
+        { bookingId: syncResult.bookingId, mpStatus },
         mpStatus === "approved"
-          ? "approved"
+          ? "Booking confirmed after payment approval"
           : mpStatus === "refunded" || mpStatus === "charged_back"
-            ? "refunded"
-            : "rejected"
+            ? "Booking cancelled after refund/chargeback"
+            : "Payment status synchronized from MercadoPago"
+      )
+    }
 
-      await updatePaymentLinkStatus({
-        preferenceId: booking.paymentLinkId,
-        status: mappedStatus,
-        paymentId,
-        lastWebhookEventId: eventId || null,
-      })
+    const booking = syncResult.bookingId ? await getBookingById(syncResult.bookingId) : null
+    if (!booking) {
+      return NextResponse.json({ success: true })
     }
 
     const [service, technician, user] = await Promise.all([
@@ -232,14 +196,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     ])
 
     if (eventId) {
-      await markEventProcessed(eventId, {
-        eventType,
-        paymentId,
-        mpStatus,
-        bookingId: booking.id,
-        result: "processed",
-      })
-    }
+        await markEventProcessed(eventId, {
+          eventType,
+          paymentId,
+          mpStatus,
+          bookingId: booking.id,
+          result: syncResult.result,
+        })
+      }
   } catch (err) {
     logger.error({ eventId, paymentId, err }, "Error processing MP webhook")
     return NextResponse.json({ error: "Processing error" }, { status: 500 })
