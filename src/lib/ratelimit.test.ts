@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppError } from "@/lib/errors"
 import { enforceIpRateLimit, enforceRateLimit, getRequestIp, resetLocalRateLimits } from "@/lib/ratelimit"
 
@@ -82,5 +82,20 @@ describe("ratelimit fallback", () => {
     await expect(enforceRateLimit("reviewUser", "user-123")).rejects.toThrow(
       "Rate limit exceeded for reviewUser:user-123"
     )
+  })
+
+  it("falls back to the local limiter when the remote provider throws", async () => {
+    process.env.UPSTASH_REDIS_REST_URL = "https://upstash.example"
+    process.env.UPSTASH_REDIS_REST_TOKEN = "token"
+
+    globalThis.__sbRateLimitClients = globalThis.__sbRateLimitClients ?? {}
+    globalThis.__sbRateLimitClients.reviewUser = {
+      limit: vi.fn().mockRejectedValue(new Error("PolicyAgent blocked provider call")),
+    } as never
+
+    await expect(enforceRateLimit("reviewUser", "user-remote-fallback")).resolves.toMatchObject({
+      success: true,
+      limit: 10,
+    })
   })
 })

@@ -2,6 +2,7 @@ import { Ratelimit } from "@upstash/ratelimit"
 import { Redis } from "@upstash/redis"
 import { NextRequest } from "next/server"
 import { AppError } from "./errors"
+import logger from "./logger"
 
 const RATE_LIMIT_ERROR_MESSAGE = "Demasiadas solicitudes. Espera un momento e intenta de nuevo."
 
@@ -112,12 +113,25 @@ function runLocalRateLimit(policyName: PolicyName, identifier: string): RateLimi
 
 async function runRateLimit(policyName: PolicyName, identifier: string): Promise<RateLimitResult> {
   if (hasUpstashConfig()) {
-    const result = await getRatelimitClient(policyName).limit(identifier)
-    return {
-      success: result.success,
-      limit: result.limit,
-      remaining: result.remaining,
-      reset: result.reset,
+    try {
+      const result = await getRatelimitClient(policyName).limit(identifier)
+      return {
+        success: result.success,
+        limit: result.limit,
+        remaining: result.remaining,
+        reset: result.reset,
+      }
+    } catch (err) {
+      logger.warn(
+        {
+          policyName,
+          identifier,
+          err,
+        },
+        "Remote rate limit provider failed, falling back to local limiter"
+      )
+
+      return runLocalRateLimit(policyName, identifier)
     }
   }
 
