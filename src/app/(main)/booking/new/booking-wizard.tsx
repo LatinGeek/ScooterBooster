@@ -270,9 +270,9 @@ function StepTechnician({
       <div className="space-y-3">
         {available.map((t) => {
           const pricing = service ? t.pricing[service.id] : undefined
-          const { basePrice, fee, total } = pricing
+          const { basePrice } = pricing
             ? calcPricing(pricing.basePrice)
-            : { basePrice: 0, fee: 0, total: 0 }
+            : { basePrice: 0 }
 
           return (
             <button
@@ -297,10 +297,7 @@ function StepTechnician({
                 <p className="mt-0.5 truncate text-sm text-[#6b7280]">{t.location}</p>
                 {pricing && (
                   <p className="mt-1 text-sm font-semibold text-[#10b981]">
-                    Reserva online {formatUYU(fee)}{" "}
-                    <span className="text-xs font-normal text-[#9ca3af]">
-                      (técnico {formatUYU(basePrice)} por fuera de la plataforma)
-                    </span>
+                    Servicio técnico {formatUYU(basePrice)}
                   </p>
                 )}
               </div>
