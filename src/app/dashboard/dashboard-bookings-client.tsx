@@ -121,9 +121,9 @@ function isPastScheduledDate(booking: Booking): boolean {
 }
 
 function getPaymentLabel(booking: Booking) {
-  if (booking.paymentStatus === "paid") return "Reserva online paga"
-  if (booking.paymentStatus === "refunded") return "Reserva online reembolsada"
-  return "Reserva online pendiente"
+  if (booking.paymentStatus === "paid") return "Reserva paga"
+  if (booking.paymentStatus === "refunded") return "Reserva reembolsada"
+  return "Reserva pendiente"
 }
 
 function getNextStepCopy(booking: Booking) {
@@ -211,7 +211,7 @@ function BookingCard({
         </span>
         <span className="flex items-center gap-1.5">
           <CreditCard className="h-4 w-4 shrink-0 text-[#10b981]" />
-          {formatPrice(booking.serviceFee)}
+          Pendiente con técnico: {formatPrice(booking.basePrice)}
         </span>
       </div>
 
@@ -228,7 +228,7 @@ function BookingCard({
                 ? "bg-amber-50 text-amber-700"
                 : "bg-amber-50 text-amber-700"
           }`}>
-            {getPaymentLabel(booking)}
+            {booking.paymentStatus === "paid" ? "✓ Reserva paga" : getPaymentLabel(booking)}
           </span>
         </div>
       </div>
