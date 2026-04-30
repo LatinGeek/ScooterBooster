@@ -102,6 +102,19 @@ function Stepper({ currentStep }: { currentStep: Step }) {
         </div>
       </div>
 
+      <div className="relative hidden sm:block">
+        <div className="absolute left-[calc(10%+20px)] right-[calc(10%-20px)] top-5 h-[2px] rounded-full bg-[#e5e7eb]" />
+        <div
+          className="absolute left-[calc(10%+20px)] top-5 h-[2px] rounded-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)] transition-all duration-300"
+          style={{
+            width:
+              currentStep === 1
+                ? "0%"
+                : `calc(${((currentStep - 1) / (STEPS.length - 1)) * 80}% - ${((currentStep - 1) / (STEPS.length - 1)) * 40}px)`,
+          }}
+        />
+      </div>
+
       <ol className="grid grid-cols-5 gap-2 sm:flex sm:items-start sm:justify-between sm:gap-0">
         {STEPS.map((step, idx) => {
           const stepNum = (idx + 1) as Step
@@ -114,18 +127,6 @@ function Stepper({ currentStep }: { currentStep: Step }) {
               key={step.label}
               className="relative flex min-w-0 flex-col items-center sm:flex-1"
             >
-              <div className="hidden sm:block sm:absolute sm:left-1/2 sm:right-0 sm:top-5">
-                {idx < STEPS.length - 1 && (
-                  <div className="mx-5 h-[2px] overflow-hidden rounded-full bg-[#e5e7eb]">
-                    <div
-                      className={`h-full transition-all duration-300 ${
-                        done ? "w-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)]" : "w-0"
-                      }`}
-                    />
-                  </div>
-                )}
-              </div>
-
               <div
                 className={`relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border text-sm transition-all duration-300 sm:h-10 sm:w-10 sm:rounded-full ${
                   done
