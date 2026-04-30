@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { BookingWizard } from "./booking-wizard"
+import { getActiveBrands } from "@/lib/db/brands"
 import { getActiveModels } from "@/lib/db/models"
 import { getActiveServices } from "@/lib/db/services"
 import { getActiveTechnicians } from "@/lib/db/technicians"
@@ -12,12 +13,15 @@ export const metadata = {
 }
 
 export default async function NewBookingPage() {
-  const [models, services, technicians] = await Promise.all([
+  const [brands, models, services, technicians] = await Promise.all([
+    getActiveBrands(),
     getActiveModels(),
     getActiveServices(),
     getActiveTechnicians(),
   ])
   const modelsWithImages = models.filter((model) => Boolean(model.imageURL))
+  const visibleBrandIds = new Set(modelsWithImages.map((model) => model.brandId))
+  const brandsWithModels = brands.filter((brand) => visibleBrandIds.has(brand.id))
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -28,7 +32,12 @@ export default async function NewBookingPage() {
         </p>
       </div>
       <Suspense fallback={<WizardSkeleton />}>
-        <BookingWizard models={modelsWithImages} services={services} technicians={technicians} />
+        <BookingWizard
+          brands={brandsWithModels}
+          models={modelsWithImages}
+          services={services}
+          technicians={technicians}
+        />
       </Suspense>
     </main>
   )

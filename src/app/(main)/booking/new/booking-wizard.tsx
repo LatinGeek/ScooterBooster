@@ -4,23 +4,21 @@ import Image from "next/image"
 import { useCallback, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
+  Bike,
+  Calendar,
   Check,
   ChevronLeft,
   ChevronRight,
-  Bike,
-  Wrench,
-  User,
-  Calendar,
   ClipboardCheck,
   Loader2,
+  User,
+  Wrench,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DisclaimerModal } from "@/components/disclaimer-modal"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
-import type { ScooterModel, Service, Technician } from "@/types"
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import type { ScooterBrand, ScooterModel, Service, Technician } from "@/types"
 
 interface WizardState {
   scooterModelId: string
@@ -35,12 +33,11 @@ interface WizardState {
 type Step = 1 | 2 | 3 | 4 | 5
 
 interface Props {
+  brands: ScooterBrand[]
   models: ScooterModel[]
   services: Service[]
   technicians: Technician[]
 }
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const SERVICE_FEE_PCT = 10
 
@@ -60,22 +57,20 @@ function formatUYU(amount: number) {
 const DAY_LABELS: Record<string, string> = {
   monday: "Lunes",
   tuesday: "Martes",
-  wednesday: "Miércoles",
+  wednesday: "Miercoles",
   thursday: "Jueves",
   friday: "Viernes",
-  saturday: "Sábado",
+  saturday: "Sabado",
   sunday: "Domingo",
 }
 
 const STEPS: { label: string; icon: React.FC<{ className?: string }> }[] = [
   { label: "Scooter", icon: Bike },
   { label: "Servicio", icon: Wrench },
-  { label: "Técnico", icon: User },
+  { label: "Tecnico", icon: User },
   { label: "Horario", icon: Calendar },
   { label: "Confirmar", icon: ClipboardCheck },
 ]
-
-// ─── Stepper ─────────────────────────────────────────────────────────────────
 
 function Stepper({ currentStep }: { currentStep: Step }) {
   return (
@@ -86,6 +81,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
           const done = stepNum < currentStep
           const active = stepNum === currentStep
           const Icon = step.icon
+
           return (
             <li key={step.label} className="flex flex-1 flex-col items-center">
               <div className="flex w-full items-center">
@@ -125,53 +121,143 @@ function Stepper({ currentStep }: { currentStep: Step }) {
   )
 }
 
-// ─── Step 1: Scooter Model ────────────────────────────────────────────────────
-
 function StepScooter({
+  brands,
   models,
   selected,
   onSelect,
 }: {
+  brands: ScooterBrand[]
   models: ScooterModel[]
   selected: string
   onSelect: (id: string) => void
 }) {
+  const selectedModel = models.find((model) => model.id === selected)
+  const [selectedBrandId, setSelectedBrandId] = useState(selectedModel?.brandId ?? "")
+
+  const modelsByBrand = models.reduce<Record<string, ScooterModel[]>>((acc, model) => {
+    const current = acc[model.brandId] ?? []
+    acc[model.brandId] = [...current, model]
+    return acc
+  }, {})
+
+  const brandsWithModels = brands.filter((brand) => (modelsByBrand[brand.id]?.length ?? 0) > 0)
+  const visibleModels = selectedBrandId ? modelsByBrand[selectedBrandId] ?? [] : []
+  const selectedBrand = brandsWithModels.find((brand) => brand.id === selectedBrandId)
+
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold text-[#111827]">¿Cuál es tu scooter?</h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {models.map((m) => (
-          <button
-            key={m.id}
-            onClick={() => onSelect(m.id)}
-            className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
-              selected === m.id ? "border-[#10b981] bg-[#d1fae5]" : "border-[#e5e7eb] bg-white"
-            }`}
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#f3f4f6]">
-              {m.imageURL ? (
-                <Image
-                  src={m.imageURL}
-                  alt={`Foto del ${m.name}`}
-                  width={112}
-                  height={112}
-                  className="h-full w-full object-contain"
-                />
-              ) : (
-                <Bike className="h-5 w-5 text-[#10b981]" />
-              )}
+      <h2 className="mb-2 text-xl font-semibold text-[#111827]">Cual es tu scooter?</h2>
+      <p className="mb-4 text-sm text-[#6b7280]">
+        Primero elegi la marca y despues selecciona tu modelo.
+      </p>
+
+      <div className="overflow-hidden">
+        <div
+          className="flex w-[200%] transition-transform duration-300 ease-out"
+          style={{ transform: selectedBrandId ? "translateX(-50%)" : "translateX(0%)" }}
+        >
+          <div className="w-1/2 pr-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {brandsWithModels.map((brand) => {
+                const brandModels = modelsByBrand[brand.id] ?? []
+
+                return (
+                  <button
+                    key={brand.id}
+                    onClick={() => setSelectedBrandId(brand.id)}
+                    className="group flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-[#e5e7eb] bg-white p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#10b981] hover:shadow-sm"
+                  >
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f3f4f6]">
+                      {brand.logoURL ? (
+                        <Image
+                          src={brand.logoURL}
+                          alt={`Logo de ${brand.name}`}
+                          width={112}
+                          height={112}
+                          className="h-full w-full object-contain p-2"
+                        />
+                      ) : (
+                        <span className="text-lg font-bold text-[#10b981]">
+                          {brand.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-[#111827]">{brand.name}</p>
+                      <p className="text-xs text-[#6b7280]">
+                        {brandModels.length} modelo{brandModels.length !== 1 ? "s" : ""} disponible
+                        {brandModels.length !== 1 ? "s" : ""}
+                      </p>
+                    </div>
+
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[#9ca3af] transition-colors group-hover:text-[#10b981]" />
+                  </button>
+                )
+              })}
             </div>
-            <div>
-              <p className="font-semibold text-[#111827]">{m.name}</p>
-              <p className="text-xs text-[#6b7280]">
-                {m.specs.maxSpeed} km/h · {m.specs.range} km
-              </p>
+          </div>
+
+          <div className="w-1/2 pl-2">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9ca3af]">
+                  Marca
+                </p>
+                <p className="text-lg font-semibold text-[#111827]">
+                  {selectedBrand?.name ?? "Selecciona una marca"}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedBrandId("")}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Volver
+              </Button>
             </div>
-            {selected === m.id && <Check className="ml-auto h-5 w-5 shrink-0 text-[#10b981]" />}
-          </button>
-        ))}
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {visibleModels.map((model) => (
+                <button
+                  key={model.id}
+                  onClick={() => onSelect(model.id)}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
+                    selected === model.id
+                      ? "border-[#10b981] bg-[#d1fae5]"
+                      : "border-[#e5e7eb] bg-white"
+                  }`}
+                >
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#f3f4f6]">
+                    <Image
+                      src={model.imageURL!}
+                      alt={`Foto del ${model.name}`}
+                      width={112}
+                      height={112}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-[#111827]">{model.name}</p>
+                    <p className="text-xs text-[#6b7280]">
+                      {model.specs.maxSpeed} km/h · {model.specs.range} km
+                    </p>
+                  </div>
+                  {selected === model.id && (
+                    <Check className="ml-auto h-5 w-5 shrink-0 text-[#10b981]" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      {models.length === 0 && (
+
+      {brandsWithModels.length === 0 && (
         <p className="rounded-xl border border-[#e5e7eb] p-6 text-center text-[#6b7280]">
           No hay modelos disponibles por el momento.
         </p>
@@ -179,8 +265,6 @@ function StepScooter({
     </div>
   )
 }
-
-// ─── Step 2: Service ─────────────────────────────────────────────────────────
 
 function StepService({
   services,
@@ -194,42 +278,44 @@ function StepService({
   onSelect: (id: string) => void
 }) {
   const compatible = model
-    ? services.filter((s) => model.compatibleServices.includes(s.id))
+    ? services.filter((service) => model.compatibleServices.includes(service.id))
     : services
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold text-[#111827]">¿Qué servicio necesitás?</h2>
+      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Que servicio necesitas?</h2>
       {model && (
         <p className="mb-4 text-sm text-[#6b7280]">
           Servicios disponibles para <strong>{model.name}</strong>
         </p>
       )}
       <div className="space-y-3">
-        {compatible.map((s) => (
+        {compatible.map((service) => (
           <button
-            key={s.id}
-            onClick={() => onSelect(s.id)}
+            key={service.id}
+            onClick={() => onSelect(service.id)}
             className={`flex w-full cursor-pointer items-start gap-4 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
-              selected === s.id ? "border-[#10b981] bg-[#d1fae5]" : "border-[#e5e7eb] bg-white"
+              selected === service.id
+                ? "border-[#10b981] bg-[#d1fae5]"
+                : "border-[#e5e7eb] bg-white"
             }`}
           >
             <Wrench className="mt-0.5 h-5 w-5 shrink-0 text-[#10b981]" />
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <p className="font-semibold text-[#111827]">{s.name}</p>
-                {s.requiresDisclaimer && (
+                <p className="font-semibold text-[#111827]">{service.name}</p>
+                {service.requiresDisclaimer && (
                   <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">
                     Aviso legal
                   </span>
                 )}
               </div>
-              <p className="mt-0.5 text-sm text-[#6b7280]">{s.description}</p>
+              <p className="mt-0.5 text-sm text-[#6b7280]">{service.description}</p>
               <p className="mt-1 text-xs text-[#9ca3af]">
-                Duración estimada: {s.estimatedDuration} min
+                Duracion estimada: {service.estimatedDuration} min
               </p>
             </div>
-            {selected === s.id && <Check className="h-5 w-5 shrink-0 text-[#10b981]" />}
+            {selected === service.id && <Check className="h-5 w-5 shrink-0 text-[#10b981]" />}
           </button>
         ))}
       </div>
@@ -241,8 +327,6 @@ function StepService({
     </div>
   )
 }
-
-// ─── Step 3: Technician ───────────────────────────────────────────────────────
 
 function StepTechnician({
   technicians,
@@ -257,65 +341,65 @@ function StepTechnician({
   selected: string
   onSelect: (id: string) => void
 }) {
-  // Filter: technician must offer the selected service AND support the scooter brand
-  const available = technicians.filter((t) => {
-    if (service && !t.services.includes(service.id)) return false
-    if (scooterModel && !t.supportedBrands.includes(scooterModel.brandId)) return false
+  const available = technicians.filter((technician) => {
+    if (service && !technician.services.includes(service.id)) return false
+    if (scooterModel && !technician.supportedBrands.includes(scooterModel.brandId)) return false
     return true
   })
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Elegí tu técnico</h2>
+      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Elegi tu tecnico</h2>
       <div className="space-y-3">
-        {available.map((t) => {
-          const pricing = service ? t.pricing[service.id] : undefined
-          const { basePrice } = pricing
-            ? calcPricing(pricing.basePrice)
-            : { basePrice: 0 }
+        {available.map((technician) => {
+          const pricing = service ? technician.pricing[service.id] : undefined
+          const { basePrice } = pricing ? calcPricing(pricing.basePrice) : { basePrice: 0 }
 
           return (
             <button
-              key={t.id}
-              onClick={() => onSelect(t.id)}
+              key={technician.id}
+              onClick={() => onSelect(technician.id)}
               className={`flex w-full cursor-pointer items-start gap-4 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
-                selected === t.id ? "border-[#10b981] bg-[#d1fae5]" : "border-[#e5e7eb] bg-white"
+                selected === technician.id
+                  ? "border-[#10b981] bg-[#d1fae5]"
+                  : "border-[#e5e7eb] bg-white"
               }`}
             >
-              {/* Avatar */}
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#10b981] text-lg font-bold text-white">
-                {t.displayName.charAt(0).toUpperCase()}
+                {technician.displayName.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-[#111827]">{t.displayName}</p>
+                  <p className="font-semibold text-[#111827]">{technician.displayName}</p>
                   <span className="flex items-center gap-1 text-xs font-medium text-amber-500">
-                    ★ {t.rating.toFixed(1)}
-                    <span className="font-normal text-[#9ca3af]">({t.reviewCount})</span>
+                    ★ {technician.rating.toFixed(1)}
+                    <span className="font-normal text-[#9ca3af]">
+                      ({technician.reviewCount})
+                    </span>
                   </span>
                 </div>
-                <p className="mt-0.5 truncate text-sm text-[#6b7280]">{t.location}</p>
+                <p className="mt-0.5 truncate text-sm text-[#6b7280]">{technician.location}</p>
                 {pricing && (
                   <p className="mt-1 text-sm font-semibold text-[#10b981]">
-                    Servicio técnico {formatUYU(basePrice)}
+                    Servicio tecnico {formatUYU(basePrice)}
                   </p>
                 )}
               </div>
-              {selected === t.id && <Check className="h-5 w-5 shrink-0 text-[#10b981]" />}
+              {selected === technician.id && (
+                <Check className="h-5 w-5 shrink-0 text-[#10b981]" />
+              )}
             </button>
           )
         })}
       </div>
       {available.length === 0 && (
         <p className="rounded-xl border border-[#e5e7eb] p-6 text-center text-[#6b7280]">
-          No hay técnicos disponibles para esta combinación de servicio y scooter.
+          No hay tecnicos disponibles para esta combinacion de servicio y scooter.
         </p>
       )}
     </div>
   )
 }
-
-// ─── Step 4: Date & Time ──────────────────────────────────────────────────────
 
 function StepDateTime({
   technician,
@@ -330,34 +414,35 @@ function StepDateTime({
   onDateChange: (v: string) => void
   onNotesChange: (v: string) => void
 }) {
-  // Build the min date (today + 1 day, ISO)
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   const minDate = tomorrow.toISOString().slice(0, 16)
 
-  // The max date (3 months out)
   const maxDate = new Date()
   maxDate.setMonth(maxDate.getMonth() + 3)
   const maxDateStr = maxDate.toISOString().slice(0, 16)
 
-  // Show availability hours for reference
   const availabilityEntries = technician
     ? Object.entries(technician.availability).filter(([, day]) => day.isAvailable)
     : []
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Elegí fecha y hora</h2>
+      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Elegi fecha y hora</h2>
 
       {technician && availabilityEntries.length > 0 && (
         <div className="mb-4 rounded-lg border border-[#e5e7eb] bg-[#f9fafb] p-4">
-          <p className="mb-2 text-sm font-semibold text-[#374151]">Disponibilidad del técnico</p>
+          <p className="mb-2 text-sm font-semibold text-[#374151]">
+            Disponibilidad del tecnico
+          </p>
           <ul className="space-y-1">
             {availabilityEntries.map(([day, avail]) => (
               <li key={day} className="flex items-center gap-2 text-sm text-[#6b7280]">
-                <span className="w-24 font-medium text-[#374151]">{DAY_LABELS[day] ?? day}</span>
+                <span className="w-24 font-medium text-[#374151]">
+                  {DAY_LABELS[day] ?? day}
+                </span>
                 <span>
-                  {avail.start} – {avail.end}
+                  {avail.start} - {avail.end}
                 </span>
               </li>
             ))}
@@ -377,7 +462,7 @@ function StepDateTime({
             max={maxDateStr}
             value={scheduledDate}
             onChange={(e) => onDateChange(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] focus:outline-none"
+            className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-1 focus:ring-[#10b981]"
           />
         </div>
 
@@ -391,8 +476,8 @@ function StepDateTime({
             maxLength={500}
             value={notes}
             onChange={(e) => onNotesChange(e.target.value)}
-            placeholder="Ej: El scooter está dando error en el display, la batería carga lento..."
-            className="mt-1 block w-full resize-none rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] placeholder-[#9ca3af] focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] focus:outline-none"
+            placeholder="Ej: el scooter da error en el display o la bateria carga lento..."
+            className="mt-1 block w-full resize-none rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] placeholder-[#9ca3af] focus:border-[#10b981] focus:outline-none focus:ring-1 focus:ring-[#10b981]"
           />
           <p className="mt-1 text-right text-xs text-[#9ca3af]">{notes.length}/500</p>
         </div>
@@ -400,8 +485,6 @@ function StepDateTime({
     </div>
   )
 }
-
-// ─── Step 5: Confirm ──────────────────────────────────────────────────────────
 
 function StepConfirm({
   wizardState,
@@ -424,20 +507,20 @@ function StepConfirm({
         dateStyle: "full",
         timeStyle: "short",
       }).format(new Date(wizardState.scheduledDate))
-    : "—"
+    : "-"
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Revisá tu reserva</h2>
+      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Revisa tu reserva</h2>
       <div className="divide-y divide-[#e5e7eb] rounded-xl border border-[#e5e7eb] bg-white">
-        <Row label="Scooter" value={model?.name ?? "—"} />
-        <Row label="Servicio" value={service?.name ?? "—"} />
-        <Row label="Técnico" value={technician?.displayName ?? "—"} />
+        <Row label="Scooter" value={model?.name ?? "-"} />
+        <Row label="Servicio" value={service?.name ?? "-"} />
+        <Row label="Tecnico" value={technician?.displayName ?? "-"} />
         <Row label="Fecha y hora" value={scheduled} />
         {wizardState.notes && <Row label="Notas" value={wizardState.notes} />}
         <div className="px-4 py-3">
           <div className="flex justify-between text-sm text-[#6b7280]">
-            <span>Pago al técnico</span>
+            <span>Pago al tecnico</span>
             <span>{formatUYU(basePrice)}</span>
           </div>
           <div className="flex justify-between text-sm text-[#6b7280]">
@@ -449,8 +532,8 @@ function StepConfirm({
             <span className="text-[#10b981]">{formatUYU(total)}</span>
           </div>
           <p className="mt-3 text-xs text-[#6b7280]">
-            Pagás {formatUYU(fee)} ahora para confirmar la reserva. Los {formatUYU(basePrice)} del
-            servicio se coordinan directamente con el técnico.
+            Pagas {formatUYU(fee)} ahora para confirmar la reserva. Los{" "}
+            {formatUYU(basePrice)} del servicio se coordinan directamente con el tecnico.
           </p>
         </div>
       </div>
@@ -461,8 +544,8 @@ function StepConfirm({
         </div>
       )}
       <p className="mt-4 text-sm text-[#6b7280]">
-        Al confirmar, se creará la reserva con estado <strong>pendiente de pago</strong>. A
-        continuación recibirás el link para pagar solo la reserva online.
+        Al confirmar, se creara la reserva con estado <strong>pendiente de pago</strong>. A
+        continuacion recibiras el link para pagar solo la reserva online.
       </p>
     </div>
   )
@@ -477,15 +560,13 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
-// ─── Main Wizard ──────────────────────────────────────────────────────────────
-
-export function BookingWizard({ models, services, technicians }: Props) {
+export function BookingWizard({ brands, models, services, technicians }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const [step, setStep] = useState<Step>(() => {
-    const s = parseInt(searchParams.get("step") ?? "1")
-    return (s >= 1 && s <= 5 ? s : 1) as Step
+    const current = parseInt(searchParams.get("step") ?? "1")
+    return (current >= 1 && current <= 5 ? current : 1) as Step
   })
 
   const [state, setState] = useState<WizardState>({
@@ -503,33 +584,36 @@ export function BookingWizard({ models, services, technicians }: Props) {
   const [error, setError] = useState<string | null>(null)
   const hasTrackedBookingStart = useRef(false)
 
-  const model = models.find((m) => m.id === state.scooterModelId)
-  const service = services.find((s) => s.id === state.serviceId)
-  const technician = technicians.find((t) => t.id === state.technicianId)
+  const model = models.find((item) => item.id === state.scooterModelId)
+  const service = services.find((item) => item.id === state.serviceId)
+  const technician = technicians.find((item) => item.id === state.technicianId)
 
-  // Sync URL params
   const syncUrl = useCallback(
     (newState: Partial<WizardState>, newStep: Step) => {
       const params = new URLSearchParams()
       params.set("step", String(newStep))
-      if (newState.scooterModelId ?? state.scooterModelId)
+      if (newState.scooterModelId ?? state.scooterModelId) {
         params.set("model", newState.scooterModelId ?? state.scooterModelId)
-      if (newState.serviceId ?? state.serviceId)
+      }
+      if (newState.serviceId ?? state.serviceId) {
         params.set("service", newState.serviceId ?? state.serviceId)
-      if (newState.technicianId ?? state.technicianId)
+      }
+      if (newState.technicianId ?? state.technicianId) {
         params.set("technician", newState.technicianId ?? state.technicianId)
-      if (newState.scheduledDate ?? state.scheduledDate)
+      }
+      if (newState.scheduledDate ?? state.scheduledDate) {
         params.set("date", newState.scheduledDate ?? state.scheduledDate)
+      }
       router.replace(`/booking/new?${params.toString()}`, { scroll: false })
     },
-    [state, router]
+    [router, state],
   )
 
   function update(patch: Partial<WizardState>) {
     setState((prev) => ({ ...prev, ...patch }))
   }
 
-  function canAdvance(): boolean {
+  function canAdvance() {
     switch (step) {
       case 1:
         return !!state.scooterModelId
@@ -546,24 +630,25 @@ export function BookingWizard({ models, services, technicians }: Props) {
 
   function handleNext() {
     if (!canAdvance()) return
-    // If step 5, confirm-action is submit
+
     if (step === 5) {
-      handleSubmit()
+      void handleSubmit()
       return
     }
 
     const nextStep = (step + 1) as Step
-    // If service requires disclaimer and we're moving to step 5, show it first
     if (nextStep === 5 && requiresBookingDisclaimer(service) && !state.disclaimerAccepted) {
       setShowDisclaimer(true)
       return
     }
+
     if (!hasTrackedBookingStart.current && step === 1 && state.scooterModelId) {
       hasTrackedBookingStart.current = true
       trackAnalyticsEvent("booking_started", {
         scooter_model_id: state.scooterModelId,
       })
     }
+
     setStep(nextStep)
     syncUrl({}, nextStep)
   }
@@ -578,6 +663,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
   async function handleSubmit() {
     setSubmitting(true)
     setError(null)
+
     try {
       const res = await fetch("/api/bookings", {
         method: "POST",
@@ -599,7 +685,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
       }
 
       if (!res.ok || !json.success) {
-        setError(json.error ?? "Error al crear la reserva. Intentá de nuevo.")
+        setError(json.error ?? "Error al crear la reserva. Intenta de nuevo.")
         return
       }
 
@@ -611,25 +697,25 @@ export function BookingWizard({ models, services, technicians }: Props) {
         return
       }
 
-      // If MP payment link is available, redirect to MercadoPago checkout
       if (paymentLinkUrl) {
-          trackAnalyticsEvent("payment_initiated", {
-            booking_id: bookingId,
-            service_id: state.serviceId,
-            technician_id: state.technicianId,
-            service_fee: json.data?.booking.serviceFee ?? 0,
-          })
+        trackAnalyticsEvent("payment_initiated", {
+          booking_id: bookingId,
+          service_id: state.serviceId,
+          technician_id: state.technicianId,
+          service_fee: json.data?.booking.serviceFee ?? 0,
+        })
+
         if (process.env.NEXT_PUBLIC_E2E_AUTH === "enabled") {
           window.sessionStorage.setItem("sb:e2e-payment-link", paymentLinkUrl)
           return
         }
+
         window.location.href = paymentLinkUrl
       } else {
-        // No MP credentials configured (dev mode) — go to booking detail
         router.push(`/booking/${bookingId}`)
       }
     } catch {
-      setError("Error de conexión. Revisá tu internet e intentá de nuevo.")
+      setError("Error de conexion. Revisa tu internet e intenta de nuevo.")
     } finally {
       setSubmitting(false)
     }
@@ -644,13 +730,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
     syncUrl({ disclaimerAccepted: true }, nextStep)
   }
 
-  function handleDisclaimerDecline() {
-    setShowDisclaimer(false)
-  }
-
-  // Step-level field updates
   function handleSelectModel(id: string) {
-    // Reset downstream when model changes
     update({ scooterModelId: id, serviceId: "", technicianId: "", scheduledDate: "" })
   }
 
@@ -667,16 +747,16 @@ export function BookingWizard({ models, services, technicians }: Props) {
       <DisclaimerModal
         open={showDisclaimer}
         onAccept={handleDisclaimerAccept}
-        onDecline={handleDisclaimerDecline}
+        onDecline={() => setShowDisclaimer(false)}
       />
 
       <div className="rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
         <Stepper currentStep={step} />
 
-        {/* Step content */}
         <div className="min-h-[300px]">
           {step === 1 && (
             <StepScooter
+              brands={brands}
               models={models}
               selected={state.scooterModelId}
               onSelect={handleSelectModel}
@@ -718,14 +798,12 @@ export function BookingWizard({ models, services, technicians }: Props) {
           )}
         </div>
 
-        {/* Error message */}
         {error && (
           <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        {/* Pricing bar (visible from step 3+) */}
         {step >= 3 &&
           technician &&
           service &&
@@ -733,6 +811,7 @@ export function BookingWizard({ models, services, technicians }: Props) {
             const pricing = technician.pricing[service.id]
             if (!pricing) return null
             const { fee } = calcPricing(pricing.basePrice)
+
             return (
               <div className="mt-4 flex items-center justify-between rounded-lg bg-[#d1fae5] px-4 py-3">
                 <span className="text-sm text-[#065f46]">Reserva online a pagar ahora</span>
@@ -741,11 +820,10 @@ export function BookingWizard({ models, services, technicians }: Props) {
             )
           })()}
 
-        {/* Navigation */}
         <div className="mt-6 flex items-center justify-between">
           <Button variant="outline" onClick={handleBack} disabled={step === 1 || submitting}>
             <ChevronLeft className="h-4 w-4" />
-            Atrás
+            Atras
           </Button>
 
           <Button onClick={handleNext} disabled={!canAdvance() || submitting}>
