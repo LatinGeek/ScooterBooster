@@ -112,7 +112,7 @@ export default async function TechniciansPage({
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[1.75rem] border border-[#dbe4ea] bg-white shadow-[0_18px_50px_-30px_rgba(15,23,42,0.45)] lg:sticky lg:top-4 lg:z-20">
+          <div className="rounded-[1.75rem] border border-[#dbe4ea] bg-white shadow-[0_18px_50px_-30px_rgba(15,23,42,0.45)]">
             <div className="border-b border-[#eef2f7] px-4 py-4 sm:px-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -129,7 +129,7 @@ export default async function TechniciansPage({
               </div>
             </div>
 
-            <div className="px-4 py-4 sm:px-5">
+            <div className="px-4 py-4 sm:px-5 lg:sticky lg:top-4 lg:z-20 lg:rounded-b-[1.75rem] lg:bg-white">
               <div className="grid gap-3 xl:grid-cols-2">
                 <LocationSortControls
                   initialSearch={currentSearchParams.toString()}
