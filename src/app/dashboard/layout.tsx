@@ -2,11 +2,10 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Bell, CalendarDays, UserCircle, LogOut, Bike } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Bell, Bike, CalendarDays, LogOut, UserCircle } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { NotificationBell } from "@/components/notification-bell"
-import { useRouter } from "next/navigation"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Mis reservas", icon: CalendarDays, exact: true },
@@ -31,12 +30,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      {/* ── Desktop layout ─────────────────────────────────────────────────── */}
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
-        {/* Sidebar */}
         <aside className="hidden w-60 shrink-0 md:block">
           <div className="sticky top-24">
-            {/* Brand */}
             <Link
               href="/"
               className="mb-6 flex items-center gap-2 font-bold text-[#111827] transition-colors duration-150 hover:text-[#10b981]"
@@ -45,7 +41,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="text-base">ScooterBooster</span>
             </Link>
 
-            {/* User info */}
             {user && (
               <div className="mb-6 flex items-center gap-3 rounded-xl border border-[#e5e7eb] bg-white p-3">
                 {user.photoURL ? (
@@ -57,14 +52,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="h-10 w-10 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d1fae5] text-[#059669] font-semibold">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d1fae5] font-semibold text-[#059669]">
                     {user.displayName?.charAt(0)?.toUpperCase() ?? "U"}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-[#111827]">
-                    {user.displayName}
-                  </p>
+                  <p className="truncate text-sm font-semibold text-[#111827]">{user.displayName}</p>
                   <p className="truncate text-xs text-[#6b7280]">{user.email}</p>
                 </div>
               </div>
@@ -78,7 +71,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <NotificationBell />
             </div>
 
-            {/* Nav links */}
             <nav className="flex flex-col gap-1">
               {NAV_ITEMS.map((item) => {
                 const active = isActive(item)
@@ -100,7 +92,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               <button
                 onClick={handleSignOut}
-                className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#6b7280] transition-colors duration-150 hover:bg-red-50 hover:text-red-600 mt-2"
+                className="mt-2 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#6b7280] transition-colors duration-150 hover:bg-red-50 hover:text-red-600"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 Cerrar sesión
@@ -109,11 +101,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </aside>
 
-        {/* Main content */}
         <main className="min-w-0 flex-1 pb-24 md:pb-0">{children}</main>
       </div>
 
-      {/* ── Mobile tab bar ──────────────────────────────────────────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5e7eb] bg-white md:hidden">
         <div className="flex">
           {NAV_ITEMS.map((item) => {

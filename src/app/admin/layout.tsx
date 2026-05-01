@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Image from "next/image"
 import Link from "next/link"
@@ -19,15 +19,15 @@ import { useAuth } from "@/hooks/use-auth"
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard, exact: true },
-  { href: "/admin/technicians", label: "TÃ©cnicos", icon: Wrench, exact: false },
+  { href: "/admin/technicians", label: "Técnicos", icon: Wrench, exact: false },
   { href: "/admin/users", label: "Usuarios", icon: Users, exact: false },
   { href: "/admin/bookings", label: "Reservas", icon: CalendarDays, exact: false },
   { href: "/admin/scooters", label: "Scooters", icon: Bike, exact: false },
   { href: "/admin/services", label: "Servicios", icon: Wrench, exact: false },
-  { href: "/admin/reviews", label: "ReseÃ±as", icon: Activity, exact: false },
+  { href: "/admin/reviews", label: "Reseñas", icon: Activity, exact: false },
   { href: "/admin/audit", label: "Auditoría", icon: Activity, exact: false },
   { href: "/admin/observability", label: "Observabilidad", icon: BarChart3, exact: false },
-  { href: "/admin/settings", label: "ConfiguraciÃ³n", icon: Settings, exact: false },
+  { href: "/admin/settings", label: "Configuración", icon: Settings, exact: false },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -109,7 +109,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className="mt-2 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#6b7280] transition-colors duration-150 hover:bg-red-50 hover:text-red-600"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
-                Cerrar sesiÃ³n
+                Cerrar sesión
               </button>
             </nav>
           </div>
@@ -147,4 +147,3 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   )
 }
-

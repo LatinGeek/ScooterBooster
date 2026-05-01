@@ -85,7 +85,7 @@ export function NotificationBell({
       href={href}
       aria-label={
         upcomingCount > 0
-          ? `Abrir notificaciones (${upcomingCount} reservas proximas)`
+          ? `Abrir notificaciones (${upcomingCount} reservas próximas)`
           : "Abrir notificaciones"
       }
       className={cn(

@@ -28,7 +28,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
 
   function handleUseMyLocation() {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      setError("Tu navegador no permite usar ubicacion en este momento.")
+      setError("Tu navegador no permite usar ubicación en este momento.")
       return
     }
 
@@ -48,7 +48,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
         setIsLocating(false)
       },
       () => {
-        setError("No pudimos leer tu ubicacion. Proba nuevamente o elegi una zona manualmente.")
+        setError("No pudimos leer tu ubicación. Probá nuevamente o elegí una zona manualmente.")
         setIsLocating(false)
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 }
@@ -62,9 +62,9 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
           <MapPinned className="h-[18px] w-[18px] text-[#059669]" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-[#111827]">Descubrimiento por cercania</p>
+          <p className="text-sm font-semibold text-[#111827]">Descubrimiento por cercanía</p>
           <p className="mt-0.5 text-xs leading-5 text-[#6b7280]">
-            Ordena por proximidad aproximada usando tu ubicacion.
+            Ordená por proximidad aproximada usando tu ubicación.
           </p>
         </div>
       </div>
@@ -82,7 +82,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
           ) : (
             <LocateFixed className="h-4 w-4" />
           )}
-          Usar mi ubicacion
+          Usar mi ubicación
         </Button>
 
         {hasNearbySort ? (
@@ -100,7 +100,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
             }
             disabled={isPending}
           >
-            Quitar cercania
+            Quitar cercanía
           </Button>
         ) : null}
       </div>

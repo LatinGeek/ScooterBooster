@@ -70,8 +70,8 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
               </Avatar>
 
               <div className="min-w-0">
-                <p className="text-xs font-semibold tracking-[0.22em] text-[#10b981] uppercase">
-                  Tecnico verificado
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#10b981]">
+                  Técnico verificado
                 </p>
                 <Link
                   href={technicianHref}
@@ -98,7 +98,7 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
                   {technician.rating.toFixed(1)}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-[#6b7280]">{technician.reviewCount} resenas</p>
+              <p className="mt-1 text-xs text-[#6b7280]">{technician.reviewCount} reseñas</p>
             </div>
           </div>
         </div>
@@ -112,7 +112,9 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
 
           <div className="mt-4">
             <div className="inline-flex rounded-full border border-[#d1fae5] bg-[#f0fdf4] px-3 py-1.5 text-sm font-semibold text-[#047857]">
-              {startingPrice ? `Servicio mas accesible desde ${startingPrice} UYU` : "Precio a consultar"}
+              {startingPrice
+                ? `Servicio más accesible desde ${startingPrice} UYU`
+                : "Precio a consultar"}
             </div>
           </div>
 
@@ -136,7 +138,7 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
                   variant="secondary"
                   className="rounded-full border border-[#e5e7eb] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#475569]"
                 >
-                  +{technician.services.length - 3} mas
+                  +{technician.services.length - 3} más
                 </Badge>
               ) : null}
             </div>
