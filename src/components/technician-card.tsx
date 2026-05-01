@@ -110,20 +110,9 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
             ) : null}
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2.5">
-            <div className="rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] p-3">
-              <p className="text-xs font-semibold tracking-[0.16em] text-[#64748b] uppercase">
-                Desde
-              </p>
-              <p className="mt-1.5 text-base font-bold text-[#111827]">
-                {startingPrice ? `${startingPrice} UYU` : "Consultar"}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] p-3">
-              <p className="text-xs font-semibold tracking-[0.16em] text-[#64748b] uppercase">
-                Servicios
-              </p>
-              <p className="mt-1.5 text-base font-bold text-[#111827]">{technician.services.length}</p>
+          <div className="mt-4">
+            <div className="inline-flex rounded-full border border-[#d1fae5] bg-[#f0fdf4] px-3 py-1.5 text-sm font-semibold text-[#047857]">
+              {startingPrice ? `Servicio mas accesible desde ${startingPrice} UYU` : "Precio a consultar"}
             </div>
           </div>
 
