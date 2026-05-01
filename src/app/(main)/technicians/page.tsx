@@ -112,40 +112,39 @@ export default async function TechniciansPage({
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[2rem] border border-[#dbe4ea] bg-white shadow-[0_18px_50px_-30px_rgba(15,23,42,0.45)] lg:sticky lg:top-4 lg:z-20">
-            <div className="border-b border-[#eef2f7] px-5 py-5 sm:px-6">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <div className="rounded-[1.75rem] border border-[#dbe4ea] bg-white shadow-[0_18px_50px_-30px_rgba(15,23,42,0.45)] lg:sticky lg:top-4 lg:z-20">
+            <div className="border-b border-[#eef2f7] px-4 py-4 sm:px-5">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-[#111827]">Descubri tu tecnico ideal</h2>
+                  <h2 className="text-xl font-bold text-[#111827]">Descubri tu tecnico ideal</h2>
                   <p className="mt-1 text-sm text-[#6b7280]">
-                    Usa cercania y zonas rapidas para encontrar opciones confiables sin ocupar
-                    espacio extra con filtros secundarios.
+                    Prioriza cercania y cambia de zona sin perder espacio para las tarjetas.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-full bg-[#f8fafc] px-4 py-2 text-sm text-[#475569]">
+                <div className="flex items-center gap-2 rounded-full bg-[#f8fafc] px-3 py-1.5 text-sm text-[#475569]">
                   <span className="font-semibold text-[#111827]">{technicians.length}</span>
                   resultado{technicians.length === 1 ? "" : "s"}
                 </div>
               </div>
             </div>
 
-            <div className="px-5 py-5 sm:px-6">
-              <div className="grid gap-4 xl:grid-cols-2">
+            <div className="px-4 py-4 sm:px-5">
+              <div className="grid gap-3 xl:grid-cols-2">
                 <LocationSortControls
                   initialSearch={currentSearchParams.toString()}
                   hasNearbySort={hasCoordinates}
                 />
 
-                <div className="rounded-3xl border border-[#e5e7eb] bg-[#f8fafc] p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eff6ff]">
-                      <MapPinned className="h-5 w-5 text-[#2563eb]" />
+                <div className="rounded-[1.5rem] border border-[#e5e7eb] bg-[#f8fafc] p-3.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#eff6ff]">
+                      <MapPinned className="h-4.5 w-4.5 text-[#2563eb]" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-[#111827]">Zonas rapidas</p>
-                      <p className="mt-1 text-xs leading-5 text-[#6b7280]">
-                        Cambia de zona con un toque para comparar tecnicos mas cerca de vos.
+                      <p className="mt-0.5 text-xs leading-5 text-[#6b7280]">
+                        Salta entre zonas para comparar tecnicos cercanos.
                       </p>
                     </div>
                   </div>

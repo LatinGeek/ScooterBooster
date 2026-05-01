@@ -28,7 +28,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
 
   function handleUseMyLocation() {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      setError("Tu navegador no permite usar ubicación en este momento.")
+      setError("Tu navegador no permite usar ubicacion en este momento.")
       return
     }
 
@@ -48,7 +48,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
         setIsLocating(false)
       },
       () => {
-        setError("No pudimos leer tu ubicación. Probá nuevamente o elegí una zona manualmente.")
+        setError("No pudimos leer tu ubicacion. Proba nuevamente o elegi una zona manualmente.")
         setIsLocating(false)
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 }
@@ -56,24 +56,24 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
   }
 
   return (
-    <div className="rounded-3xl border border-[#e5e7eb] bg-[#f8fafc] p-4">
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ecfdf5]">
-          <MapPinned className="h-5 w-5 text-[#059669]" />
+    <div className="rounded-[1.5rem] border border-[#e5e7eb] bg-[#f8fafc] p-3.5">
+      <div className="flex items-start gap-2.5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#ecfdf5]">
+          <MapPinned className="h-[18px] w-[18px] text-[#059669]" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-[#111827]">Descubrimiento por cercanía</p>
-          <p className="mt-1 text-xs leading-5 text-[#6b7280]">
-            Ordená técnicos por proximidad aproximada usando tu ubicación del navegador.
+          <p className="text-sm font-semibold text-[#111827]">Descubrimiento por cercania</p>
+          <p className="mt-0.5 text-xs leading-5 text-[#6b7280]">
+            Ordena por proximidad aproximada usando tu ubicacion.
           </p>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <Button
           type="button"
           size="sm"
-          className="sm:flex-1"
+          className="h-9 sm:flex-1"
           onClick={handleUseMyLocation}
           disabled={isLocating || isPending}
         >
@@ -82,7 +82,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
           ) : (
             <LocateFixed className="h-4 w-4" />
           )}
-          Usar mi ubicación
+          Usar mi ubicacion
         </Button>
 
         {hasNearbySort ? (
@@ -90,7 +90,7 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
             type="button"
             size="sm"
             variant="outline"
-            className="sm:flex-1"
+            className="h-9 sm:flex-1"
             onClick={() =>
               updateUrl((params) => {
                 params.delete("lat")
@@ -100,12 +100,12 @@ export function LocationSortControls({ initialSearch, hasNearbySort }: LocationS
             }
             disabled={isPending}
           >
-            Quitar cercanía
+            Quitar cercania
           </Button>
         ) : null}
       </div>
 
-      {error ? <p className="mt-3 text-xs text-[#b45309]">{error}</p> : null}
+      {error ? <p className="mt-2 text-xs text-[#b45309]">{error}</p> : null}
     </div>
   )
 }

@@ -31,7 +31,7 @@ export function RapidZoneControls({
   }
 
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
+    <div className="mt-3 flex flex-wrap gap-1.5">
       {presets.map((preset) => {
         const isActive =
           selectedNear === preset.slug || (selectedNear.length === 0 && selectedLocation === preset.label)
@@ -57,7 +57,7 @@ export function RapidZoneControls({
                 params.delete("lng")
               })
             }
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 ${
+            className={`rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition-colors duration-200 ${
               isActive
                 ? "bg-[#111827] text-white"
                 : "bg-white text-[#374151] hover:bg-[#e2e8f0]"
