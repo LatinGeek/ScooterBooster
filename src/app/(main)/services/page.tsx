@@ -99,16 +99,18 @@ export default async function ServicesPage() {
                 <div
                   key={service.id}
                   id={service.slug}
-                  className="flex flex-col rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  className="flex h-full flex-col rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md"
                 >
                   {/* Icon + name */}
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f0fdf4]">
                       <Icon className="h-6 w-6 text-[#10b981]" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h2 className="text-lg font-semibold text-[#111827]">{service.name}</h2>
-                      <p className="mt-1.5 text-sm text-[#6b7280]">{service.description}</p>
+                      <p className="mt-1.5 line-clamp-3 min-h-[4.75rem] text-sm text-[#6b7280]">
+                        {service.description}
+                      </p>
                     </div>
                   </div>
 
@@ -121,16 +123,18 @@ export default async function ServicesPage() {
                   </div>
 
                   {/* Disclaimer warning */}
-                  {service.requiresDisclaimer && (
-                    <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
-                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                      Solo para uso en propiedad privada. Requiere aceptar aviso legal antes de
-                      reservar.
-                    </div>
-                  )}
+                  <div className="mt-4 min-h-[4.5rem]">
+                    {service.requiresDisclaimer ? (
+                      <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        Solo para uso en propiedad privada. Requiere aceptar aviso legal antes de
+                        reservar.
+                      </div>
+                    ) : null}
+                  </div>
 
                   {/* CTA */}
-                  <div className="mt-5 flex items-center justify-between">
+                  <div className="mt-auto flex items-center justify-between pt-1">
                     <div className="flex items-center gap-3">
                       <Link
                         href={`/services/${service.slug}`}
