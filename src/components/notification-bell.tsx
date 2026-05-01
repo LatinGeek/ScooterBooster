@@ -3,10 +3,10 @@
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { Bell } from "lucide-react"
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore"
+import { collection, onSnapshot, query, where } from "firebase/firestore"
 import { getFirebaseDb } from "@/lib/firebase"
 import { useAuth } from "@/hooks/use-auth"
-import type { AppNotification } from "@/types"
+import type { Booking, BookingStatus } from "@/types"
 import { cn } from "@/lib/utils"
 
 interface NotificationBellProps {
@@ -14,20 +14,44 @@ interface NotificationBellProps {
   className?: string
 }
 
-function normalizeNotificationDoc(
-  id: string,
-  data: Record<string, unknown>,
-): AppNotification {
+const UPCOMING_STATUSES: BookingStatus[] = ["pending", "confirmed", "in_progress"]
+
+function normalizeBookingDoc(id: string, data: Record<string, unknown>): Booking {
   return {
     id,
-    type: (data["type"] as AppNotification["type"]) ?? "booking_pending_payment",
-    title: (data["title"] as string) ?? "",
-    body: (data["body"] as string) ?? "",
-    href: (data["href"] as string | null | undefined) ?? null,
-    readAt: (data["readAt"] as string | null | undefined) ?? null,
+    userId: (data["userId"] as string) ?? "",
+    technicianId: (data["technicianId"] as string) ?? "",
+    serviceId: (data["serviceId"] as string) ?? "",
+    scooterModelId: (data["scooterModelId"] as string) ?? "",
+    status: (data["status"] as BookingStatus) ?? "pending",
+    scheduledDate: (data["scheduledDate"] as string) ?? "",
+    notes: (data["notes"] as string | null | undefined) ?? null,
+    basePrice: (data["basePrice"] as number) ?? 0,
+    serviceFee: (data["serviceFee"] as number) ?? 0,
+    totalPrice: (data["totalPrice"] as number) ?? 0,
+    paymentStatus: (data["paymentStatus"] as Booking["paymentStatus"]) ?? "pending",
+    paymentId: (data["paymentId"] as string | null | undefined) ?? null,
+    paymentLinkId: (data["paymentLinkId"] as string | null | undefined) ?? null,
+    paymentLinkUrl: (data["paymentLinkUrl"] as string | null | undefined) ?? null,
+    disclaimerAccepted: Boolean(data["disclaimerAccepted"]),
+    disclaimerAcceptedAt: (data["disclaimerAcceptedAt"] as string | null | undefined) ?? null,
+    disclaimerVersion: (data["disclaimerVersion"] as string | null | undefined) ?? null,
+    refundedAt: (data["refundedAt"] as string | null | undefined) ?? null,
+    reminderSentAt: (data["reminderSentAt"] as string | null | undefined) ?? null,
     createdAt:
       typeof data["createdAt"] === "string" ? data["createdAt"] : new Date().toISOString(),
+    updatedAt:
+      typeof data["updatedAt"] === "string" ? data["updatedAt"] : new Date().toISOString(),
   }
+}
+
+function isUpcomingBooking(booking: Booking): boolean {
+  if (!UPCOMING_STATUSES.includes(booking.status)) return false
+
+  const scheduledAt = new Date(booking.scheduledDate).getTime()
+  if (Number.isNaN(scheduledAt)) return false
+
+  return scheduledAt >= Date.now()
 }
 
 export function NotificationBell({
@@ -35,30 +59,24 @@ export function NotificationBell({
   className,
 }: NotificationBellProps) {
   const { user, role } = useAuth()
-  const [notifications, setNotifications] = useState<AppNotification[]>([])
+  const [bookings, setBookings] = useState<Booking[]>([])
 
   useEffect(() => {
     if (!user || role !== "user") return
 
     const db = getFirebaseDb()
-    const notificationsQuery = query(
-      collection(db, "users", user.uid, "notifications"),
-      orderBy("createdAt", "desc"),
-    )
+    const bookingsQuery = query(collection(db, "bookings"), where("userId", "==", user.uid))
 
-    return onSnapshot(notificationsQuery, (snapshot) => {
-      setNotifications(
+    return onSnapshot(bookingsQuery, (snapshot) => {
+      setBookings(
         snapshot.docs.map((doc) =>
-          normalizeNotificationDoc(doc.id, doc.data() as Record<string, unknown>),
+          normalizeBookingDoc(doc.id, doc.data() as Record<string, unknown>),
         ),
       )
     })
   }, [role, user])
 
-  const unreadCount = useMemo(
-    () => notifications.filter((notification) => !notification.readAt).length,
-    [notifications],
-  )
+  const upcomingCount = useMemo(() => bookings.filter(isUpcomingBooking).length, [bookings])
 
   if (!user || role !== "user") return null
 
@@ -66,8 +84,8 @@ export function NotificationBell({
     <Link
       href={href}
       aria-label={
-        unreadCount > 0
-          ? `Abrir notificaciones (${unreadCount} sin leer)`
+        upcomingCount > 0
+          ? `Abrir notificaciones (${upcomingCount} reservas proximas)`
           : "Abrir notificaciones"
       }
       className={cn(
@@ -76,9 +94,9 @@ export function NotificationBell({
       )}
     >
       <Bell className="h-4 w-4" />
-      {unreadCount > 0 ? (
+      {upcomingCount > 0 ? (
         <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#10b981] px-1 text-[10px] font-bold leading-none text-white">
-          {unreadCount > 9 ? "9+" : unreadCount}
+          {upcomingCount > 9 ? "9+" : upcomingCount}
         </span>
       ) : null}
     </Link>
