@@ -8,13 +8,23 @@ import type { ScooterModel } from "@/types"
 
 const COLLECTION = "scooterModels"
 
+function resolveModelImageURL(imageURL: string | null | undefined): string | null {
+  if (!imageURL) return null
+
+  if (imageURL.startsWith("/assets/scooter-model-images/") && imageURL.toLowerCase().endsWith(".jpg")) {
+    return imageURL.slice(0, -4) + ".png"
+  }
+
+  return imageURL
+}
+
 function docToScooterModel(id: string, data: FirebaseFirestore.DocumentData): ScooterModel {
   return {
     id,
     brandId: data["brandId"] as string,
     name: data["name"] as string,
     slug: data["slug"] as string,
-    imageURL: (data["imageURL"] as string | null) ?? null,
+    imageURL: resolveModelImageURL((data["imageURL"] as string | null) ?? null),
     specs: data["specs"] as ScooterModel["specs"],
     compatibleServices: (data["compatibleServices"] as string[]) ?? [],
     isActive: Boolean(data["isActive"]),
