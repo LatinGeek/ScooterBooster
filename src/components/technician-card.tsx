@@ -40,7 +40,9 @@ function formatUYU(amount: number): string {
 function getStartingPrice(technician: Technician, serviceId?: string): number | null {
   if (serviceId) {
     const servicePricing = technician.pricing[serviceId]?.basePrice
-    return Number.isFinite(servicePricing) ? servicePricing : null
+    return typeof servicePricing === "number" && Number.isFinite(servicePricing)
+      ? servicePricing
+      : null
   }
 
   const prices = Object.values(technician.pricing)
