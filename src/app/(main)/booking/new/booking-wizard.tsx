@@ -16,6 +16,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DisclaimerModal } from "@/components/disclaimer-modal"
+import { ScooterCard } from "@/components/scooter-card"
+import { TechnicianCard } from "@/components/technician-card"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, DEFAULT_SERVICE_FEE_AMOUNT } from "@/lib/pricing"
@@ -309,34 +311,14 @@ function StepScooter({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {visibleModels.map((model) => (
-                <button
+                <ScooterCard
                   key={model.id}
-                  onClick={() => onSelect(model.id)}
-                  className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
-                    selected === model.id
-                      ? "border-[#10b981] bg-[#d1fae5]"
-                      : "border-[#e5e7eb] bg-white"
-                  }`}
-                >
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
-                    <Image
-                      src={model.imageURL!}
-                      alt={`Foto del ${model.name}`}
-                      width={112}
-                      height={112}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-[#111827]">{model.name}</p>
-                    <p className="text-xs text-[#6b7280]">
-                      {model.specs.maxSpeed} km/h · {model.specs.range} km
-                    </p>
-                  </div>
-                  {selected === model.id && (
-                    <Check className="ml-auto h-5 w-5 shrink-0 text-[#10b981]" />
-                  )}
-                </button>
+                  model={model}
+                  brandName={selectedBrand?.name ?? ""}
+                  variant="compact"
+                  selected={selected === model.id}
+                  onSelect={() => onSelect(model.id)}
+                />
               ))}
             </div>
           </div>
@@ -437,46 +419,16 @@ function StepTechnician({
     <div>
       <h2 className="mb-4 text-xl font-semibold text-[#111827]">Elegi tu tecnico</h2>
       <div className="space-y-3">
-        {available.map((technician) => {
-          const pricing = service ? technician.pricing[service.id] : undefined
-          const { basePrice } = pricing ? calculatePricing(pricing.basePrice) : { basePrice: 0 }
-
-          return (
-            <button
-              key={technician.id}
-              onClick={() => onSelect(technician.id)}
-              className={`flex w-full cursor-pointer items-start gap-4 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
-                selected === technician.id
-                  ? "border-[#10b981] bg-[#d1fae5]"
-                  : "border-[#e5e7eb] bg-white"
-              }`}
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#10b981] text-lg font-bold text-white">
-                {technician.displayName.charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-[#111827]">{technician.displayName}</p>
-                  <span className="flex items-center gap-1 text-xs font-medium text-amber-500">
-                    ★ {technician.rating.toFixed(1)}
-                    <span className="font-normal text-[#9ca3af]">
-                      ({technician.reviewCount})
-                    </span>
-                  </span>
-                </div>
-                <p className="mt-0.5 truncate text-sm text-[#6b7280]">{technician.location}</p>
-                {pricing && (
-                  <p className="mt-1 text-sm font-semibold text-[#10b981]">
-                    Servicio tecnico {formatUYU(basePrice)}
-                  </p>
-                )}
-              </div>
-              {selected === technician.id && (
-                <Check className="h-5 w-5 shrink-0 text-[#10b981]" />
-              )}
-            </button>
-          )
-        })}
+        {available.map((technician) => (
+          <TechnicianCard
+            key={technician.id}
+            technician={technician}
+            variant="compact"
+            serviceId={service?.id}
+            selected={selected === technician.id}
+            onSelect={() => onSelect(technician.id)}
+          />
+        ))}
       </div>
       {available.length === 0 && (
         <p className="rounded-xl border border-[#e5e7eb] p-6 text-center text-[#6b7280]">

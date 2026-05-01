@@ -2,16 +2,20 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowRight, MapPin, Star, Wrench } from "lucide-react"
-import type { Technician } from "@/types"
+import { ArrowRight, Check, MapPin, Star, Wrench } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import type { Technician } from "@/types"
 
 interface TechnicianCardProps {
   technician: Technician
   distanceKm?: number | null
   href?: string
+  variant?: "full" | "compact"
+  selected?: boolean
+  onSelect?: (() => void) | null
+  serviceId?: string
 }
 
 function formatDistance(distanceKm: number): string {
@@ -25,7 +29,20 @@ function formatServiceLabel(serviceId: string): string {
     .join(" ")
 }
 
-function getStartingPrice(technician: Technician): number | null {
+function formatUYU(amount: number): string {
+  return new Intl.NumberFormat("es-UY", {
+    style: "currency",
+    currency: "UYU",
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
+
+function getStartingPrice(technician: Technician, serviceId?: string): number | null {
+  if (serviceId) {
+    const servicePricing = technician.pricing[serviceId]?.basePrice
+    return Number.isFinite(servicePricing) ? servicePricing : null
+  }
+
   const prices = Object.values(technician.pricing)
     .map((pricing) => pricing.basePrice)
     .filter((price) => Number.isFinite(price))
@@ -34,16 +51,62 @@ function getStartingPrice(technician: Technician): number | null {
   return Math.min(...prices)
 }
 
-export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardProps) {
+export function TechnicianCard({
+  technician,
+  distanceKm,
+  href,
+  variant = "full",
+  selected = false,
+  onSelect = null,
+  serviceId,
+}: TechnicianCardProps) {
   const router = useRouter()
   const technicianHref = href ?? `/technicians/${technician.slug}`
   const initials = technician.displayName
     .split(" ")
-    .map((n) => n[0])
+    .map((chunk) => chunk[0])
     .join("")
     .toUpperCase()
     .slice(0, 2)
-  const startingPrice = getStartingPrice(technician)
+  const startingPrice = getStartingPrice(technician, serviceId)
+
+  if (variant === "compact") {
+    return (
+      <button
+        type="button"
+        onClick={onSelect ?? (() => router.push(technicianHref))}
+        className={`flex w-full cursor-pointer items-start gap-4 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
+          selected ? "border-[#10b981] bg-[#d1fae5]" : "border-[#e5e7eb] bg-white"
+        }`}
+      >
+        <Avatar className="h-12 w-12 shrink-0 border border-[#d1d5db] bg-white">
+          {technician.photoURL ? (
+            <AvatarImage src={technician.photoURL} alt={technician.displayName} />
+          ) : null}
+          <AvatarFallback className="bg-[#10b981] font-semibold text-white">{initials}</AvatarFallback>
+        </Avatar>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold text-[#111827]">{technician.displayName}</p>
+            <span className="flex items-center gap-1 text-xs font-medium text-amber-500">
+              <Star className="h-3.5 w-3.5 fill-current" />
+              {technician.rating.toFixed(1)}
+              <span className="font-normal text-[#9ca3af]">({technician.reviewCount})</span>
+            </span>
+          </div>
+          <p className="mt-0.5 truncate text-sm text-[#6b7280]">{technician.location}</p>
+          {startingPrice !== null ? (
+            <p className="mt-1 text-sm font-semibold text-[#10b981]">
+              Servicio técnico {formatUYU(startingPrice)}
+            </p>
+          ) : null}
+        </div>
+
+        {selected ? <Check className="h-5 w-5 shrink-0 text-[#10b981]" /> : null}
+      </button>
+    )
+  }
 
   return (
     <Card
@@ -63,9 +126,9 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <Avatar className="h-16 w-16 flex-shrink-0 border-4 border-white shadow-sm">
-                {technician.photoURL && (
+                {technician.photoURL ? (
                   <AvatarImage src={technician.photoURL} alt={technician.displayName} />
-                )}
+                ) : null}
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
 
@@ -112,7 +175,7 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
 
           <div className="mt-4">
             <div className="inline-flex rounded-full border border-[#d1fae5] bg-[#f0fdf4] px-3 py-1.5 text-sm font-semibold text-[#047857]">
-              {startingPrice
+              {startingPrice !== null
                 ? `Servicio más accesible desde ${startingPrice} UYU`
                 : "Precio a consultar"}
             </div>
@@ -124,13 +187,13 @@ export function TechnicianCard({ technician, distanceKm, href }: TechnicianCardP
               Especialidades
             </div>
             <div className="flex flex-wrap gap-2">
-              {technician.services.slice(0, 3).map((serviceId) => (
+              {technician.services.slice(0, 3).map((item) => (
                 <Badge
-                  key={serviceId}
+                  key={item}
                   variant="secondary"
                   className="rounded-full border border-[#d1fae5] bg-[#f0fdf4] px-2.5 py-1 text-[11px] font-semibold text-[#047857]"
                 >
-                  {formatServiceLabel(serviceId)}
+                  {formatServiceLabel(item)}
                 </Badge>
               ))}
               {technician.services.length > 3 ? (

@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Battery, ChevronRight, Route, Zap } from "lucide-react"
+import { Battery, Check, ChevronRight, Route, Zap } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { ScooterModel } from "@/types"
@@ -8,11 +8,58 @@ import type { ScooterModel } from "@/types"
 interface ScooterCardProps {
   model: ScooterModel
   brandName: string
+  variant?: "full" | "compact"
+  href?: string
+  selected?: boolean
+  onSelect?: (() => void) | null
 }
 
-export function ScooterCard({ model, brandName }: ScooterCardProps) {
+export function ScooterCard({
+  model,
+  brandName,
+  variant = "full",
+  href,
+  selected = false,
+  onSelect = null,
+}: ScooterCardProps) {
+  const scooterHref = href ?? `/scooters/${model.slug}`
+
+  if (variant === "compact") {
+    return (
+      <button
+        type="button"
+        onClick={onSelect ?? undefined}
+        className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
+          selected ? "border-[#10b981] bg-[#d1fae5]" : "border-[#e5e7eb] bg-white"
+        }`}
+      >
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
+          {model.imageURL ? (
+            <Image
+              src={model.imageURL}
+              alt={`Foto del ${model.name}`}
+              width={112}
+              height={112}
+              className="h-full w-full object-contain"
+            />
+          ) : (
+            <Zap className="h-6 w-6 text-[#10b981]" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-[#111827]">{model.name}</p>
+          <p className="text-xs text-[#6b7280]">{brandName}</p>
+          <p className="mt-1 text-xs text-[#6b7280]">
+            {model.specs.maxSpeed} km/h · {model.specs.range} km
+          </p>
+        </div>
+        {selected ? <Check className="ml-auto h-5 w-5 shrink-0 text-[#10b981]" /> : null}
+      </button>
+    )
+  }
+
   return (
-    <Link href={`/scooters/${model.slug}`} className="block">
+    <Link href={scooterHref} className="block">
       <Card className="group cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
         <CardContent className="p-5">
           <div className="relative mb-4 overflow-hidden rounded-xl border border-[#e5e7eb] bg-[radial-gradient(circle_at_top,#ecfdf5,white_70%)]">
