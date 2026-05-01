@@ -31,7 +31,7 @@ export function RapidZoneControls({
   }
 
   return (
-    <div className="mt-3 flex flex-wrap gap-1.5">
+    <div className="mt-3 flex gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {presets.map((preset) => {
         const isActive =
           selectedNear === preset.slug || (selectedNear.length === 0 && selectedLocation === preset.label)
