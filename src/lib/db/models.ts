@@ -2,19 +2,56 @@
  * Firestore data access layer — scooterModels collection
  * Server-side only (uses Admin SDK)
  */
+import { existsSync, statSync } from "node:fs"
+import path from "node:path"
+
 import { adminDb } from "@/lib/firebase-admin"
 import { slugify } from "@/lib/slugs"
 import type { ScooterModel } from "@/types"
 
 const COLLECTION = "scooterModels"
+const LOCAL_MODEL_IMAGE_PREFIX = "/assets/scooter-model-images/"
+const localModelImageCache = new Map<string, string | null>()
+
+function buildVersionedLocalAssetURL(assetURL: string, assetPath: string): string {
+  return `${assetURL}?v=${statSync(assetPath).mtimeMs.toFixed(0)}`
+}
 
 function resolveModelImageURL(imageURL: string | null | undefined): string | null {
   if (!imageURL) return null
 
-  if (imageURL.startsWith("/assets/scooter-model-images/") && imageURL.toLowerCase().endsWith(".jpg")) {
-    return imageURL.slice(0, -4) + ".png"
+  if (!imageURL.startsWith(LOCAL_MODEL_IMAGE_PREFIX)) {
+    return imageURL
   }
 
+  const extension = path.extname(imageURL)
+  if (!extension) return imageURL
+
+  const basePath = imageURL.slice(0, -extension.length)
+  const cached = localModelImageCache.get(basePath)
+  if (cached !== undefined) {
+    return cached ?? imageURL
+  }
+
+  const cleanAssetURL = `${basePath}.clean.png`
+  const cleanAssetPath = path.join(process.cwd(), "public", cleanAssetURL.replace(/^\//, "").replaceAll("/", path.sep))
+  if (existsSync(cleanAssetPath)) {
+    const versionedURL = buildVersionedLocalAssetURL(cleanAssetURL, cleanAssetPath)
+    localModelImageCache.set(basePath, versionedURL)
+    return versionedURL
+  }
+
+  if (extension.toLowerCase() === ".jpg") {
+    const pngAssetURL = `${basePath}.png`
+    const pngAssetPath = path.join(process.cwd(), "public", pngAssetURL.replace(/^\//, "").replaceAll("/", path.sep))
+    if (existsSync(pngAssetPath)) {
+      const versionedURL = buildVersionedLocalAssetURL(pngAssetURL, pngAssetPath)
+      localModelImageCache.set(basePath, versionedURL)
+      return versionedURL
+    }
+  }
+
+  localModelImageCache.set(basePath, null)
   return imageURL
 }
 
