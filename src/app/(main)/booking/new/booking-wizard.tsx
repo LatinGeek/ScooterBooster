@@ -71,10 +71,10 @@ function getBrandLogoBackground(brand: ScooterBrand) {
 const DAY_LABELS: Record<string, string> = {
   monday: "Lunes",
   tuesday: "Martes",
-  wednesday: "Miercoles",
+  wednesday: "Miércoles",
   thursday: "Jueves",
   friday: "Viernes",
-  saturday: "Sabado",
+  saturday: "Sábado",
   sunday: "Domingo",
 }
 
@@ -417,7 +417,7 @@ function StepTechnician({
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Elegi tu tecnico</h2>
+      <h2 className="mb-4 text-xl font-semibold text-[#111827]">Elegí tu técnico</h2>
       <div className="space-y-3">
         {available.map((technician) => (
           <TechnicianCard
@@ -432,7 +432,7 @@ function StepTechnician({
       </div>
       {available.length === 0 && (
         <p className="rounded-xl border border-[#e5e7eb] p-6 text-center text-[#6b7280]">
-          No hay tecnicos disponibles para esta combinacion de servicio y scooter.
+          No hay técnicos disponibles para esta combinación de servicio y scooter.
         </p>
       )}
     </div>
@@ -503,7 +503,7 @@ function StepDateTime({
       {technician && availabilityEntries.length > 0 && (
         <div className="mb-4 rounded-lg border border-[#e5e7eb] bg-[#f9fafb] p-4">
           <p className="mb-2 text-sm font-semibold text-[#374151]">
-            Disponibilidad del tecnico
+            Disponibilidad del técnico
           </p>
           <ul className="space-y-1">
             {availabilityEntries.map(([day, avail]) => (
@@ -617,12 +617,12 @@ function StepConfirm({
       <div className="divide-y divide-[#e5e7eb] rounded-xl border border-[#e5e7eb] bg-white">
         <Row label="Scooter" value={model?.name ?? "-"} />
         <Row label="Servicio" value={service?.name ?? "-"} />
-        <Row label="Tecnico" value={technician?.displayName ?? "-"} />
+        <Row label="Técnico" value={technician?.displayName ?? "-"} />
         <Row label="Fecha y hora" value={scheduled} />
         {wizardState.notes && <Row label="Notas" value={wizardState.notes} />}
         <div className="px-4 py-3">
           <div className="flex justify-between text-sm text-[#6b7280]">
-            <span>Pago al tecnico</span>
+            <span>Pago al técnico</span>
             <span>{formatUYU(basePrice)}</span>
           </div>
           <div className="flex justify-between text-sm text-[#6b7280]">
@@ -635,7 +635,7 @@ function StepConfirm({
           </div>
           <p className="mt-3 text-xs text-[#6b7280]">
             Pagas {formatUYU(serviceFee)} ahora para confirmar la reserva. Los{" "}
-            {formatUYU(basePrice)} del servicio se coordinan directamente con el tecnico.
+            {formatUYU(basePrice)} del servicio se coordinan directamente con el técnico.
           </p>
         </div>
       </div>

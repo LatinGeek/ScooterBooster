@@ -40,7 +40,7 @@ const statusLabels: Record<Booking["status"], string> = {
   in_progress: "En curso",
   completed: "Completada",
   cancelled_by_user: "Cancelada por usuario",
-  cancelled_by_technician: "Cancelada por tecnico",
+  cancelled_by_technician: "Cancelada por técnico",
   expired: "Vencida",
 }
 
@@ -162,7 +162,7 @@ export function AdminBookingsClient({ bookings: initialBookings, users, technici
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Buscar por usuario, tecnico, servicio, scooter o ID"
+            placeholder="Buscar por usuario, técnico, servicio, scooter o ID"
             className="pl-10"
           />
         </div>

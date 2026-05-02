@@ -183,14 +183,14 @@ export function TechnicianProfileClient({ tech }: Props) {
         <div>
           <h1 className="text-2xl font-bold text-[#111827]">Perfil profesional</h1>
           <p className="mt-1 max-w-2xl text-sm text-[#6b7280]">
-            Ajusta la informacion que ven los clientes en tu ficha publica. Los servicios y la
+            Ajusta la información que ven los clientes en tu ficha pública. Los servicios y la
             disponibilidad se gestionan por separado para que este perfil quede bien enfocado.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/technicians/${tech.id}`}>Ver ficha publica</Link>
+            <Link href={`/technicians/${tech.id}`}>Ver ficha pública</Link>
           </Button>
           <Button variant="outline" asChild>
             <Link href="/dashboard/technician/services">Editar servicios</Link>
@@ -207,7 +207,7 @@ export function TechnicianProfileClient({ tech }: Props) {
       {saved && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-[#a7f3d0] bg-[#d1fae5] px-4 py-3 text-sm text-[#065f46]">
           <CheckCircle className="h-4 w-4" />
-          Perfil tecnico guardado correctamente.
+          Perfil técnico guardado correctamente.
         </div>
       )}
 

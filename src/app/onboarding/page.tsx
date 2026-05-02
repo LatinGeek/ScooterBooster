@@ -39,7 +39,7 @@ export default function OnboardingPage() {
       newErrors.fullName = "El nombre debe tener al menos 2 caracteres."
     }
     if (!PHONE_REGEX.test(phone)) {
-      newErrors.phone = "El telefono debe tener formato +598XXXXXXXX (ej: +59899123456)."
+      newErrors.phone = "El teléfono debe tener formato +598XXXXXXXX (ej: +59899123456)."
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0

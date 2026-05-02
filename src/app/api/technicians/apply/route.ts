@@ -13,16 +13,16 @@ import { sanitizePlainText } from "@/lib/sanitize"
 import { assertTrustedOrigin } from "@/lib/security"
 
 const applySchema = z.object({
-  bio: z.string().min(40, "Contanos un poco mas sobre tu experiencia").max(500),
-  services: z.array(z.string().min(1)).min(1, "Elegi al menos un servicio"),
-  supportedBrands: z.array(z.string().min(1)).min(1, "Elegi al menos una marca"),
+  bio: z.string().min(40, "Cuéntanos un poco más sobre tu experiencia").max(500),
+  services: z.array(z.string().min(1)).min(1, "Elegí al menos un servicio"),
+  supportedBrands: z.array(z.string().min(1)).min(1, "Elegí al menos una marca"),
   location: z.string().min(3, "Indicá tu zona de trabajo").max(100),
   whatsappNumber: z
     .string()
     .regex(/^598\d{8}$/, "WhatsApp debe tener formato 598XXXXXXXX (sin +)"),
   basePrice: z.coerce
     .number()
-    .int("El precio base debe ser un numero entero")
+    .int("El precio base debe ser un número entero")
     .min(500, "El precio base debe ser al menos $500")
     .max(20000, "El precio base no puede superar $20.000"),
 })
@@ -45,7 +45,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const session = await getSession()
   if (!session) throw new AuthError()
   if (session.role && session.role !== "user") {
-    throw new ForbiddenError("Solo usuarios pueden postularse como tecnicos")
+    throw new ForbiddenError("Solo usuarios pueden postularse como técnicos")
   }
 
   const existingTechnician = await getTechnicianByUserId(session.uid)
@@ -58,7 +58,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   })
 
   if (!parsed.success) {
-    throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos invalidos")
+    throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")
   }
 
   const userSnap = await adminDb.collection("users").doc(session.uid).get()
@@ -77,7 +77,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   if (!userData.phone) {
-    throw new ValidationError("Completa tu telefono en onboarding antes de postularte")
+    throw new ValidationError("Completa tu teléfono en onboarding antes de postularte")
   }
 
   const pricing = Object.fromEntries(

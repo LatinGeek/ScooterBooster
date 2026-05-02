@@ -223,7 +223,7 @@ describe("firestore.rules", () => {
     await seedDoc("users/user-1/notifications/notification-1", {
       type: "booking_confirmed",
       title: "Reserva confirmada",
-      body: "Tu tecnico confirmo la reserva.",
+      body: "Tu técnico confirmó la reserva.",
       href: "/booking/booking-1",
       readAt: null,
       createdAt: "2026-04-20T00:00:00.000Z",

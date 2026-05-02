@@ -39,10 +39,10 @@ const SERVICE_ICONS: Record<string, React.ElementType> = {
 const DAY_LABELS: Record<string, string> = {
   monday: "Lunes",
   tuesday: "Martes",
-  wednesday: "Miercoles",
+  wednesday: "Miércoles",
   thursday: "Jueves",
   friday: "Viernes",
-  saturday: "Sabado",
+  saturday: "Sábado",
   sunday: "Domingo",
 }
 
@@ -132,7 +132,7 @@ export default async function TechnicianDetailPage({
     ? getDistanceToTechnician(technician, latitude, longitude)
     : null
   const distanceContextLabel =
-    near === "mi-ubicacion" ? "tu ubicacion" : (searchPreset?.label ?? location ?? null)
+    near === "mi-ubicacion" ? "tu ubicación" : (searchPreset?.label ?? location ?? null)
   const brandNames = new Map(brands.map((brand) => [brand.id, brand.name]))
 
   const localBusinessJsonLd = {
@@ -188,7 +188,7 @@ export default async function TechnicianDetailPage({
           className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-[#6b7280] transition-colors hover:text-[#10b981]"
         >
           <ChevronLeft className="h-4 w-4" />
-          Volver a tecnicos
+          Volver a técnicos
         </Link>
       </nav>
 
@@ -219,7 +219,7 @@ export default async function TechnicianDetailPage({
               <span className="text-sm font-semibold text-[#111827]">
                 {technician.rating.toFixed(1)}
               </span>
-              <span className="text-sm text-[#9ca3af]">({technician.reviewCount} resenas)</span>
+              <span className="text-sm text-[#9ca3af]">({technician.reviewCount} reseñas)</span>
             </div>
           </div>
 
@@ -243,7 +243,7 @@ export default async function TechnicianDetailPage({
               <div>
                 <h2 className="text-xl font-bold text-[#111827]">Servicios y precios</h2>
                 <p className="mt-1 text-sm text-[#6b7280]">
-                  Perfil publico con servicios activos y precios base publicados por el tecnico.
+                  Perfil público con servicios activos y precios base publicados por el técnico.
                 </p>
               </div>
             </div>
@@ -283,10 +283,10 @@ export default async function TechnicianDetailPage({
 
           <section>
             <h2 className="mb-4 text-xl font-bold text-[#111827]">
-              Resenas <span className="text-base font-normal text-[#9ca3af]">({reviews.length})</span>
+              Reseñas <span className="text-base font-normal text-[#9ca3af]">({reviews.length})</span>
             </h2>
             {reviews.length === 0 ? (
-              <p className="text-sm text-[#9ca3af]">Aun no hay resenas para este tecnico.</p>
+              <p className="text-sm text-[#9ca3af]">Aún no hay reseñas para este técnico.</p>
             ) : (
               <div className="space-y-3">
                 {reviews.map((review) => (
@@ -299,7 +299,7 @@ export default async function TechnicianDetailPage({
 
         <div className="space-y-6">
           <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-[#111827]">Ubicacion aproximada</h2>
+            <h2 className="mb-4 text-base font-bold text-[#111827]">Ubicación aproximada</h2>
             <div className="space-y-3 text-sm text-[#4b5563]">
               <div className="flex items-start gap-3">
                 <MapPinned className="mt-0.5 h-4 w-4 text-[#10b981]" />
@@ -308,7 +308,7 @@ export default async function TechnicianDetailPage({
                   <p className="mt-1 text-[#6b7280]">
                     {locationPreset
                       ? `Zona estimada: ${locationPreset.label}.`
-                      : "La ubicacion publica se muestra de forma aproximada por privacidad."}
+                      : "La ubicación pública se muestra de forma aproximada por privacidad."}
                   </p>
                 </div>
               </div>

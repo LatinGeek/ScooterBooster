@@ -75,7 +75,7 @@ export function ApplyForm({
       const json = (await response.json()) as { success: boolean; error?: string }
 
       if (!response.ok || !json.success) {
-        setError(json.error ?? "No pudimos enviar tu postulacion. Intenta de nuevo.")
+        setError(json.error ?? "No pudimos enviar tu postulación. Intenta de nuevo.")
         return
       }
 
@@ -87,7 +87,7 @@ export function ApplyForm({
       router.replace("/technicians/apply?submitted=1")
       router.refresh()
     } catch {
-      setError("Error de conexion. Revisa tu internet e intenta otra vez.")
+      setError("Error de conexión. Revisa tu internet e intenta otra vez.")
     } finally {
       setSubmitting(false)
     }
@@ -101,13 +101,13 @@ export function ApplyForm({
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#065f46]">Ya sos tecnico aprobado</h2>
+            <h2 className="text-2xl font-bold text-[#065f46]">Ya sos técnico aprobado</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#047857]">
               Tu perfil ya esta activo en el catalogo. Desde el dashboard podes editar servicios,
               disponibilidad y gestionar reservas.
             </p>
             <Button asChild className="mt-5">
-              <a href="/dashboard/technician">Ir al dashboard tecnico</a>
+              <a href="/dashboard/technician">Ir al dashboard técnico</a>
             </Button>
           </div>
         </div>
@@ -123,7 +123,7 @@ export function ApplyForm({
             <Wrench className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#111827]">Tu postulacion ya fue enviada</h2>
+            <h2 className="text-2xl font-bold text-[#111827]">Tu postulación ya fue enviada</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">
               Estamos revisando tu solicitud para aparecer en el catalogo. Mientras tanto, dejamos
               guardados tus servicios, marcas y datos de contacto para que el equipo admin los

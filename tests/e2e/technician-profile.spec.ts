@@ -36,12 +36,12 @@ test.describe("technician profile management", () => {
       .locator("#bio")
       .first()
       .fill(
-        "Tecnico especializado en firmware, mantenimiento preventivo y diagnostico rapido para scooters urbanos en Montevideo."
+        "Técnico especializado en firmware, mantenimiento preventivo y diagnóstico rápido para scooters urbanos en Montevideo."
       )
     await page.locator("#location").first().fill("Punta Carretas, Montevideo")
     await page.getByRole("button", { name: "Guardar perfil" }).click()
 
-    await expect(page.getByText("Perfil tecnico guardado correctamente.")).toBeVisible()
+    await expect(page.getByText("Perfil técnico guardado correctamente.")).toBeVisible()
     await expect(page.getByText("Carlos Perfil Premium")).toBeVisible()
     await expect(page.locator("aside").getByText("Punta Carretas, Montevideo").first()).toBeVisible()
   })
