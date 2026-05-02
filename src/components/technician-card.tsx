@@ -98,6 +98,11 @@ export function TechnicianCard({
             </span>
           </div>
           <p className="mt-0.5 truncate text-sm text-[#6b7280]">{technician.location}</p>
+          {distanceKm !== null && distanceKm !== undefined ? (
+            <p className="mt-1 text-xs font-medium text-[#0f766e]">
+              A {formatDistance(distanceKm)} km de tu ubicacion
+            </p>
+          ) : null}
           {startingPrice !== null ? (
             <p className="mt-1 text-sm font-semibold text-[#10b981]">
               Servicio técnico {formatUYU(startingPrice)}

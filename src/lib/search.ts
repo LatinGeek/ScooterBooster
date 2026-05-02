@@ -2,12 +2,14 @@ import { getActiveBrands } from "@/lib/db/brands"
 import { getActiveModels } from "@/lib/db/models"
 import { getActiveServices } from "@/lib/db/services"
 import { getActiveTechnicians } from "@/lib/db/technicians"
+import { getDistanceToTechnician } from "@/lib/technician-location"
 import {
-  haversineDistanceKm,
   matchUruguayLocation,
   type UruguayLocationPreset,
 } from "@/lib/uruguay-locations"
 import type { ScooterModel, Service, Technician } from "@/types"
+
+export { getDistanceToTechnician } from "@/lib/technician-location"
 
 export interface TechnicianSearchFilters {
   query?: string
@@ -69,19 +71,6 @@ function getRelevantPrices(technician: Technician, serviceIds: string[]): number
 
 export function getTechnicianLocationPreset(technician: Technician): UruguayLocationPreset | null {
   return matchUruguayLocation(technician.location)
-}
-
-export function getDistanceToTechnician(
-  technician: Technician,
-  latitude?: number,
-  longitude?: number
-): number | null {
-  if (latitude === undefined || longitude === undefined) return null
-
-  const preset = getTechnicianLocationPreset(technician)
-  if (!preset) return null
-
-  return haversineDistanceKm(latitude, longitude, preset.latitude, preset.longitude)
 }
 
 export async function searchTechnicians(

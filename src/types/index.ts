@@ -24,6 +24,10 @@ export interface Technician {
   phone: string
   whatsappNumber: string
   location: string
+  coordinates?: {
+    lat: number
+    lng: number
+  } | null
   services: string[]
   supportedBrands: string[]
   availability: Record<string, DayAvailability>

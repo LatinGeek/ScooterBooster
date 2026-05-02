@@ -9,6 +9,7 @@ import { initializeApp, cert, getApps } from "firebase-admin/app"
 import { getFirestore, Timestamp } from "firebase-admin/firestore"
 import * as dotenv from "dotenv"
 import * as path from "path"
+import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") })
 
@@ -1017,6 +1018,7 @@ async function seedDemoTechnicians() {
       .doc(id)
       .set({
         ...data,
+        coordinates: getCoordinatesForLocation(data.location),
         normalizedLocation: normalizeSearchText(data.location),
         searchTokens: buildSearchTokens(
           data.displayName,

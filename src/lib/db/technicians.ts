@@ -7,6 +7,7 @@ import { adminDb } from "@/lib/firebase-admin"
 import { getBrandById } from "@/lib/db/brands"
 import { getServicesByIds } from "@/lib/db/services"
 import { slugify } from "@/lib/slugs"
+import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
 import type { Technician } from "@/types"
 
 const COLLECTION = "technicians"
@@ -48,6 +49,16 @@ function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Tech
     phone: data["phone"] as string,
     whatsappNumber: data["whatsappNumber"] as string,
     location: data["location"] as string,
+    coordinates:
+      data["coordinates"] &&
+      typeof data["coordinates"] === "object" &&
+      typeof data["coordinates"].lat === "number" &&
+      typeof data["coordinates"].lng === "number"
+        ? {
+            lat: data["coordinates"].lat as number,
+            lng: data["coordinates"].lng as number,
+          }
+        : null,
     services: (data["services"] as string[]) ?? [],
     supportedBrands: (data["supportedBrands"] as string[]) ?? [],
     availability: (data["availability"] as Technician["availability"]) ?? {},
@@ -192,6 +203,7 @@ export interface UpdateTechnicianInput {
   phone?: string
   whatsappNumber?: string
   location?: string
+  coordinates?: Technician["coordinates"]
   services?: string[]
   supportedBrands?: string[]
   availability?: Technician["availability"]
@@ -208,6 +220,7 @@ export interface CreateTechnicianApplicationInput {
   phone: string
   whatsappNumber: string
   location: string
+  coordinates?: Technician["coordinates"]
   services: string[]
   supportedBrands: string[]
   pricing: Technician["pricing"]
@@ -235,6 +248,7 @@ export async function createTechnicianApplication(
       phone: input.phone,
       whatsappNumber: input.whatsappNumber,
       location: input.location,
+      coordinates: input.coordinates ?? getCoordinatesForLocation(input.location),
       services: input.services,
       supportedBrands: input.supportedBrands,
       availability: input.availability,
@@ -275,6 +289,7 @@ export async function updateTechnicianProfile(
     "phone",
     "whatsappNumber",
     "location",
+    "coordinates",
     "services",
     "supportedBrands",
     "availability",
@@ -301,6 +316,8 @@ export async function updateTechnicianProfile(
     const displayName = input.displayName ?? existing.displayName
     const bio = input.bio ?? existing.bio
     const location = input.location ?? existing.location
+    const coordinates =
+      input.coordinates !== undefined ? input.coordinates : getCoordinatesForLocation(location)
     const services = input.services ?? existing.services
     const supportedBrands = input.supportedBrands ?? existing.supportedBrands
 
@@ -310,6 +327,7 @@ export async function updateTechnicianProfile(
     ])
 
     updates["normalizedLocation"] = normalizeSearchText(location)
+    updates["coordinates"] = coordinates
     updates["slug"] = slugify(displayName)
     updates["searchTokens"] = buildSearchTokens(
       displayName,

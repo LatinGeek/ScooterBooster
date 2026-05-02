@@ -1,7 +1,8 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import Image from "next/image"
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Bike,
@@ -10,19 +11,43 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
+  List,
   Loader2,
+  Map,
+  MapPin,
   User,
   Wrench,
 } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { DisclaimerModal } from "@/components/disclaimer-modal"
 import { ScooterCard } from "@/components/scooter-card"
 import { TechnicianCard } from "@/components/technician-card"
+import { useGeolocation } from "@/hooks/use-geolocation"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, DEFAULT_SERVICE_FEE_AMOUNT } from "@/lib/pricing"
 import { slugify } from "@/lib/slugs"
+import { getDistanceToTechnician } from "@/lib/technician-location"
+import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
+import { cn } from "@/lib/utils"
 import type { ScooterBrand, ScooterModel, Service, Technician } from "@/types"
+import {
+  TechnicianSortBar,
+  type TechnicianSortKey,
+} from "./technician-sort-bar"
+
+const TechnicianMap = dynamic(
+  () => import("@/components/technician-map").then((module) => module.TechnicianMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[60vh] min-h-[24rem] items-center justify-center rounded-[1.75rem] border border-[#dbe4ea] bg-[#f8fafc] text-sm font-medium text-[#6b7280]">
+        Cargando mapa de tecnicos...
+      </div>
+    ),
+  }
+)
 
 interface WizardState {
   scooterModelId: string
@@ -396,7 +421,7 @@ function StepService({
   )
 }
 
-function StepTechnician({
+export function LegacyStepTechnician({
   technicians,
   service,
   scooterModel,
@@ -434,6 +459,284 @@ function StepTechnician({
         <p className="rounded-xl border border-[#e5e7eb] p-6 text-center text-[#6b7280]">
           No hay técnicos disponibles para esta combinación de servicio y scooter.
         </p>
+      )}
+    </div>
+  )
+}
+
+function StepTechnician({
+  technicians,
+  service,
+  scooterModel,
+  selected,
+  onSelect,
+}: {
+  technicians: Technician[]
+  service: Service | undefined
+  scooterModel: ScooterModel | undefined
+  selected: string
+  onSelect: (id: string) => void
+}) {
+  const geolocation = useGeolocation()
+  const [sortKey, setSortKey] = useState<TechnicianSortKey>("rating")
+  const [viewMode, setViewMode] = useState<"list" | "map">(() => {
+    if (typeof window === "undefined") return "list"
+
+    const storedView = window.localStorage.getItem("sb:booking-technician-view")
+    return storedView === "map" ? "map" : "list"
+  })
+
+  const hasUserLocation = geolocation.lat !== null && geolocation.lng !== null
+  const userLocation =
+    geolocation.lat !== null && geolocation.lng !== null
+      ? { lat: geolocation.lat, lng: geolocation.lng }
+      : null
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    window.localStorage.setItem("sb:booking-technician-view", viewMode)
+  }, [viewMode])
+
+  useEffect(() => {
+    if (geolocation.error) {
+      toast.error("No pudimos acceder a tu ubicacion")
+    }
+  }, [geolocation.error])
+
+  const available = useMemo(
+    () =>
+      technicians.filter((technician) => {
+        if (service && !technician.services.includes(service.id)) return false
+        if (scooterModel && !technician.supportedBrands.includes(scooterModel.brandId)) return false
+        return true
+      }),
+    [technicians, service, scooterModel]
+  )
+
+  useEffect(() => {
+    if (available.length === 1 && selected !== available[0]?.id) {
+      onSelect(available[0]!.id)
+    }
+  }, [available, onSelect, selected])
+
+  const techniciansWithDistance = useMemo(
+    () =>
+      available.map((technician) => ({
+        ...technician,
+        distanceKm: hasUserLocation
+          ? getDistanceToTechnician(technician, geolocation.lat ?? undefined, geolocation.lng ?? undefined)
+          : null,
+      })),
+    [available, geolocation.lat, geolocation.lng, hasUserLocation]
+  )
+
+  const sortedTechnicians = useMemo(() => {
+    const next = [...techniciansWithDistance]
+
+    next.sort((left, right) => {
+      const leftPrices = Object.values(left.pricing).map((item) => item.basePrice)
+      const rightPrices = Object.values(right.pricing).map((item) => item.basePrice)
+      const leftPrice =
+        service && left.pricing[service.id]?.basePrice !== undefined
+          ? left.pricing[service.id]!.basePrice
+          : leftPrices.length > 0
+            ? Math.min(...leftPrices)
+            : Number.POSITIVE_INFINITY
+      const rightPrice =
+        service && right.pricing[service.id]?.basePrice !== undefined
+          ? right.pricing[service.id]!.basePrice
+          : rightPrices.length > 0
+            ? Math.min(...rightPrices)
+            : Number.POSITIVE_INFINITY
+
+      if (sortKey === "distance") {
+        if (left.distanceKm !== null && right.distanceKm !== null && left.distanceKm !== right.distanceKm) {
+          return left.distanceKm - right.distanceKm
+        }
+        if (left.distanceKm !== null && right.distanceKm === null) return -1
+        if (left.distanceKm === null && right.distanceKm !== null) return 1
+      }
+
+      if (sortKey === "price" && leftPrice !== rightPrice) {
+        return leftPrice - rightPrice
+      }
+
+      if (sortKey === "reviewCount" && left.reviewCount !== right.reviewCount) {
+        return right.reviewCount - left.reviewCount
+      }
+
+      if (left.rating !== right.rating) return right.rating - left.rating
+      if (left.reviewCount !== right.reviewCount) return right.reviewCount - left.reviewCount
+      return leftPrice - rightPrice
+    })
+
+    return next
+  }, [service, sortKey, techniciansWithDistance])
+
+  const mappableTechnicians = useMemo(
+    () =>
+      sortedTechnicians.filter(
+        (technician) => (technician.coordinates ?? getCoordinatesForLocation(technician.location)) !== null
+      ),
+    [sortedTechnicians]
+  )
+
+  const unmappableTechnicians = useMemo(
+    () =>
+      sortedTechnicians.filter(
+        (technician) => (technician.coordinates ?? getCoordinatesForLocation(technician.location)) === null
+      ),
+    [sortedTechnicians]
+  )
+
+  async function handleRequestLocation() {
+    const coordinates = await geolocation.request()
+    if (coordinates) {
+      setSortKey("distance")
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 rounded-[1.75rem] border border-[#dbe4ea] bg-[linear-gradient(135deg,#f0fdf4_0%,#ffffff_62%,#ecfeff_100%)] p-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-[#111827]">Elegi tu tecnico</h2>
+            <p className="mt-1 text-sm text-[#6b7280]">
+              Compara reputacion, precio y cercania antes de reservar.
+            </p>
+          </div>
+
+          <div className="inline-flex rounded-full border border-[#d1d5db] bg-white p-1">
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                viewMode === "list" ? "bg-[#10b981] text-white" : "text-[#475569] hover:text-[#111827]"
+              )}
+            >
+              <List className="h-4 w-4" />
+              Lista
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("map")}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                viewMode === "map" ? "bg-[#10b981] text-white" : "text-[#475569] hover:text-[#111827]"
+              )}
+            >
+              <Map className="h-4 w-4" />
+              Mapa
+            </button>
+          </div>
+        </div>
+
+        <TechnicianSortBar
+          activeSort={sortKey}
+          canSortByDistance={hasUserLocation}
+          isLocating={geolocation.loading}
+          onRequestLocation={handleRequestLocation}
+          onSortChange={setSortKey}
+        />
+
+        {available.length === 1 ? (
+          <div className="rounded-2xl border border-[#d1fae5] bg-[#f0fdf4] px-4 py-3 text-sm font-medium text-[#047857]">
+            Solo un tecnico disponible para este servicio. Lo dejamos preseleccionado para que avances mas rapido.
+          </div>
+        ) : null}
+      </div>
+
+      {available.length === 0 ? (
+        <p className="rounded-xl border border-[#e5e7eb] p-6 text-center text-[#6b7280]">
+          No hay tecnicos disponibles para esta combinacion de servicio y scooter.
+        </p>
+      ) : viewMode === "list" ? (
+        <div className="space-y-3">
+          {sortedTechnicians.map((technician) => (
+            <TechnicianCard
+              key={technician.id}
+              technician={technician}
+              distanceKm={technician.distanceKm}
+              variant="compact"
+              serviceId={service?.id}
+              selected={selected === technician.id}
+              onSelect={() => onSelect(technician.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] md:items-start">
+            <div className="hidden max-h-[60vh] space-y-3 overflow-y-auto pr-1 md:block">
+              {mappableTechnicians.map((technician) => (
+                <TechnicianCard
+                  key={technician.id}
+                  technician={technician}
+                  distanceKm={technician.distanceKm}
+                  variant="compact"
+                  serviceId={service?.id}
+                  selected={selected === technician.id}
+                  onSelect={() => onSelect(technician.id)}
+                />
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              <TechnicianMap
+                technicians={mappableTechnicians}
+                selectedId={selected || null}
+                userLocation={userLocation}
+                onSelect={onSelect}
+              />
+
+              {selected ? (
+                <div className="md:hidden">
+                  {sortedTechnicians
+                    .filter((technician) => technician.id === selected)
+                    .map((technician) => (
+                      <div
+                        key={technician.id}
+                        className="fixed inset-x-4 bottom-4 z-30 rounded-[1.5rem] border border-[#dbe4ea] bg-white p-3 shadow-[0_25px_80px_-30px_rgba(15,23,42,0.45)]"
+                      >
+                        <TechnicianCard
+                          technician={technician}
+                          distanceKm={technician.distanceKm}
+                          variant="compact"
+                          serviceId={service?.id}
+                          selected
+                          onSelect={() => onSelect(technician.id)}
+                        />
+                      </div>
+                    ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {unmappableTechnicians.length > 0 ? (
+            <div className="rounded-[1.5rem] border border-[#e5e7eb] bg-white p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-[#94a3b8]" />
+                <p className="text-sm font-semibold text-[#111827]">Sin ubicacion en mapa</p>
+              </div>
+              <div className="space-y-3">
+                {unmappableTechnicians.map((technician) => (
+                  <TechnicianCard
+                    key={technician.id}
+                    technician={technician}
+                    distanceKm={technician.distanceKm}
+                    variant="compact"
+                    serviceId={service?.id}
+                    selected={selected === technician.id}
+                    onSelect={() => onSelect(technician.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
       )}
     </div>
   )

@@ -55,6 +55,7 @@ function normalizeLocationText(value: string): string {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
     .toLowerCase()
     .trim()
     .replace(/\s+/g, " ")
@@ -68,11 +69,38 @@ export function matchUruguayLocation(text: string): UruguayLocationPreset | null
   const normalizedText = normalizeLocationText(text)
   if (!normalizedText) return null
 
-  return (
-    URUGUAY_LOCATION_PRESETS.find((preset) =>
-      preset.aliases.some((alias) => normalizedText.includes(normalizeLocationText(alias)))
-    ) ?? null
-  )
+  let bestMatch: UruguayLocationPreset | null = null
+  let bestAliasLength = -1
+
+  for (const preset of URUGUAY_LOCATION_PRESETS) {
+    for (const alias of preset.aliases) {
+      const normalizedAlias = normalizeLocationText(alias)
+      if (!normalizedText.includes(normalizedAlias)) continue
+
+      if (normalizedAlias.length > bestAliasLength) {
+        bestMatch = preset
+        bestAliasLength = normalizedAlias.length
+      }
+    }
+  }
+
+  return bestMatch
+}
+
+export function getCoordinatesFromPreset(
+  preset: UruguayLocationPreset
+): { lat: number; lng: number } {
+  return {
+    lat: preset.latitude,
+    lng: preset.longitude,
+  }
+}
+
+export function getCoordinatesForLocation(
+  location: string
+): { lat: number; lng: number } | null {
+  const preset = matchUruguayLocation(location)
+  return preset ? getCoordinatesFromPreset(preset) : null
 }
 
 export function haversineDistanceKm(
