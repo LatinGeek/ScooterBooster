@@ -17,6 +17,16 @@ function buildVersionedLocalAssetURL(assetURL: string, assetPath: string): strin
   return `${assetURL}?v=${statSync(assetPath).mtimeMs.toFixed(0)}`
 }
 
+function buildLocalAssetPath(assetURL: string): string {
+  return path.join(process.cwd(), "public", assetURL.replace(/^\//, "").replaceAll("/", path.sep))
+}
+
+function resolveExistingLocalAsset(assetURL: string): string | null {
+  const assetPath = buildLocalAssetPath(assetURL)
+  if (!existsSync(assetPath)) return null
+  return buildVersionedLocalAssetURL(assetURL, assetPath)
+}
+
 function resolveModelImageURL(imageURL: string | null | undefined): string | null {
   if (!imageURL) return null
 
@@ -30,29 +40,13 @@ function resolveModelImageURL(imageURL: string | null | undefined): string | nul
   const basePath = imageURL.slice(0, -extension.length)
   const cached = localModelImageCache.get(basePath)
   if (cached !== undefined) {
-    return cached ?? imageURL
+    return cached
   }
 
-  const cleanAssetURL = `${basePath}.clean.png`
-  const cleanAssetPath = path.join(process.cwd(), "public", cleanAssetURL.replace(/^\//, "").replaceAll("/", path.sep))
-  if (existsSync(cleanAssetPath)) {
-    const versionedURL = buildVersionedLocalAssetURL(cleanAssetURL, cleanAssetPath)
-    localModelImageCache.set(basePath, versionedURL)
-    return versionedURL
-  }
-
-  if (extension.toLowerCase() === ".jpg") {
-    const pngAssetURL = `${basePath}.png`
-    const pngAssetPath = path.join(process.cwd(), "public", pngAssetURL.replace(/^\//, "").replaceAll("/", path.sep))
-    if (existsSync(pngAssetPath)) {
-      const versionedURL = buildVersionedLocalAssetURL(pngAssetURL, pngAssetPath)
-      localModelImageCache.set(basePath, versionedURL)
-      return versionedURL
-    }
-  }
-
-  localModelImageCache.set(basePath, null)
-  return imageURL
+  const pngAssetURL = `${basePath}.png`
+  const versionedURL = resolveExistingLocalAsset(pngAssetURL)
+  localModelImageCache.set(basePath, versionedURL)
+  return versionedURL
 }
 
 function docToScooterModel(id: string, data: FirebaseFirestore.DocumentData): ScooterModel {
