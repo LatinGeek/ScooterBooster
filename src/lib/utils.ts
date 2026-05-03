@@ -19,3 +19,14 @@ export function formatWhatsAppLink(phoneNumber: string, message: string): string
   const encodedMessage = encodeURIComponent(message)
   return `https://wa.me/${cleanNumber}?text=${encodedMessage}`
 }
+
+const SERVICE_LABELS: Record<string, string> = {
+  "speed-limit": "Deslimitación",
+  firmware: "Firmware",
+  "cruise-control": "Control de crucero",
+  maintenance: "Mantenimiento",
+}
+
+export function formatServiceLabel(serviceId: string): string {
+  return SERVICE_LABELS[serviceId] ?? serviceId
+}

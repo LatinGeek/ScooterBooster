@@ -6,6 +6,7 @@ import { ArrowRight, Check, MapPin, Star, Wrench } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { formatServiceLabel } from "@/lib/utils"
 import type { Technician } from "@/types"
 
 interface TechnicianCardProps {
@@ -20,13 +21,6 @@ interface TechnicianCardProps {
 
 function formatDistance(distanceKm: number): string {
   return distanceKm < 10 ? distanceKm.toFixed(1) : String(Math.round(distanceKm))
-}
-
-function formatServiceLabel(serviceId: string): string {
-  return serviceId
-    .split("-")
-    .map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
-    .join(" ")
 }
 
 function formatUYU(amount: number): string {
@@ -183,7 +177,7 @@ export function TechnicianCard({
           <div className="mt-4">
             <div className="inline-flex rounded-full border border-[#d1fae5] bg-[#f0fdf4] px-3 py-1.5 text-sm font-semibold text-[#047857]">
               {startingPrice !== null
-                ? `Servicio más accesible desde ${startingPrice} UYU`
+                ? `Servicios desde ${startingPrice} UYU`
                 : "Precio a consultar"}
             </div>
           </div>

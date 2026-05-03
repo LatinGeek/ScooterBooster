@@ -8,6 +8,7 @@
 import { initializeApp, cert, getApps } from "firebase-admin/app"
 import { getFirestore, Timestamp } from "firebase-admin/firestore"
 import * as dotenv from "dotenv"
+import { existsSync, readdirSync } from "node:fs"
 import * as path from "path"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
 
@@ -46,6 +47,42 @@ function buildSearchTokens(...values: Array<string | undefined | null>): string[
   }
 
   return [...tokens]
+}
+
+function toPublicAssetPath(assetURL: string): string {
+  return path.join(process.cwd(), "public", assetURL.replace(/^\//, "").replaceAll("/", path.sep))
+}
+
+function resolveSeedModelImageURL(imageURL: string | null): string | null {
+  if (!imageURL) return null
+
+  const extension = path.extname(imageURL)
+  if (!extension) {
+    return existsSync(toPublicAssetPath(imageURL)) ? imageURL : null
+  }
+
+  const directoryURL = path.posix.dirname(imageURL)
+  const basename = path.basename(imageURL, extension)
+  const refreshCandidate = `${directoryURL}/${basename}-refresh-20260502${extension}`
+
+  if (existsSync(toPublicAssetPath(refreshCandidate))) {
+    return refreshCandidate
+  }
+
+  if (existsSync(toPublicAssetPath(imageURL))) {
+    return imageURL
+  }
+
+  const directoryPath = toPublicAssetPath(directoryURL)
+  if (!existsSync(directoryPath)) return null
+
+  const matchedFilename = readdirSync(directoryPath).find((filename) => {
+    const candidateExtension = path.extname(filename)
+    const candidateBase = path.basename(filename, candidateExtension)
+    return candidateBase === `${basename}-refresh-20260502` || candidateBase === basename
+  })
+
+  return matchedFilename ? `${directoryURL}/${matchedFilename}` : null
 }
 
 // ─── SERVICE IDs (deterministic so we can reference them in models) ───────────
@@ -894,11 +931,19 @@ async function seedModels() {
 
   for (const model of models) {
     const { id, ...data } = model
+    const imageURL = resolveSeedModelImageURL(data.imageURL)
+
+    if (!imageURL) {
+      console.log(`  ⏭️  Skipping ${model.name} (no associated image found)`)
+      continue
+    }
+
     await db
       .collection("scooterModels")
       .doc(id)
       .set({
         ...data,
+        imageURL,
         searchTokens: buildSearchTokens(
           data.name,
           data.slug,
