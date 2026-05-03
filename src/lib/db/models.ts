@@ -11,6 +11,7 @@ import type { ScooterModel } from "@/types"
 
 const COLLECTION = "scooterModels"
 const LOCAL_MODEL_IMAGE_PREFIX = "/assets/scooter-model-images/"
+const LOCAL_MODEL_IMAGE_SUFFIX = "-refresh-20260502"
 const localModelImageCache = new Map<string, string | null>()
 
 function buildVersionedLocalAssetURL(assetURL: string, assetPath: string): string {
@@ -27,6 +28,18 @@ function resolveExistingLocalAsset(assetURL: string): string | null {
   return buildVersionedLocalAssetURL(assetURL, assetPath)
 }
 
+function buildLocalAssetCandidates(assetURL: string): string[] {
+  const extension = path.extname(assetURL)
+  if (!extension) return [assetURL]
+
+  const basePath = assetURL.slice(0, -extension.length)
+  if (basePath.endsWith(LOCAL_MODEL_IMAGE_SUFFIX)) {
+    return [assetURL]
+  }
+
+  return [`${basePath}${LOCAL_MODEL_IMAGE_SUFFIX}${extension}`, assetURL]
+}
+
 function resolveModelImageURL(imageURL: string | null | undefined): string | null {
   if (!imageURL) return null
 
@@ -37,15 +50,16 @@ function resolveModelImageURL(imageURL: string | null | undefined): string | nul
   const extension = path.extname(imageURL)
   if (!extension) return imageURL
 
-  const basePath = imageURL.slice(0, -extension.length)
-  const cached = localModelImageCache.get(basePath)
+  const cached = localModelImageCache.get(imageURL)
   if (cached !== undefined) {
     return cached
   }
 
-  const pngAssetURL = `${basePath}.png`
-  const versionedURL = resolveExistingLocalAsset(pngAssetURL)
-  localModelImageCache.set(basePath, versionedURL)
+  const versionedURL = buildLocalAssetCandidates(imageURL)
+    .map((candidateURL) => resolveExistingLocalAsset(candidateURL))
+    .find((candidateURL): candidateURL is string => candidateURL !== null) ?? null
+
+  localModelImageCache.set(imageURL, versionedURL)
   return versionedURL
 }
 
