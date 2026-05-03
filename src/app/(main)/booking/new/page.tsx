@@ -19,8 +19,7 @@ export default async function NewBookingPage() {
     getActiveServices(),
     getActiveTechnicians(),
   ])
-  const modelsWithImages = models.filter((model) => Boolean(model.imageURL))
-  const visibleBrandIds = new Set(modelsWithImages.map((model) => model.brandId))
+  const visibleBrandIds = new Set(models.map((model) => model.brandId))
   const brandsWithModels = brands.filter((brand) => visibleBrandIds.has(brand.id))
 
   return (
@@ -34,7 +33,7 @@ export default async function NewBookingPage() {
       <Suspense fallback={<WizardSkeleton />}>
         <BookingWizard
           brands={brandsWithModels}
-          models={modelsWithImages}
+          models={models}
           services={services}
           technicians={technicians}
         />

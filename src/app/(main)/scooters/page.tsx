@@ -16,10 +16,9 @@ export const metadata: Metadata = {
 
 export default async function ScootersPage() {
   const [brands, models] = await Promise.all([getActiveBrands(), getActiveModels()])
-  const modelsWithImages = models.filter((model) => Boolean(model.imageURL))
 
   // Group models by brandId
-  const modelsByBrand = modelsWithImages.reduce<Record<string, ScooterModel[]>>((acc, model) => {
+  const modelsByBrand = models.reduce<Record<string, ScooterModel[]>>((acc, model) => {
     const existing = acc[model.brandId] ?? []
     acc[model.brandId] = [...existing, model]
     return acc

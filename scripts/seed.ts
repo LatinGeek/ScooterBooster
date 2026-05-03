@@ -929,12 +929,15 @@ async function seedModels() {
     },
   ]
 
+  const skippedModelIds: string[] = []
+
   for (const model of models) {
     const { id, ...data } = model
     const imageURL = resolveSeedModelImageURL(data.imageURL)
 
     if (!imageURL) {
       console.log(`  ⏭️  Skipping ${model.name} (no associated image found)`)
+      skippedModelIds.push(id)
       continue
     }
 
@@ -952,6 +955,11 @@ async function seedModels() {
         ),
       })
     console.log(`  ✅ ${model.name}`)
+  }
+
+  for (const id of skippedModelIds) {
+    await db.collection("scooterModels").doc(id).delete()
+    console.log(`  Removed ${id} from scooterModels (no related image)`)
   }
 }
 
