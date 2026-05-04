@@ -74,9 +74,9 @@ export function AvailabilityEditor({
           return (
             <div
               key={key}
-              className="flex flex-col gap-3 rounded-xl border border-[#f3f4f6] p-3 sm:flex-row sm:items-center sm:justify-between"
+              className="grid gap-3 rounded-xl border border-[#f3f4f6] p-3 lg:grid-cols-[140px_minmax(0,1fr)] lg:items-center"
             >
-              <div className="flex items-center justify-between gap-3 sm:w-36 sm:justify-start">
+              <div className="flex items-center justify-between gap-3 lg:justify-start">
                 <span className={`text-sm font-medium ${day.isAvailable ? "text-[#111827]" : "text-[#9ca3af]"}`}>
                   {label}
                 </span>
@@ -97,30 +97,34 @@ export function AvailabilityEditor({
                 </button>
               </div>
 
-              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+              <div className="min-w-0">
                 {day.isAvailable ? (
-                  <>
-                    <label className="flex items-center gap-2 text-sm text-[#374151]">
-                      Desde
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="min-w-0 text-sm text-[#374151]">
+                      <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+                        Desde
+                      </span>
                       <input
                         type="time"
                         value={day.start}
                         onChange={(event) => setDay(key, { start: event.target.value })}
-                        className="rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-2 focus:ring-[#10b981]"
+                        className="block w-full min-w-0 rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-2 focus:ring-[#10b981]"
                       />
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-[#374151]">
-                      Hasta
+                    <label className="min-w-0 text-sm text-[#374151]">
+                      <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+                        Hasta
+                      </span>
                       <input
                         type="time"
                         value={day.end}
                         onChange={(event) => setDay(key, { end: event.target.value })}
-                          className="rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-2 focus:ring-[#10b981]"
+                        className="block w-full min-w-0 rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-2 focus:ring-[#10b981]"
                       />
                     </label>
-                  </>
+                  </div>
                 ) : (
-                  <span className="text-sm text-[#9ca3af]">No disponible</span>
+                  <span className="text-sm text-[#9ca3af] lg:text-right">No disponible</span>
                 )}
               </div>
             </div>
