@@ -277,7 +277,7 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(340px,0.88fr)_minmax(560px,1.18fr)]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(300px,0.72fr)_minmax(760px,1.45fr)] 2xl:grid-cols-[minmax(320px,0.7fr)_minmax(860px,1.55fr)]">
         <div className="space-y-4">
           <div className="relative rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
             <Search className="pointer-events-none absolute left-7 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />

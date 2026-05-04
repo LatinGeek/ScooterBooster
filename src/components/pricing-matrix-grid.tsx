@@ -274,15 +274,23 @@ export function PricingMatrixGrid({ services, models, brands, matrix, onChange }
                         </button>
 
                         {brandExpanded ? (
-                          <div className="grid gap-2 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                          <div className="space-y-2 p-4">
                             {brandModels.map((model) => {
                               const entry = normalizeEntry(row[model.id])
 
                               return (
-                                <div key={model.id} className="rounded-xl border border-[#e5e7eb] bg-white p-3">
-                                  <div className="mb-2 flex items-start justify-between gap-3">
-                                    <p className="text-sm font-medium leading-tight text-[#111827]">{model.name}</p>
-                                    <label className="flex items-center gap-2 text-xs font-medium text-[#374151]">
+                                <div
+                                  key={model.id}
+                                  className="rounded-xl border border-[#e5e7eb] bg-white px-3 py-2.5"
+                                >
+                                  <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                                    <div className="min-w-0 xl:w-[45%]">
+                                      <p className="text-sm font-medium leading-tight text-[#111827]">
+                                        {model.name}
+                                      </p>
+                                    </div>
+
+                                    <label className="flex items-center gap-2 text-xs font-medium text-[#374151] xl:w-[18%] xl:justify-center">
                                       <input
                                         type="checkbox"
                                         checked={entry.isAvailable}
@@ -295,31 +303,33 @@ export function PricingMatrixGrid({ services, models, brands, matrix, onChange }
                                       />
                                       Disponible
                                     </label>
-                                  </div>
 
-                                  {entry.isAvailable ? (
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs text-[#6b7280]">$</span>
-                                      <Input
-                                        type="number"
-                                        min={0}
-                                        step={50}
-                                        value={entry.price}
-                                        onChange={(event) =>
-                                          setCell(service.id, model.id, {
-                                            ...entry,
-                                            price: Number(event.target.value || 0),
-                                          })
-                                        }
-                                        className="h-9"
-                                      />
-                                      <span className="text-xs font-medium text-emerald-700">
-                                        {formatPrice(entry.price)}
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <p className="text-xs text-[#9ca3af]">Sin disponibilidad para este modelo.</p>
-                                  )}
+                                    {entry.isAvailable ? (
+                                      <div className="flex items-center gap-2 xl:w-[37%] xl:justify-end">
+                                        <span className="text-xs text-[#6b7280]">$</span>
+                                        <Input
+                                          type="number"
+                                          min={0}
+                                          step={50}
+                                          value={entry.price}
+                                          onChange={(event) =>
+                                            setCell(service.id, model.id, {
+                                              ...entry,
+                                              price: Number(event.target.value || 0),
+                                            })
+                                          }
+                                          className="h-9 max-w-28"
+                                        />
+                                        <span className="min-w-20 text-right text-xs font-medium text-emerald-700">
+                                          {formatPrice(entry.price)}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <p className="text-xs text-[#9ca3af] xl:w-[37%] xl:text-right">
+                                        Sin disponibilidad
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
                               )
                             })}
