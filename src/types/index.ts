@@ -28,6 +28,7 @@ export interface Technician {
     lat: number
     lng: number
   } | null
+  pricingMatrix?: Record<string, Record<string, TechnicianModelPricing>>
   services: string[]
   supportedBrands: string[]
   availability: Record<string, DayAvailability>
@@ -39,6 +40,7 @@ export interface Technician {
   applicationStatus?: "pending" | "approved" | "request_changes" | "rejected"
   moderationReason?: string | null
   moderatedAt?: string | null
+  deletedAt?: string | null
   normalizedLocation?: string
   searchTokens?: string[]
   createdAt: string
@@ -48,6 +50,12 @@ export interface Technician {
 export interface DayAvailability {
   start: string
   end: string
+  isAvailable: boolean
+}
+
+export interface TechnicianModelPricing {
+  price: number
+  currency: "UYU"
   isAvailable: boolean
 }
 

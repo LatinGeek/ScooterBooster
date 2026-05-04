@@ -3,6 +3,7 @@ import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { getTechnicianByUserId, updateTechnicianProfile } from "@/lib/db/technicians"
+import { safeRevalidateTag } from "@/lib/revalidate"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { sanitizeOptionalPlainText } from "@/lib/sanitize"
 import { assertTrustedOrigin } from "@/lib/security"
@@ -10,6 +11,12 @@ import { assertTrustedOrigin } from "@/lib/security"
 const dayAvailabilitySchema = z.object({
   start: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM requerido"),
   end: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM requerido"),
+  isAvailable: z.boolean(),
+})
+
+const technicianModelPricingSchema = z.object({
+  price: z.number().min(0),
+  currency: z.literal("UYU"),
   isAvailable: z.boolean(),
 })
 
@@ -29,6 +36,7 @@ const patchSchema = z.object({
   services: z.array(z.string()).optional(),
   supportedBrands: z.array(z.string()).optional(),
   availability: z.record(z.string(), dayAvailabilitySchema).optional(),
+  pricingMatrix: z.record(z.string(), z.record(z.string(), technicianModelPricingSchema)).optional(),
   pricing: z
     .record(
       z.string(),
@@ -73,5 +81,6 @@ export const PATCH = withErrorHandling(async (req: NextRequest) => {
   }
 
   const updated = await updateTechnicianProfile(tech.id, parsed.data)
+  safeRevalidateTag("technicians")
   return ok(updated)
 })

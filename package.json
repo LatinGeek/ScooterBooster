@@ -19,7 +19,8 @@
     "test:watch": "vitest",
     "test:rules": "firebase emulators:exec --only firestore \"vitest run --config vitest.rules.config.ts\"",
     "test:e2e": "playwright test",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "migrate:pricing-matrix": "tsx scripts/migrate-pricing-matrix.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

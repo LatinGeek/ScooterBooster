@@ -34,8 +34,17 @@ interface TechnicianDoc {
   phone: string
   whatsappNumber: string // Format: +598XXXXXXXX
   location: string // City/neighborhood
-  services: string[] // Array of service IDs
-  supportedBrands: string[] // Array of brand IDs
+  pricingMatrix: {
+    [serviceId: string]: {
+      [modelId: string]: {
+        price: number // In UYU
+        currency: "UYU"
+        isAvailable: boolean
+      }
+    }
+  }
+  services: string[] // Derived summary field for active service IDs
+  supportedBrands: string[] // Derived summary field for active brand IDs
   availability: {
     [day: string]: {
       // "monday", "tuesday", etc.
@@ -65,6 +74,8 @@ interface TechnicianDoc {
 - `services` (array-contains for filtering by service)
 - `supportedBrands` (array-contains for filtering by brand)
 - `rating` (descending, for sorting)
+
+> `pricingMatrix` is the primary source of truth. `services`, `supportedBrands`, and `pricing` are maintained as derived summary fields for query compatibility and backwards compatibility with older read paths.
 
 ### Collection: `scooterBrands`
 

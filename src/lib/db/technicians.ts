@@ -5,9 +5,11 @@
 import { unstable_cache as nextCache } from "next/cache"
 import { adminDb } from "@/lib/firebase-admin"
 import { getBrandById } from "@/lib/db/brands"
+import { getAllModels } from "@/lib/db/models"
 import { getServicesByIds } from "@/lib/db/services"
 import { slugify } from "@/lib/slugs"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
+import { deriveLegacyFieldsFromMatrix, normalizeMatrixInput } from "@/lib/technician-matrix"
 import type { Technician } from "@/types"
 
 const COLLECTION = "technicians"
@@ -32,6 +34,12 @@ function buildSearchTokens(...values: Array<string | undefined | null>): string[
   }
 
   return [...tokens]
+}
+
+async function buildLegacyFieldsFromMatrix(matrix: Technician["pricingMatrix"]) {
+  const modelDocs = await getAllModels()
+  const modelBrandMap = Object.fromEntries(modelDocs.map((model) => [model.id, model.brandId]))
+  return deriveLegacyFieldsFromMatrix(matrix, modelBrandMap)
 }
 
 function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Technician {
@@ -59,6 +67,9 @@ function docToTechnician(id: string, data: FirebaseFirestore.DocumentData): Tech
             lng: data["coordinates"].lng as number,
           }
         : null,
+    pricingMatrix: normalizeMatrixInput(
+      (data["pricingMatrix"] as Technician["pricingMatrix"]) ?? undefined
+    ),
     services: (data["services"] as string[]) ?? [],
     supportedBrands: (data["supportedBrands"] as string[]) ?? [],
     availability: (data["availability"] as Technician["availability"]) ?? {},
@@ -208,6 +219,7 @@ export interface UpdateTechnicianInput {
   supportedBrands?: string[]
   availability?: Technician["availability"]
   pricing?: Technician["pricing"]
+  pricingMatrix?: Technician["pricingMatrix"]
   isActive?: boolean
 }
 
@@ -225,15 +237,24 @@ export interface CreateTechnicianApplicationInput {
   supportedBrands: string[]
   pricing: Technician["pricing"]
   availability: Technician["availability"]
+  pricingMatrix?: Technician["pricingMatrix"]
 }
 
 export async function createTechnicianApplication(
   input: CreateTechnicianApplicationInput
 ): Promise<Technician> {
-  const serviceDocs = await getServicesByIds(input.services)
-  const brandDocs = await Promise.all(
-    input.supportedBrands.map((brandId) => getBrandById(brandId))
-  )
+  const matrix = normalizeMatrixInput(input.pricingMatrix)
+  const derivedFields = input.pricingMatrix !== undefined ? await buildLegacyFieldsFromMatrix(matrix) : null
+  const matrixFields = derivedFields ?? {
+    services: input.services,
+    supportedBrands: input.supportedBrands,
+    pricing: input.pricing,
+  }
+  const services = matrixFields.services
+  const supportedBrands = matrixFields.supportedBrands
+  const pricing = matrixFields.pricing
+  const serviceDocs = await getServicesByIds(services)
+  const brandDocs = await Promise.all(supportedBrands.map((brandId) => getBrandById(brandId)))
   const timestamp = new Date().toISOString()
 
   await adminDb
@@ -249,10 +270,11 @@ export async function createTechnicianApplication(
       whatsappNumber: input.whatsappNumber,
       location: input.location,
       coordinates: input.coordinates ?? getCoordinatesForLocation(input.location),
-      services: input.services,
-      supportedBrands: input.supportedBrands,
+      pricingMatrix: matrix,
+      services,
+      supportedBrands,
       availability: input.availability,
-      pricing: input.pricing,
+      pricing,
       rating: 0,
       reviewCount: 0,
       isApproved: false,
@@ -282,6 +304,11 @@ export async function updateTechnicianProfile(
   input: UpdateTechnicianInput
 ): Promise<Technician> {
   const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() }
+  const matrixProvided = input.pricingMatrix !== undefined
+  const normalizedMatrix = matrixProvided ? normalizeMatrixInput(input.pricingMatrix) : undefined
+  const derivedFields = matrixProvided ? await buildLegacyFieldsFromMatrix(normalizedMatrix) : null
+  const matrixFields = derivedFields ?? null
+
   const fields = [
     "displayName",
     "bio",
@@ -294,10 +321,19 @@ export async function updateTechnicianProfile(
     "supportedBrands",
     "availability",
     "pricing",
+    "pricingMatrix",
     "isActive",
   ] as const
   for (const f of fields) {
+    if (f === "pricingMatrix") continue
     if (input[f] !== undefined) updates[f] = input[f]
+  }
+
+  if (matrixProvided) {
+    updates["pricingMatrix"] = normalizedMatrix
+    updates["services"] = matrixFields!.services
+    updates["supportedBrands"] = matrixFields!.supportedBrands
+    updates["pricing"] = matrixFields!.pricing
   }
 
   const shouldRefreshSearchIndex =
@@ -305,7 +341,8 @@ export async function updateTechnicianProfile(
     input.bio !== undefined ||
     input.location !== undefined ||
     input.services !== undefined ||
-    input.supportedBrands !== undefined
+    input.supportedBrands !== undefined ||
+    matrixProvided
 
   if (shouldRefreshSearchIndex) {
     const existing = await getTechnicianById(id)
@@ -318,8 +355,10 @@ export async function updateTechnicianProfile(
     const location = input.location ?? existing.location
     const coordinates =
       input.coordinates !== undefined ? input.coordinates : getCoordinatesForLocation(location)
-    const services = input.services ?? existing.services
-    const supportedBrands = input.supportedBrands ?? existing.supportedBrands
+    const services = matrixProvided ? matrixFields!.services : input.services ?? existing.services
+    const supportedBrands = matrixProvided
+      ? matrixFields!.supportedBrands
+      : input.supportedBrands ?? existing.supportedBrands
 
     const [serviceDocs, brandDocs] = await Promise.all([
       getServicesByIds(services),

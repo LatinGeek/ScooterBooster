@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatServiceLabel } from "@/lib/utils"
+import { getTechnicianStartingPrice } from "@/lib/technician-matrix"
 import type { Technician } from "@/types"
 
 interface TechnicianCardProps {
@@ -17,6 +18,7 @@ interface TechnicianCardProps {
   selected?: boolean
   onSelect?: (() => void) | null
   serviceId?: string
+  scooterModelId?: string
 }
 
 function formatDistance(distanceKm: number): string {
@@ -31,22 +33,6 @@ function formatUYU(amount: number): string {
   }).format(amount)
 }
 
-function getStartingPrice(technician: Technician, serviceId?: string): number | null {
-  if (serviceId) {
-    const servicePricing = technician.pricing[serviceId]?.basePrice
-    return typeof servicePricing === "number" && Number.isFinite(servicePricing)
-      ? servicePricing
-      : null
-  }
-
-  const prices = Object.values(technician.pricing)
-    .map((pricing) => pricing.basePrice)
-    .filter((price) => Number.isFinite(price))
-
-  if (prices.length === 0) return null
-  return Math.min(...prices)
-}
-
 export function TechnicianCard({
   technician,
   distanceKm,
@@ -55,6 +41,7 @@ export function TechnicianCard({
   selected = false,
   onSelect = null,
   serviceId,
+  scooterModelId,
 }: TechnicianCardProps) {
   const router = useRouter()
   const technicianHref = href ?? `/technicians/${technician.slug}`
@@ -64,7 +51,7 @@ export function TechnicianCard({
     .join("")
     .toUpperCase()
     .slice(0, 2)
-  const startingPrice = getStartingPrice(technician, serviceId)
+  const startingPrice = getTechnicianStartingPrice(technician, serviceId, scooterModelId)
 
   if (variant === "compact") {
     return (

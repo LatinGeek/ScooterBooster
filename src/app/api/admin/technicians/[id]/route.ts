@@ -1,7 +1,7 @@
 ﻿import { NextRequest } from "next/server"
-import { revalidateTag } from "next/cache"
 import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
+import { getBookingsByTechnician } from "@/lib/db/bookings"
 import { getServiceById } from "@/lib/db/services"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
 import {
@@ -13,16 +13,29 @@ import {
 import { getUserById } from "@/lib/db/users"
 import { AuthError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { adminAuth } from "@/lib/firebase-admin"
+import { adminDb } from "@/lib/firebase-admin"
 import logger from "@/lib/logger"
 import { sendTechnicianApprovedEmail, sendTechnicianRejectedEmail } from "@/lib/notification-emails"
 import { sanitizeOptionalPlainText } from "@/lib/sanitize"
 import { getSession } from "@/lib/session"
 import { assertTrustedOrigin } from "@/lib/security"
+import { safeRevalidateTag } from "@/lib/revalidate"
 import type { Technician } from "@/types"
 
 const moderationSchema = z.object({
   action: z.enum(["approve", "reject", "request_changes"], { error: "Acción inválida" }),
   reason: z.string().max(500).optional(),
+})
+
+const deleteSchema = z.object({
+  action: z.literal("delete"),
+  hard: z.boolean().optional(),
+})
+
+const technicianModelPricingSchema = z.object({
+  price: z.number().min(0),
+  currency: z.literal("UYU"),
+  isAvailable: z.boolean(),
 })
 
 const overrideSchema = z.object({
@@ -35,10 +48,11 @@ const overrideSchema = z.object({
   location: z.string().max(100).optional(),
   services: z.array(z.string()).optional(),
   supportedBrands: z.array(z.string()).optional(),
+  pricingMatrix: z.record(z.string(), z.record(z.string(), technicianModelPricingSchema)).optional(),
   isActive: z.boolean().optional(),
 })
 
-const patchSchema = z.union([moderationSchema, overrideSchema])
+const patchSchema = z.union([moderationSchema, overrideSchema, deleteSchema])
 type TechnicianModerationResponse = {
   id: string
   isApproved: boolean
@@ -46,7 +60,16 @@ type TechnicianModerationResponse = {
   moderationReason: string | null
 }
 
-export const PATCH = withErrorHandling<Technician | TechnicianModerationResponse, [NextRequest, { params: Promise<{ id: string }> }]>(
+type TechnicianDeleteResponse = {
+  id: string
+  deleted: true
+  hard: boolean
+}
+
+export const PATCH = withErrorHandling<
+  Technician | TechnicianModerationResponse | TechnicianDeleteResponse,
+  [NextRequest, { params: Promise<{ id: string }> }]
+>(
   async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
     assertTrustedOrigin(req)
 
@@ -57,6 +80,7 @@ export const PATCH = withErrorHandling<Technician | TechnicianModerationResponse
     const { id } = await ctx.params
     const tech = await getTechnicianById(id)
     if (!tech) throw new NotFoundError("Técnico no encontrado")
+    const techRef = adminDb.collection("technicians").doc(id)
 
     const rawBody = (await req.json()) as Record<string, unknown>
     if (!["approve", "reject", "request_changes", "update"].includes(String(rawBody.action ?? ""))) {
@@ -80,10 +104,11 @@ export const PATCH = withErrorHandling<Technician | TechnicianModerationResponse
         location: parsed.data.location,
         services: parsed.data.services,
         supportedBrands: parsed.data.supportedBrands,
+        pricingMatrix: parsed.data.pricingMatrix,
         isActive: parsed.data.isActive,
       })
 
-      revalidateTag("technicians", { expire: 0 })
+      safeRevalidateTag("technicians")
       await addAuditLogEntry({
         action: "technician_profile_overridden",
         actorUid: session.uid,
@@ -99,6 +124,53 @@ export const PATCH = withErrorHandling<Technician | TechnicianModerationResponse
       return ok(updated)
     }
 
+    if (parsed.data.action === "delete") {
+      const bookings = await getBookingsByTechnician(id)
+      const activeBookings = bookings.filter((booking) =>
+        ["pending", "confirmed", "in_progress"].includes(booking.status),
+      )
+
+      if (activeBookings.length > 0) {
+        throw new ValidationError(
+          `No se puede eliminar este técnico porque tiene ${activeBookings.length} reserva${activeBookings.length !== 1 ? "s" : ""} activa${activeBookings.length !== 1 ? "s" : ""}.`,
+        )
+      }
+
+      const now = new Date().toISOString()
+      if (parsed.data.hard) {
+        if (bookings.length > 0) {
+          throw new ValidationError("No se puede hacer un borrado total porque el técnico ya tiene reservas registradas.")
+        }
+        await adminAuth.deleteUser(tech.userId)
+        await techRef.delete()
+      } else {
+        await techRef.update({
+          deletedAt: now,
+          isActive: false,
+          isApproved: false,
+          applicationStatus: "rejected",
+          updatedAt: now,
+        })
+        await adminAuth.updateUser(tech.userId, { disabled: true })
+      }
+
+      safeRevalidateTag("technicians")
+      await addAuditLogEntry({
+        action: parsed.data.hard ? "technician_hard_deleted" : "technician_deleted",
+        actorUid: session.uid,
+        targetType: "technician",
+        targetId: id,
+        metadata: {
+          userId: tech.userId,
+          hard: Boolean(parsed.data.hard),
+          totalBookings: bookings.length,
+          activeBookings: activeBookings.length,
+        },
+      })
+
+      return ok({ id, deleted: true, hard: Boolean(parsed.data.hard) })
+    }
+
     const isApproved = parsed.data.action === "approve"
     const rejectionReason = parsed.data.reason?.trim() || "Necesitamos revisar algunos datos antes de aprobar tu perfil."
 
@@ -112,7 +184,7 @@ export const PATCH = withErrorHandling<Technician | TechnicianModerationResponse
       await setTechnicianApproval(id, isApproved)
       await adminAuth.setCustomUserClaims(tech.userId, { role: isApproved ? "technician" : "user" })
     }
-    revalidateTag("technicians", { expire: 0 })
+    safeRevalidateTag("technicians")
 
     logger.info(
       { adminUid: session.uid, technicianId: id, action: parsed.data.action },

@@ -20,6 +20,24 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/technicians/$(technicianId)).data.userId == request.auth.uid;
     }
 
+    function technicianSelfUpdateAllowed() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        "displayName",
+        "bio",
+        "photoURL",
+        "phone",
+        "whatsappNumber",
+        "location",
+        "services",
+        "supportedBrands",
+        "availability",
+        "pricing",
+        "pricingMatrix",
+        "isActive",
+        "updatedAt",
+      ]);
+    }
+
     // Users: owner or admin can read; owners cannot read after soft-delete
     // (deletedAt field set). Hard-delete happens via Admin SDK (bypasses rules).
     match /users/{userId} {
@@ -58,6 +76,7 @@ service cloud.firestore {
           && request.resource.data.isApproved == resource.data.isApproved
           && request.resource.data.rating == resource.data.rating
           && request.resource.data.reviewCount == resource.data.reviewCount
+          && technicianSelfUpdateAllowed()
         );
       allow delete: if isAdmin();
     }

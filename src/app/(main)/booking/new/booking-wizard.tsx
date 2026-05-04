@@ -28,6 +28,11 @@ import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, DEFAULT_SERVICE_FEE_AMOUNT } from "@/lib/pricing"
 import { slugify } from "@/lib/slugs"
+import {
+  getPriceForBooking,
+  getTechnicianBookingPrice,
+  isTechnicianCompatibleForBooking,
+} from "@/lib/technician-matrix"
 import { getDistanceToTechnician } from "@/lib/technician-location"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
 import { cn } from "@/lib/utils"
@@ -435,9 +440,8 @@ export function LegacyStepTechnician({
   onSelect: (id: string) => void
 }) {
   const available = technicians.filter((technician) => {
-    if (service && !technician.services.includes(service.id)) return false
-    if (scooterModel && !technician.supportedBrands.includes(scooterModel.brandId)) return false
-    return true
+    if (!service || !scooterModel) return false
+    return isTechnicianCompatibleForBooking(technician, service.id, scooterModel.id, scooterModel.brandId)
   })
 
   return (
@@ -450,6 +454,7 @@ export function LegacyStepTechnician({
             technician={technician}
             variant="compact"
             serviceId={service?.id}
+            scooterModelId={scooterModel?.id}
             selected={selected === technician.id}
             onSelect={() => onSelect(technician.id)}
           />
@@ -506,9 +511,8 @@ function StepTechnician({
   const available = useMemo(
     () =>
       technicians.filter((technician) => {
-        if (service && !technician.services.includes(service.id)) return false
-        if (scooterModel && !technician.supportedBrands.includes(scooterModel.brandId)) return false
-        return true
+        if (!service || !scooterModel) return false
+        return isTechnicianCompatibleForBooking(technician, service.id, scooterModel.id, scooterModel.brandId)
       }),
     [technicians, service, scooterModel]
   )
@@ -534,20 +538,12 @@ function StepTechnician({
     const next = [...techniciansWithDistance]
 
     next.sort((left, right) => {
-      const leftPrices = Object.values(left.pricing).map((item) => item.basePrice)
-      const rightPrices = Object.values(right.pricing).map((item) => item.basePrice)
-      const leftPrice =
-        service && left.pricing[service.id]?.basePrice !== undefined
-          ? left.pricing[service.id]!.basePrice
-          : leftPrices.length > 0
-            ? Math.min(...leftPrices)
-            : Number.POSITIVE_INFINITY
-      const rightPrice =
-        service && right.pricing[service.id]?.basePrice !== undefined
-          ? right.pricing[service.id]!.basePrice
-          : rightPrices.length > 0
-            ? Math.min(...rightPrices)
-            : Number.POSITIVE_INFINITY
+      const leftPrice = service && scooterModel
+        ? getPriceForBooking(left.pricingMatrix, service.id, scooterModel.id) ?? Number.POSITIVE_INFINITY
+        : Number.POSITIVE_INFINITY
+      const rightPrice = service && scooterModel
+        ? getPriceForBooking(right.pricingMatrix, service.id, scooterModel.id) ?? Number.POSITIVE_INFINITY
+        : Number.POSITIVE_INFINITY
 
       if (sortKey === "distance") {
         if (left.distanceKm !== null && right.distanceKm !== null && left.distanceKm !== right.distanceKm) {
@@ -571,7 +567,7 @@ function StepTechnician({
     })
 
     return next
-  }, [service, sortKey, techniciansWithDistance])
+  }, [service, scooterModel, sortKey, techniciansWithDistance])
 
   const mappableTechnicians = useMemo(
     () =>
@@ -902,9 +898,12 @@ function StepConfirm({
   service: Service | undefined
   technician: Technician | undefined
 }) {
-  const pricing = technician && service ? technician.pricing[service.id] : undefined
-  const { basePrice, serviceFee, totalPrice } = pricing
-    ? calculatePricing(pricing.basePrice)
+  const bookingPrice =
+    technician && service && model
+      ? getTechnicianBookingPrice(technician, service.id, model.id)
+      : null
+  const { basePrice, serviceFee, totalPrice } = bookingPrice !== null
+    ? calculatePricing(bookingPrice)
     : { basePrice: 0, serviceFee: 0, totalPrice: 0 }
 
   const scheduled = wizardState.scheduledDate
@@ -1212,10 +1211,11 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
         {step >= 3 &&
           technician &&
           service &&
+          model &&
           (() => {
-            const pricing = technician.pricing[service.id]
-            if (!pricing) return null
-            const { serviceFee } = calculatePricing(pricing.basePrice)
+            const pricing = getTechnicianBookingPrice(technician, service.id, model.id)
+            if (pricing === null) return null
+            const { serviceFee } = calculatePricing(pricing)
 
             return (
               <div className="mt-4 flex items-center justify-between rounded-lg bg-[#d1fae5] px-4 py-3">

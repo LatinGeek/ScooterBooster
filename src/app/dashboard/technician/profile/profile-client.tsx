@@ -193,7 +193,7 @@ export function TechnicianProfileClient({ tech }: Props) {
             <Link href={`/technicians/${tech.id}`}>Ver ficha pública</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/dashboard/technician/services">Editar servicios</Link>
+            <Link href="/dashboard/technician/pricing">Editar precios</Link>
           </Button>
         </div>
       </div>
@@ -390,9 +390,9 @@ export function TechnicianProfileClient({ tech }: Props) {
               )}
             </Button>
             <p className="text-sm text-[#6b7280]">
-              Tus precios y marcas atendidas siguen en{" "}
-              <Link href="/dashboard/technician/services" className="font-medium text-[#059669] hover:underline">
-                Servicios
+              Tus precios y disponibilidad siguen en{" "}
+              <Link href="/dashboard/technician/pricing" className="font-medium text-[#059669] hover:underline">
+                Precios
               </Link>
               .
             </p>

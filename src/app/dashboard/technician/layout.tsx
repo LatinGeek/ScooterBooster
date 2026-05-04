@@ -27,7 +27,7 @@ const NAV_ITEMS = [
     icon: Clock,
     exact: false,
   },
-  { href: "/dashboard/technician/services", label: "Servicios", icon: Wrench, exact: false },
+  { href: "/dashboard/technician/pricing", label: "Precios", icon: Wrench, exact: false },
   { href: "/dashboard/technician/earnings", label: "Ganancias", icon: DollarSign, exact: false },
   { href: "/dashboard/technician/reviews", label: "Reseñas", icon: Star, exact: false },
 ]

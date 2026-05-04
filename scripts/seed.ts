@@ -10,7 +10,9 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore"
 import * as dotenv from "dotenv"
 import { existsSync, readdirSync } from "node:fs"
 import * as path from "path"
+import { deriveLegacyFieldsFromMatrix, normalizeMatrixInput } from "@/lib/technician-matrix"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
+import type { Technician } from "@/types"
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") })
 
@@ -127,6 +129,50 @@ const SERVICE_NAMES_BY_ID: Record<string, string> = {
   [SERVICE_IDS.firmware]: "Actualización de Firmware",
   [SERVICE_IDS.cruiseControl]: "Control Crucero",
   [SERVICE_IDS.maintenance]: "Mantenimiento General",
+}
+
+const SEED_MODEL_IDS_BY_BRAND: Record<string, string[]> = {
+  [BRAND_IDS.xiaomi]: ["xiaomi-1s", "xiaomi-5-standard", "xiaomi-6-pro"],
+  [BRAND_IDS.atom]: ["atom-energy", "atom-kaizen-pro"],
+  [BRAND_IDS.joyor]: ["joyor-s5", "joyor-s10-s"],
+  [BRAND_IDS.mistyle]: ["mistyle-me500", "mistyle-me1000"],
+  [BRAND_IDS.navee]: ["navee-st3-pro", "navee-gt3-pro"],
+  [BRAND_IDS.segway]: ["segway-f2", "segway-maxg2", "segway-gt2"],
+  [BRAND_IDS.dualtron]: ["dualtron-mini", "dualtron-thunder2"],
+  [BRAND_IDS.kaabo]: ["kaabo-mantis10", "kaabo-wolfwarrior"],
+  [BRAND_IDS.vsett]: ["vsett-8", "vsett-10plus"],
+  [BRAND_IDS.zero]: ["zero-8", "zero-11x"],
+  [BRAND_IDS.inokim]: ["inokim-light2", "inokim-oxo"],
+}
+
+const SEED_MODEL_BRAND_MAP = Object.fromEntries(
+  Object.entries(SEED_MODEL_IDS_BY_BRAND).flatMap(([brandId, modelIds]) =>
+    modelIds.map((modelId) => [modelId, brandId])
+  )
+)
+
+function buildPricingMatrixForBrands(
+  brandIds: string[],
+  servicePrices: Record<string, number>,
+  unavailable: Array<{ serviceId: string; modelId: string }> = []
+): Technician["pricingMatrix"] {
+  const unavailableSet = new Set(unavailable.map(({ serviceId, modelId }) => `${serviceId}:${modelId}`))
+  const matrix: Technician["pricingMatrix"] = {}
+
+  for (const [serviceId, price] of Object.entries(servicePrices)) {
+    matrix[serviceId] = {}
+    for (const brandId of brandIds) {
+      for (const modelId of SEED_MODEL_IDS_BY_BRAND[brandId] ?? []) {
+        matrix[serviceId][modelId] = {
+          price,
+          currency: "UYU",
+          isAvailable: !unavailableSet.has(`${serviceId}:${modelId}`),
+        }
+      }
+    }
+  }
+
+  return matrix
 }
 
 async function seedServices() {
@@ -975,6 +1021,15 @@ async function seedDemoTechnicians() {
       phone: "+59899111001",
       whatsappNumber: "+59899111001",
       location: "Montevideo Centro",
+      pricingMatrix: buildPricingMatrixForBrands(
+        [BRAND_IDS.xiaomi, BRAND_IDS.navee, BRAND_IDS.mistyle],
+        {
+          [SERVICE_IDS.speedLimit]: 1800,
+          [SERVICE_IDS.firmware]: 1200,
+          [SERVICE_IDS.cruiseControl]: 1500,
+          [SERVICE_IDS.maintenance]: 1000,
+        }
+      ),
       services: ALL_SERVICES,
       supportedBrands: [BRAND_IDS.xiaomi, BRAND_IDS.navee, BRAND_IDS.mistyle],
       availability: {
@@ -1008,6 +1063,15 @@ async function seedDemoTechnicians() {
       phone: "+59899111002",
       whatsappNumber: "+59899111002",
       location: "Pocitos, Montevideo",
+      pricingMatrix: buildPricingMatrixForBrands(
+        [BRAND_IDS.joyor, BRAND_IDS.atom, BRAND_IDS.dualtron, BRAND_IDS.kaabo],
+        {
+          [SERVICE_IDS.speedLimit]: 2500,
+          [SERVICE_IDS.firmware]: 2000,
+          [SERVICE_IDS.cruiseControl]: 2200,
+          [SERVICE_IDS.maintenance]: 1500,
+        }
+      ),
       services: ALL_SERVICES,
       supportedBrands: [BRAND_IDS.joyor, BRAND_IDS.atom, BRAND_IDS.dualtron, BRAND_IDS.kaabo],
       availability: {
@@ -1041,6 +1105,18 @@ async function seedDemoTechnicians() {
       phone: "+59899111003",
       whatsappNumber: "+59899111003",
       location: "Malvín, Montevideo",
+      pricingMatrix: buildPricingMatrixForBrands(
+        Object.values(BRAND_IDS),
+        {
+          [SERVICE_IDS.firmware]: 900,
+          [SERVICE_IDS.maintenance]: 800,
+        },
+        [
+          { serviceId: SERVICE_IDS.firmware, modelId: "inokim-light2" },
+          { serviceId: SERVICE_IDS.firmware, modelId: "inokim-ox" },
+          { serviceId: SERVICE_IDS.firmware, modelId: "inokim-oxo" },
+        ]
+      ),
       services: [SERVICE_IDS.maintenance, SERVICE_IDS.firmware],
       supportedBrands: Object.values(BRAND_IDS),
       availability: {
@@ -1067,19 +1143,25 @@ async function seedDemoTechnicians() {
 
   for (const tech of technicians) {
     const { id, ...data } = tech
+    const pricingMatrix = normalizeMatrixInput(data.pricingMatrix ?? {})
+    const derivedFields = deriveLegacyFieldsFromMatrix(pricingMatrix, SEED_MODEL_BRAND_MAP)
     await db
       .collection("technicians")
       .doc(id)
       .set({
         ...data,
+        pricingMatrix,
+        services: derivedFields.services,
+        supportedBrands: derivedFields.supportedBrands,
+        pricing: derivedFields.pricing,
         coordinates: getCoordinatesForLocation(data.location),
         normalizedLocation: normalizeSearchText(data.location),
         searchTokens: buildSearchTokens(
           data.displayName,
           data.bio,
           data.location,
-          ...data.services.map((serviceId) => SERVICE_NAMES_BY_ID[serviceId]),
-          ...data.supportedBrands.map((brandId) => BRAND_NAMES_BY_ID[brandId])
+          ...derivedFields.services.map((serviceId) => SERVICE_NAMES_BY_ID[serviceId]),
+          ...derivedFields.supportedBrands.map((brandId) => BRAND_NAMES_BY_ID[brandId])
         ),
       })
     console.log(`  ✅ ${tech.displayName}`)

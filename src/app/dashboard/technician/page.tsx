@@ -168,7 +168,7 @@ export default async function TechnicianOverviewPage() {
           { href: "/dashboard/technician/profile", label: "Perfil profesional" },
           { href: "/dashboard/technician/bookings", label: "Gestionar reservas" },
           { href: "/dashboard/technician/availability", label: "Mi disponibilidad" },
-          { href: "/dashboard/technician/services", label: "Servicios y precios" },
+          { href: "/dashboard/technician/pricing", label: "Servicios y precios" },
         ].map((link) => (
           <Link
             key={link.href}

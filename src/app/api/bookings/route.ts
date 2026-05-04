@@ -12,6 +12,10 @@ import { getUserById } from "@/lib/db/users"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, createPaymentLink } from "@/lib/mercadopago"
+import {
+  getTechnicianBookingPrice,
+  isTechnicianCompatibleForBooking,
+} from "@/lib/technician-matrix"
 import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
 import logger from "@/lib/logger"
 import { enforceRateLimit } from "@/lib/ratelimit"
@@ -73,9 +77,9 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     )
   }
 
-  // Verify technician offers this service
-  if (!technician.services.includes(serviceId)) {
-    throw new ValidationError("El técnico no ofrece este servicio")
+  // Verify technician supports this exact service x model combination
+  if (!isTechnicianCompatibleForBooking(technician, serviceId, scooterModelId, scooterModel.brandId)) {
+    throw new ValidationError("El técnico no ofrece este servicio para este modelo")
   }
 
   // Enforce disclaimer for speed-limit services
@@ -84,11 +88,11 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   // Get base price from technician pricing
-  const pricingEntry = technician.pricing[serviceId]
-  if (!pricingEntry) {
-    throw new ValidationError("El técnico no tiene precio configurado para este servicio")
+  const basePrice = getTechnicianBookingPrice(technician, serviceId, scooterModelId)
+  if (basePrice === null) {
+    throw new ValidationError("El servicio no está disponible para este modelo")
   }
-  const { basePrice, serviceFee, totalPrice } = calculatePricing(pricingEntry.basePrice)
+  const { serviceFee, totalPrice } = calculatePricing(basePrice)
 
   logger.info({ userId: session.uid, technicianId, serviceId, scheduledDate }, "Creating booking")
 
