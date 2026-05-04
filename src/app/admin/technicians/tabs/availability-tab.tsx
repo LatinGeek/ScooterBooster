@@ -30,7 +30,7 @@ export function AvailabilityTab({ technician, onSave, saving = false }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e5e7eb] bg-white p-4">
         <div>
           <h3 className="text-base font-semibold text-[#111827]">Horarios</h3>
           <p className="text-sm text-[#6b7280]">Los horarios se usan para mostrar disponibilidad en reservas.</p>
@@ -52,6 +52,7 @@ export function AvailabilityTab({ technician, onSave, saving = false }: Props) {
         onChange={setAvailability}
         onSave={() => void onSave(availability)}
         saving={saving}
+        showSaveButton={false}
         title="Horario semanal"
         description="Definí la franja por día. Desactivá un día para bloquear reservas."
       />

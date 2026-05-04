@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc *)",
-      "Bash(cd D:\\\\\\\\Coding\\\\\\\\ScooterBooster)"
+      "Bash(cd D:\\\\\\\\Coding\\\\\\\\ScooterBooster)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__browser_batch"
     ]
   }
 }

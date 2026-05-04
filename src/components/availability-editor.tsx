@@ -28,6 +28,7 @@ interface Props {
   onChange: (next: Record<string, DayAvailability>) => void
   onSave: () => void | Promise<void>
   saving?: boolean
+  showSaveButton?: boolean
   error?: string | null
   title?: string
   description?: string
@@ -38,6 +39,7 @@ export function AvailabilityEditor({
   onChange,
   onSave,
   saving = false,
+  showSaveButton = true,
   error = null,
   title = "Horarios",
   description = "Configurá la disponibilidad semanal.",
@@ -53,9 +55,9 @@ export function AvailabilityEditor({
   }
 
   return (
-    <section className="rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
-      <div className="mb-5">
-        <h2 className="text-lg font-semibold text-[#111827]">{title}</h2>
+    <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm">
+      <div className="mb-4">
+        <h2 className="text-base font-semibold text-[#111827]">{title}</h2>
         <p className="mt-1 text-sm text-[#6b7280]">{description}</p>
       </div>
 
@@ -72,7 +74,7 @@ export function AvailabilityEditor({
           return (
             <div
               key={key}
-              className="flex flex-col gap-3 rounded-xl border border-[#f3f4f6] p-4 sm:flex-row sm:items-center"
+              className="flex flex-col gap-3 rounded-xl border border-[#f3f4f6] p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-center justify-between gap-3 sm:w-36 sm:justify-start">
                 <span className={`text-sm font-medium ${day.isAvailable ? "text-[#111827]" : "text-[#9ca3af]"}`}>
@@ -95,7 +97,7 @@ export function AvailabilityEditor({
                 </button>
               </div>
 
-              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                 {day.isAvailable ? (
                   <>
                     <label className="flex items-center gap-2 text-sm text-[#374151]">
@@ -113,7 +115,7 @@ export function AvailabilityEditor({
                         type="time"
                         value={day.end}
                         onChange={(event) => setDay(key, { end: event.target.value })}
-                        className="rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-2 focus:ring-[#10b981]"
+                          className="rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-2 focus:ring-[#10b981]"
                       />
                     </label>
                   </>
@@ -126,11 +128,13 @@ export function AvailabilityEditor({
         })}
       </div>
 
-      <div className="mt-6 flex justify-end">
-        <Button onClick={() => void onSave()} disabled={saving}>
-          {saving ? "Guardando..." : "Guardar horarios"}
-        </Button>
-      </div>
+      {showSaveButton ? (
+        <div className="mt-6 flex justify-end">
+          <Button onClick={() => void onSave()} disabled={saving}>
+            {saving ? "Guardando..." : "Guardar horarios"}
+          </Button>
+        </div>
+      ) : null}
     </section>
   )
 }

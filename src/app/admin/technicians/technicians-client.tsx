@@ -116,7 +116,6 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
 
   function selectTechnician(id: string) {
     setSelectedId(id)
-    setSelectedTab("profile")
   }
 
   async function moderateTechnician(id: string, action: "approve" | "request_changes" | "reject", reason?: string) {
@@ -278,7 +277,7 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(340px,0.88fr)_minmax(560px,1.18fr)]">
         <div className="space-y-4">
           <div className="relative rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-sm">
             <Search className="pointer-events-none absolute left-7 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
@@ -291,15 +290,16 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
               <p className="text-sm text-[#9ca3af]">No hay técnicos en esta categoría.</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex max-h-[calc(100vh-14rem)] flex-col gap-4 overflow-y-auto pr-1">
               {filtered.map((technician) => {
                 const selected = selectedTechnician?.id === technician.id
-                const isBusy = loadingAction === technician.id
 
                 return (
                   <article
                     key={technician.id}
-                    className={`rounded-2xl border bg-white p-5 shadow-sm ${selected ? "border-[#10b981]" : "border-[#e5e7eb]"}`}
+                    className={`rounded-2xl border bg-white p-5 shadow-sm transition-colors ${
+                      selected ? "border-[#10b981] ring-2 ring-[#d1fae5]" : "border-[#e5e7eb] hover:border-[#cbd5e1]"
+                    }`}
                   >
                     <button type="button" onClick={() => selectTechnician(technician.id)} className="w-full text-left">
                       <div className="mb-3 flex items-start gap-4">
@@ -307,11 +307,18 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
                           {technician.displayName.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <p className="font-semibold text-[#111827]">{technician.displayName}</p>
                             <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles(technician)}`}>
                               {statusLabel(technician) === "Aprobado" ? <CheckCircle className="h-3 w-3" /> : statusLabel(technician) === "Rechazado" ? <XCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                               {statusLabel(technician)}
+                            </span>
+                            <span
+                              className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                                technician.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
+                              }`}
+                            >
+                              {technician.isActive ? "Activo" : "Pausado"}
                             </span>
                           </div>
                           <p className="mt-0.5 truncate text-sm text-[#6b7280]">{technician.bio}</p>
@@ -334,20 +341,8 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
                       </div>
                     </button>
 
-                    <div className="flex flex-wrap gap-2 border-t border-[#f3f4f6] pt-4">
-                      {!technician.isApproved ? (
-                        <Button size="sm" disabled={isBusy} onClick={() => void moderateTechnician(technician.id, "approve")}>
-                          Aprobar
-                        </Button>
-                      ) : null}
-                      {!technician.isApproved ? (
-                        <Button variant="outline" size="sm" disabled={isBusy} onClick={() => void moderateTechnician(technician.id, "request_changes")}>
-                          Pedir cambios
-                        </Button>
-                      ) : null}
-                      <Button variant="outline" size="sm" disabled={isBusy} onClick={() => void moderateTechnician(technician.id, "reject")} className="border-red-200 text-red-600 hover:bg-red-50">
-                        Rechazar
-                      </Button>
+                    <div className="flex items-center justify-between border-t border-[#f3f4f6] pt-4 text-xs text-[#9ca3af]">
+                      <span>{selected ? "Editor abierto" : "Abrir editor"}</span>
                       <Button variant="ghost" size="sm" asChild className="ml-auto text-[#6b7280]">
                         <Link href={`/technicians/${technician.id}`} target="_blank">
                           <ExternalLink className="mr-1.5 h-4 w-4" />
@@ -362,12 +357,28 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
           )}
         </div>
 
-        <aside className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm">
+        <aside className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm xl:sticky xl:top-8 xl:max-h-[calc(100vh-6rem)] xl:overflow-hidden">
           {selectedTechnician ? (
-            <div className="space-y-5">
-              <div>
-                <h2 className="text-xl font-semibold text-[#111827]">{selectedTechnician.displayName}</h2>
-                <p className="mt-1 text-sm text-[#6b7280]">{selectedTechnician.location}</p>
+            <div className="flex h-full flex-col gap-5">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-semibold text-[#111827]">{selectedTechnician.displayName}</h2>
+                    <p className="mt-1 text-sm text-[#6b7280]">{selectedTechnician.location}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles(selectedTechnician)}`}>
+                      {statusLabel(selectedTechnician)}
+                    </span>
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                        selectedTechnician.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {selectedTechnician.isActive ? "Activo" : "Pausado"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className="rounded-2xl bg-[#f3f4f6] p-1">
@@ -393,7 +404,7 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">
+              <div className="min-h-0 rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4 xl:flex-1 xl:overflow-y-auto">
                 {selectedTab === "profile" ? (
                   <ProfileTab
                     technician={selectedTechnician}

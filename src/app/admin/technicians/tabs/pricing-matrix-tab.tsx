@@ -35,7 +35,7 @@ export function PricingMatrixTab({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e5e7eb] bg-white p-4">
         <div>
           <h3 className="text-base font-semibold text-[#111827]">Servicios & precios</h3>
           <p className="text-sm text-[#6b7280]">La matriz controla el catálogo público y la reserva.</p>
