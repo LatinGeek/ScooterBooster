@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import Image from "next/image"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { AlertTriangle, Mail, Phone, Search, ShieldCheck, Trash2, User as UserIcon, UserCog, Wrench } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -65,6 +65,17 @@ export function AdminUsersClient({ users: initialUsers, currentAdminUid }: Props
   }, [query, roleFilter, stateFilter, users])
 
   const selectedUser = filteredUsers.find((user) => user.uid === selectedUid) ?? filteredUsers[0] ?? null
+
+  useEffect(() => {
+    if (filteredUsers.length === 0) {
+      if (selectedUid) setSelectedUid("")
+      return
+    }
+
+    if (!filteredUsers.some((user) => user.uid === selectedUid)) {
+      setSelectedUid(filteredUsers[0]!.uid)
+    }
+  }, [filteredUsers, selectedUid])
 
   async function updateRole(user: User, role: User["role"]) {
     setBusyKey(`role-${user.uid}`)

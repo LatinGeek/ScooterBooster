@@ -15,6 +15,7 @@ import {
   Users,
   Wrench,
 } from "lucide-react"
+import { AdminViewSwitcher } from "@/components/admin-view-switcher"
 import { useAuth } from "@/hooks/use-auth"
 
 const NAV_ITEMS = [
@@ -83,6 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <p className="truncate text-xs text-[#6b7280]">{user.email}</p>
                   </div>
                 </div>
+                <AdminViewSwitcher className="mt-3" />
               </div>
             ) : null}
 
@@ -119,27 +121,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5e7eb] bg-white md:hidden">
-        <div className="flex">
+        <div className="border-b border-[#f3f4f6] px-4 py-2">
+          <AdminViewSwitcher compact className="w-full justify-center" />
+        </div>
+        <div className="flex gap-2 overflow-x-auto px-3 py-2">
           {NAV_ITEMS.map((item) => {
             const active = isActive(item)
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-1 cursor-pointer flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors duration-150 ${
-                  active ? "text-amber-600" : "text-[#9ca3af]"
+                className={`flex min-w-fit cursor-pointer items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-colors duration-150 ${
+                  active ? "bg-amber-50 text-amber-600" : "text-[#9ca3af]"
                 }`}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-4 w-4" />
                 {item.label}
               </Link>
             )
           })}
           <button
             onClick={handleSignOut}
-            className="flex flex-1 cursor-pointer flex-col items-center gap-1 py-2.5 text-xs font-medium text-[#9ca3af] hover:text-red-500"
+            className="flex min-w-fit cursor-pointer items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-[#9ca3af] hover:text-red-500"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-4 w-4" />
             Salir
           </button>
         </div>

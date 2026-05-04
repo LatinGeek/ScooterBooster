@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Bike, PlusCircle, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -69,6 +69,15 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
     () => Object.fromEntries(brands.map((brand) => [brand.id, brand.name])),
     [brands],
   )
+
+  useEffect(() => {
+    if (brands.length === 0) return
+
+    setNewModel((current) => {
+      if (brands.some((brand) => brand.id === current.brandId)) return current
+      return { ...current, brandId: brands[0]!.id }
+    })
+  }, [brands])
 
   async function saveBrand(payload: BrandDraft & { id?: string }) {
     const isCreate = !payload.id
@@ -325,6 +334,14 @@ function BrandRow({
     isActive: brand.isActive,
   })
 
+  useEffect(() => {
+    setDraft({
+      name: brand.name,
+      logoURL: brand.logoURL ?? "",
+      isActive: brand.isActive,
+    })
+  }, [brand])
+
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
@@ -375,6 +392,21 @@ function ModelRow({
     compatibleServices: model.compatibleServices,
     isActive: model.isActive,
   })
+
+  useEffect(() => {
+    setDraft({
+      brandId: model.brandId,
+      name: model.name,
+      imageURL: model.imageURL ?? "",
+      maxSpeed: String(model.specs.maxSpeed),
+      range: String(model.specs.range),
+      battery: model.specs.battery,
+      motor: model.specs.motor,
+      weight: String(model.specs.weight),
+      compatibleServices: model.compatibleServices,
+      isActive: model.isActive,
+    })
+  }, [model])
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">

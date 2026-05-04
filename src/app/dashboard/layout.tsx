@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Bell, Bike, CalendarDays, LogOut, UserCircle } from "lucide-react"
+import { AdminViewSwitcher } from "@/components/admin-view-switcher"
 import { useAuth } from "@/hooks/use-auth"
 import { NotificationBell } from "@/components/notification-bell"
 
@@ -63,6 +64,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             )}
 
+            <AdminViewSwitcher className="mb-6" />
+
             <div className="mb-4 flex items-center justify-between rounded-xl border border-[#e5e7eb] bg-white p-3">
               <div>
                 <p className="text-sm font-semibold text-[#111827]">Centro de actividad</p>
@@ -105,6 +108,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5e7eb] bg-white md:hidden">
+        <div className="border-b border-[#f3f4f6] px-4 py-2">
+          <AdminViewSwitcher compact className="w-full justify-center" />
+        </div>
         <div className="flex">
           {NAV_ITEMS.map((item) => {
             const active = isActive(item)

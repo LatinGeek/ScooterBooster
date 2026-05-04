@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { PlusCircle, Save, Wrench } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -159,9 +159,15 @@ export function AdminServicesClient({ services: initialServices }: Props) {
         </Button>
 
         <div className="space-y-3 pt-2">
-          {services.map((service) => (
-            <ServiceRow key={service.id} service={service} saving={saving === service.id} onSave={saveService} />
-          ))}
+          {services.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[#d1d5db] bg-[#fafafa] px-4 py-8 text-center text-sm text-[#6b7280]">
+              Todavia no hay servicios configurados.
+            </div>
+          ) : (
+            services.map((service) => (
+              <ServiceRow key={service.id} service={service} saving={saving === service.id} onSave={saveService} />
+            ))
+          )}
         </div>
       </div>
     </section>
@@ -185,6 +191,17 @@ function ServiceRow({
     requiresDisclaimer: service.requiresDisclaimer,
     isActive: service.isActive,
   })
+
+  useEffect(() => {
+    setDraft({
+      name: service.name,
+      description: service.description,
+      category: service.category,
+      estimatedDuration: String(service.estimatedDuration),
+      requiresDisclaimer: service.requiresDisclaimer,
+      isActive: service.isActive,
+    })
+  }, [service])
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">

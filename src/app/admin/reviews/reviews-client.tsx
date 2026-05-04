@@ -158,6 +158,12 @@ export function AdminReviewsClient({ reviews: initialReviews, users, technicians
             </div>
           </article>
         ))}
+
+        {filtered.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-[#d1d5db] bg-white p-8 text-center text-sm text-[#6b7280]">
+            No encontramos reseñas con los filtros actuales.
+          </div>
+        ) : null}
       </div>
     </section>
   )

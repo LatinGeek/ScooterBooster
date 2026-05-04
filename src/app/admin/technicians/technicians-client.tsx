@@ -16,7 +16,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { ScooterBrand, ScooterModel, Service, Technician } from "@/types"
 import { CreateTechnicianModal } from "./create-technician-modal"
 import { AvailabilityTab } from "./tabs/availability-tab"
@@ -31,6 +30,7 @@ interface Props {
 }
 
 type StatusTab = "pending" | "approved" | "rejected"
+type TechnicianTab = "profile" | "pricing" | "availability"
 
 function statusLabel(technician: Technician) {
   if (technician.isApproved) return "Aprobado"
@@ -53,7 +53,7 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
   const [selectedId, setSelectedId] = useState(initial[0]?.id ?? "")
   const [createOpen, setCreateOpen] = useState(false)
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
-  const [selectedTab, setSelectedTab] = useState<"profile" | "pricing" | "availability">("profile")
+  const [selectedTab, setSelectedTab] = useState<TechnicianTab>("profile")
 
   useEffect(() => {
     if (!selectedId && technicians[0]?.id) {
@@ -370,14 +370,31 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
                 <p className="mt-1 text-sm text-[#6b7280]">{selectedTechnician.location}</p>
               </div>
 
-              <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as typeof selectedTab)}>
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="profile">Perfil</TabsTrigger>
-                  <TabsTrigger value="pricing">Servicios & Precios</TabsTrigger>
-                  <TabsTrigger value="availability">Horarios</TabsTrigger>
-                </TabsList>
+              <div className="rounded-2xl bg-[#f3f4f6] p-1">
+                <div className="grid grid-cols-3 gap-1">
+                  {[
+                    { key: "profile" as const, label: "Perfil" },
+                    { key: "pricing" as const, label: "Servicios & Precios" },
+                    { key: "availability" as const, label: "Horarios" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => setSelectedTab(tab.key)}
+                      className={`rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+                        selectedTab === tab.key
+                          ? "bg-white text-[#111827] shadow-sm"
+                          : "text-[#6b7280] hover:text-[#111827]"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-                <TabsContent value="profile" forceMount>
+              <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">
+                {selectedTab === "profile" ? (
                   <ProfileTab
                     technician={selectedTechnician}
                     saving={loadingAction === selectedTechnician.id}
@@ -385,9 +402,9 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
                     onModerate={(action, reason) => moderateTechnician(selectedTechnician.id, action, reason)}
                     onDelete={deleteTechnician}
                   />
-                </TabsContent>
+                ) : null}
 
-                <TabsContent value="pricing" forceMount>
+                {selectedTab === "pricing" ? (
                   <PricingMatrixTab
                     technician={selectedTechnician}
                     services={services}
@@ -396,16 +413,16 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
                     saving={loadingAction === selectedTechnician.id}
                     onSave={saveMatrix}
                   />
-                </TabsContent>
+                ) : null}
 
-                <TabsContent value="availability" forceMount>
+                {selectedTab === "availability" ? (
                   <AvailabilityTab
                     technician={selectedTechnician}
                     saving={loadingAction === selectedTechnician.id}
                     onSave={saveAvailability}
                   />
-                </TabsContent>
-              </Tabs>
+                ) : null}
+              </div>
             </div>
           ) : (
             <div className="flex min-h-[320px] items-center justify-center text-sm text-[#6b7280]">

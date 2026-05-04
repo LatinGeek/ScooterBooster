@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Bike, Menu, X } from "lucide-react"
+import { AdminViewSwitcher } from "@/components/admin-view-switcher"
 import { useAuth } from "@/hooks/use-auth"
 import { NotificationBell } from "@/components/notification-bell"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,7 @@ export function Navbar() {
     </>
   ) : user ? (
     <>
+      <AdminViewSwitcher />
       <NotificationBell />
       <Button variant="ghost" size="sm" asChild>
         <Link href={dashboardHref}>Mi panel</Link>
@@ -54,6 +56,7 @@ export function Navbar() {
     </div>
   ) : user ? (
     <>
+      <AdminViewSwitcher compact className="self-start" />
       <div className="flex items-center justify-between rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] px-3 py-2">
         <span className="text-sm font-medium text-[#374151]">Notificaciones</span>
         <NotificationBell className="h-9 w-9" />
