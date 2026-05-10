@@ -1,6 +1,7 @@
 import { MercadoPagoConfig, Preference } from "mercadopago"
 import { calculatePricing } from "@/lib/pricing"
 import type { PaymentLink } from "@/types"
+import { getMercadoPagoAccessToken, getMercadoPagoEnvironment } from "@/lib/mercadopago-config"
 
 interface CreatePaymentLinkParams {
   bookingId: string
@@ -17,9 +18,10 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
     }
   }
 
-  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN?.trim()
+  const environment = getMercadoPagoEnvironment()
+  const accessToken = getMercadoPagoAccessToken(environment)
   if (!accessToken) {
-    throw new Error("Missing MERCADOPAGO_ACCESS_TOKEN")
+    throw new Error(`Missing MercadoPago ${environment} access token`)
   }
 
   const client = new MercadoPagoConfig({

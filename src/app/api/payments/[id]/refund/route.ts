@@ -13,6 +13,10 @@ import { sendBookingCancelledEmail } from "@/lib/notification-emails"
 import { notify } from "@/lib/notifications"
 import { getSession } from "@/lib/session"
 import { assertTrustedOrigin } from "@/lib/security"
+import {
+  getMercadoPagoAccessToken,
+  getMercadoPagoEnvironmentCandidates,
+} from "@/lib/mercadopago-config"
 
 const refundSchema = z.object({
   bookingId: z.string().min(1, "La reserva es obligatoria"),
@@ -50,10 +54,25 @@ export const POST = withErrorHandling(
       throw new ValidationError("El pago no coincide con la reserva seleccionada")
     }
 
-    const refundClient = new PaymentRefund(
-      new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! }),
-    )
-    const refund = await refundClient.create({ payment_id: paymentId })
+    let refund: Awaited<ReturnType<PaymentRefund["create"]>> | null = null
+    let lastError: unknown = null
+    for (const environment of getMercadoPagoEnvironmentCandidates()) {
+      const accessToken = getMercadoPagoAccessToken(environment)
+      if (!accessToken) continue
+      try {
+        const refundClient = new PaymentRefund(new MercadoPagoConfig({ accessToken }))
+        refund = await refundClient.create({ payment_id: paymentId })
+        break
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    if (!refund) {
+      throw lastError instanceof Error
+        ? lastError
+        : new Error("Unable to create MercadoPago refund")
+    }
 
     await markBookingRefunded(booking.id)
     if (booking.paymentLinkId) {

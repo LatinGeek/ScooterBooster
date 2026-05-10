@@ -28,7 +28,10 @@ import { createPaymentLink } from "@/lib/mercadopago"
 describe("createPaymentLink", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.MERCADOPAGO_ACCESS_TOKEN = "test-token"
+    process.env.MERCADOPAGO_ENVIRONMENT = "test"
+    process.env.MERCADOPAGO_TEST_ACCESS_TOKEN = "test-token"
+    delete process.env.MERCADOPAGO_ACCESS_TOKEN
+    delete process.env.MERCADOPAGO_LIVE_ACCESS_TOKEN
     process.env.NEXT_PUBLIC_APP_URL = "https://scooterbooster.test"
   })
 
@@ -79,6 +82,7 @@ describe("createPaymentLink", () => {
   })
 
   it("throws when the backend access token is missing", async () => {
+    delete process.env.MERCADOPAGO_TEST_ACCESS_TOKEN
     delete process.env.MERCADOPAGO_ACCESS_TOKEN
 
     await expect(
@@ -88,6 +92,28 @@ describe("createPaymentLink", () => {
         scooterModelName: "Xiaomi 1S",
         serviceFee: 100,
       })
-    ).rejects.toThrow("Missing MERCADOPAGO_ACCESS_TOKEN")
+    ).rejects.toThrow("Missing MercadoPago test access token")
+  })
+
+  it("uses live credentials when the environment is set to live", async () => {
+    process.env.MERCADOPAGO_ENVIRONMENT = "live"
+    process.env.MERCADOPAGO_LIVE_ACCESS_TOKEN = "live-token"
+    delete process.env.MERCADOPAGO_TEST_ACCESS_TOKEN
+    delete process.env.MERCADOPAGO_ACCESS_TOKEN
+
+    mocks.preferenceCreate.mockResolvedValue({
+      id: "pref-456",
+      init_point: "https://mp.test/pay/pref-456",
+    })
+
+    const result = await createPaymentLink({
+      bookingId: "booking-2",
+      serviceName: "Maintenance",
+      scooterModelName: "Xiaomi 5",
+      serviceFee: 250,
+    })
+
+    expect(result.preferenceId).toBe("pref-456")
+    expect(mocks.mercadoPagoConfig).toHaveBeenCalledWith({ accessToken: "live-token" })
   })
 })

@@ -10,12 +10,13 @@ import logger from "@/lib/logger"
 import { syncMercadoPagoPayment } from "@/lib/mercadopago-payment-sync"
 import { notify } from "@/lib/notifications"
 import { sendBookingCancelledEmail, sendBookingConfirmedEmail } from "@/lib/notification-emails"
+import { getMercadoPagoWebhookSecrets } from "@/lib/mercadopago-config"
 
 export const dynamic = "force-dynamic"
 
 function verifyMpSignature(req: NextRequest, body: MpWebhookBody): boolean {
-  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET
-  if (!secret) {
+  const secrets = getMercadoPagoWebhookSecrets()
+  if (secrets.length === 0) {
     logger.warn("MERCADOPAGO_WEBHOOK_SECRET not set - skipping signature verification")
     return true
   }
@@ -36,10 +37,15 @@ function verifyMpSignature(req: NextRequest, body: MpWebhookBody): boolean {
 
   const dataId = body.data?.id ?? ""
   const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
-  const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex")
-  if (expected.length !== v1.length) return false
+  for (const secret of secrets) {
+    const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex")
+    if (expected.length !== v1.length) continue
+    if (crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1))) {
+      return true
+    }
+  }
 
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1))
+  return false
 }
 
 async function isEventProcessed(eventId: string): Promise<boolean> {

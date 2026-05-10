@@ -2,6 +2,10 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 import { getBookingByExternalReference, setBookingPaymentReference, updateBookingPaymentStatus } from "@/lib/db/bookings"
 import { updatePaymentLinkStatus } from "@/lib/db/payment-links"
 import logger from "@/lib/logger"
+import {
+  getMercadoPagoAccessToken,
+  getMercadoPagoEnvironmentCandidates,
+} from "@/lib/mercadopago-config"
 
 export interface SyncMercadoPagoPaymentResult {
   bookingId: string | null
@@ -20,11 +24,36 @@ export async function syncMercadoPagoPayment(params: {
   expectedBookingId?: string
   lastWebhookEventId?: string | null
 }): Promise<SyncMercadoPagoPaymentResult> {
-  const mpClient = new MercadoPagoConfig({
-    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
-  })
-  const paymentClient = new Payment(mpClient)
-  const payment = await paymentClient.get({ id: params.paymentId })
+  let payment:
+    | {
+        status?: string | null
+        external_reference?: string | null
+        transaction_amount?: number | null
+      }
+    | null = null
+  let lastError: unknown = null
+
+  for (const environment of getMercadoPagoEnvironmentCandidates()) {
+    const accessToken = getMercadoPagoAccessToken(environment)
+    if (!accessToken) continue
+
+    try {
+      const mpClient = new MercadoPagoConfig({ accessToken })
+      const paymentClient = new Payment(mpClient)
+      payment = await paymentClient.get({ id: params.paymentId })
+      break
+    } catch (error) {
+      lastError = error
+      logger.warn(
+        { paymentId: params.paymentId, environment, err: error },
+        "MP payment fetch failed for environment"
+      )
+    }
+  }
+
+  if (!payment) {
+    throw lastError instanceof Error ? lastError : new Error("Failed to fetch MercadoPago payment")
+  }
 
   const mpStatus = payment.status ?? null
   const externalRef = payment.external_reference ?? ""
