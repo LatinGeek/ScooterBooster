@@ -11,11 +11,11 @@ import {
   DollarSign,
   Star,
   LogOut,
-  Bike,
   UserRound,
 } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
+import { BrandLogo } from "@/components/brand-logo"
 
 const NAV_ITEMS = [
   { href: "/dashboard/technician", label: "Resumen", icon: LayoutDashboard, exact: true },
@@ -53,13 +53,7 @@ export default function TechnicianDashboardLayout({ children }: { children: Reac
         {/* Sidebar */}
         <aside className="hidden w-60 shrink-0 md:block">
           <div className="sticky top-24">
-            <Link
-              href="/"
-              className="mb-6 flex items-center gap-2 font-bold text-[#111827] transition-colors duration-150 hover:text-[#10b981]"
-            >
-              <Bike className="h-5 w-5 text-[#10b981]" />
-              <span className="text-base">ScooterBooster</span>
-            </Link>
+            <BrandLogo className="mb-6" imageClassName="h-8 w-8" textClassName="text-base" />
 
             {user && (
               <div className="mb-6 rounded-xl border border-[#e5e7eb] bg-white p-3">

@@ -3,10 +3,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Bell, Bike, CalendarDays, LogOut, UserCircle } from "lucide-react"
+import { Bell, CalendarDays, LogOut, UserCircle } from "lucide-react"
 import { AdminViewSwitcher } from "@/components/admin-view-switcher"
 import { useAuth } from "@/hooks/use-auth"
 import { NotificationBell } from "@/components/notification-bell"
+import { BrandLogo } from "@/components/brand-logo"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Mis reservas", icon: CalendarDays, exact: true },
@@ -34,13 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <aside className="hidden w-60 shrink-0 md:block">
           <div className="sticky top-24">
-            <Link
-              href="/"
-              className="mb-6 flex items-center gap-2 font-bold text-[#111827] transition-colors duration-150 hover:text-[#10b981]"
-            >
-              <Bike className="h-5 w-5 text-[#10b981]" />
-              <span className="text-base">ScooterBooster</span>
-            </Link>
+            <BrandLogo className="mb-6" imageClassName="h-8 w-8" textClassName="text-base" />
 
             {user && (
               <div className="mb-6 flex items-center gap-3 rounded-xl border border-[#e5e7eb] bg-white p-3">

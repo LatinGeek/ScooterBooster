@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { Bike, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { AdminViewSwitcher } from "@/components/admin-view-switcher"
 import { useAuth } from "@/hooks/use-auth"
 import { NotificationBell } from "@/components/notification-bell"
 import { Button } from "@/components/ui/button"
 import { GlobalSearchBox } from "@/components/global-search-box"
+import { BrandLogo } from "@/components/brand-logo"
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -91,13 +92,11 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full border-b border-[#e5e7eb] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-bold text-[#111827] transition-colors duration-200 hover:text-[#10b981]"
-          >
-            <Bike className="h-6 w-6 text-[#10b981]" />
-            <span className="text-lg">ScooterBooster</span>
-          </Link>
+          <BrandLogo
+            className="shrink-0"
+            imageClassName="h-9 w-9"
+            textClassName="text-base sm:text-lg"
+          />
 
           <nav className="hidden items-center gap-6 md:flex">
             {links.map((link) => (
