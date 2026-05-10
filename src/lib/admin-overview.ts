@@ -150,7 +150,7 @@ export async function getAdminOverviewSnapshot(): Promise<AdminOverviewSnapshot>
     cancelledBookings,
     expiredBookings,
     recentBookings,
-    completedBookingRows,
+    paidBookingRows,
   ] = await Promise.all([
     countDocuments("users", adminDb.collection("users")),
     countDocuments("reviews", adminDb.collection("reviews")),
@@ -171,8 +171,8 @@ export async function getAdminOverviewSnapshot(): Promise<AdminOverviewSnapshot>
         .limit(500),
     ),
     loadRows(
-      "completed booking rows",
-      adminDb.collection("bookings").where("status", "==", "completed").limit(500),
+      "paid booking rows",
+      adminDb.collection("bookings").where("paymentStatus", "==", "paid").limit(500),
     ),
   ])
 
@@ -202,7 +202,7 @@ export async function getAdminOverviewSnapshot(): Promise<AdminOverviewSnapshot>
     }
   }
 
-  for (const row of completedBookingRows) {
+  for (const row of paidBookingRows) {
     const totalPrice = (row["totalPrice"] as number) ?? 0
     totalGMV += totalPrice
     totalPlatformRevenue += (row["serviceFee"] as number) ?? 0
