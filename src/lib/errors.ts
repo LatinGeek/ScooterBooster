@@ -61,5 +61,12 @@ export class ConflictError extends AppError {
 
 /** Narrows any thrown value to AppError for consistent handling */
 export function isAppError(err: unknown): err is AppError {
-  return err instanceof AppError
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "statusCode" in err &&
+    "userMessage" in err &&
+    typeof (err as { statusCode?: unknown }).statusCode === "number" &&
+    typeof (err as { userMessage?: unknown }).userMessage === "string"
+  )
 }

@@ -31,16 +31,14 @@ import { slugify } from "@/lib/slugs"
 import {
   getPriceForBooking,
   getTechnicianBookingPrice,
+  isServiceAvailableFromAnyTechnicianForBooking,
   isTechnicianCompatibleForBooking,
 } from "@/lib/technician-matrix"
 import { getDistanceToTechnician } from "@/lib/technician-location"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
 import { cn } from "@/lib/utils"
 import type { ScooterBrand, ScooterModel, Service, Technician } from "@/types"
-import {
-  TechnicianSortBar,
-  type TechnicianSortKey,
-} from "./technician-sort-bar"
+import { TechnicianSortBar, type TechnicianSortKey } from "./technician-sort-bar"
 
 const TechnicianMap = dynamic(
   () => import("@/components/technician-map").then((module) => module.TechnicianMap),
@@ -159,7 +157,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
     >
       <div className="mb-4 flex items-center justify-between gap-4 sm:hidden">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9ca3af]">
+          <p className="text-[11px] font-semibold tracking-[0.18em] text-[#9ca3af] uppercase">
             Paso {currentStep} de {STEPS.length}
           </p>
           <p className="mt-1 text-base font-semibold text-[#111827]">{currentLabel}</p>
@@ -179,9 +177,9 @@ function Stepper({ currentStep }: { currentStep: Step }) {
       </div>
 
       <div className="relative hidden sm:block">
-        <div className="absolute left-[calc(10%+20px)] right-[calc(10%-20px)] top-5 h-[2px] rounded-full bg-[#e5e7eb]" />
+        <div className="absolute top-5 right-[calc(10%-20px)] left-[calc(10%+20px)] h-[2px] rounded-full bg-[#e5e7eb]" />
         <div
-          className="absolute left-[calc(10%+20px)] top-5 h-[2px] rounded-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)] transition-all duration-300"
+          className="absolute top-5 left-[calc(10%+20px)] h-[2px] rounded-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)] transition-all duration-300"
           style={{
             width:
               currentStep === 1
@@ -199,10 +197,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
           const Icon = step.icon
 
           return (
-            <li
-              key={step.label}
-              className="relative flex min-w-0 flex-col items-center sm:flex-1"
-            >
+            <li key={step.label} className="relative flex min-w-0 flex-col items-center sm:flex-1">
               <div
                 className={`relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border text-sm transition-all duration-300 sm:h-10 sm:w-10 sm:rounded-full ${
                   done
@@ -257,7 +252,7 @@ function StepScooter({
   }, {})
 
   const brandsWithModels = brands.filter((brand) => (modelsByBrand[brand.id]?.length ?? 0) > 0)
-  const visibleModels = selectedBrandId ? modelsByBrand[selectedBrandId] ?? [] : []
+  const visibleModels = selectedBrandId ? (modelsByBrand[selectedBrandId] ?? []) : []
   const selectedBrand = brandsWithModels.find((brand) => brand.id === selectedBrandId)
 
   return (
@@ -320,7 +315,7 @@ function StepScooter({
           <div className="w-1/2 pl-2">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9ca3af]">
+                <p className="text-xs font-semibold tracking-[0.18em] text-[#9ca3af] uppercase">
                   Marca
                 </p>
                 <p className="text-lg font-semibold text-[#111827]">
@@ -366,11 +361,13 @@ function StepScooter({
 
 function StepService({
   services,
+  technicians,
   model,
   selected,
   onSelect,
 }: {
   services: Service[]
+  technicians: Technician[]
   model: ScooterModel | undefined
   selected: string
   onSelect: (id: string) => void
@@ -378,6 +375,24 @@ function StepService({
   const compatible = model
     ? services.filter((service) => model.compatibleServices.includes(service.id))
     : services
+
+  const availabilityByServiceId = useMemo(
+    () =>
+      Object.fromEntries(
+        compatible.map((service) => [
+          service.id,
+          model
+            ? isServiceAvailableFromAnyTechnicianForBooking(
+                technicians,
+                service.id,
+                model.id,
+                model.brandId
+              )
+            : true,
+        ])
+      ) as Record<string, boolean>,
+    [compatible, model, technicians]
+  )
 
   return (
     <div>
@@ -389,32 +404,76 @@ function StepService({
       )}
       <div className="space-y-3">
         {compatible.map((service) => (
-          <button
+          <div
             key={service.id}
-            onClick={() => onSelect(service.id)}
-            className={`flex w-full cursor-pointer items-start gap-4 rounded-xl border-2 p-4 text-left transition-all duration-150 hover:border-[#10b981] ${
-              selected === service.id
-                ? "border-[#10b981] bg-[#d1fae5]"
-                : "border-[#e5e7eb] bg-white"
-            }`}
+            className="group relative"
+            title={
+              availabilityByServiceId[service.id]
+                ? undefined
+                : "Este servicio todavía no está disponible"
+            }
           >
-            <Wrench className="mt-0.5 h-5 w-5 shrink-0 text-[#10b981]" />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <p className="font-semibold text-[#111827]">{service.name}</p>
-                {service.requiresDisclaimer && (
-                  <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">
-                    Aviso legal
-                  </span>
-                )}
+            <button
+              type="button"
+              onClick={() => {
+                if (!availabilityByServiceId[service.id]) return
+                onSelect(service.id)
+              }}
+              disabled={!availabilityByServiceId[service.id]}
+              className={`flex w-full items-start gap-4 rounded-xl border-2 p-4 text-left transition-all duration-150 ${
+                !availabilityByServiceId[service.id]
+                  ? "cursor-not-allowed border-[#e5e7eb] bg-[#f8fafc] text-[#9ca3af]"
+                  : selected === service.id
+                    ? "cursor-pointer border-[#10b981] bg-[#d1fae5] hover:border-[#10b981]"
+                    : "cursor-pointer border-[#e5e7eb] bg-white hover:border-[#10b981]"
+              }`}
+            >
+              <Wrench
+                className={`mt-0.5 h-5 w-5 shrink-0 ${
+                  availabilityByServiceId[service.id] ? "text-[#10b981]" : "text-[#cbd5e1]"
+                }`}
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p
+                    className={`font-semibold ${
+                      availabilityByServiceId[service.id] ? "text-[#111827]" : "text-[#9ca3af]"
+                    }`}
+                  >
+                    {service.name}
+                  </p>
+                  {service.requiresDisclaimer && (
+                    <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">
+                      Aviso legal
+                    </span>
+                  )}
+                </div>
+                <p
+                  className={`mt-0.5 text-sm ${
+                    availabilityByServiceId[service.id] ? "text-[#6b7280]" : "text-[#cbd5e1]"
+                  }`}
+                >
+                  {service.description}
+                </p>
+                <p
+                  className={`mt-1 text-xs ${
+                    availabilityByServiceId[service.id] ? "text-[#9ca3af]" : "text-[#cbd5e1]"
+                  }`}
+                >
+                  Duracion estimada: {service.estimatedDuration} min
+                </p>
               </div>
-              <p className="mt-0.5 text-sm text-[#6b7280]">{service.description}</p>
-              <p className="mt-1 text-xs text-[#9ca3af]">
-                Duracion estimada: {service.estimatedDuration} min
-              </p>
-            </div>
-            {selected === service.id && <Check className="h-5 w-5 shrink-0 text-[#10b981]" />}
-          </button>
+              {selected === service.id && availabilityByServiceId[service.id] && (
+                <Check className="h-5 w-5 shrink-0 text-[#10b981]" />
+              )}
+            </button>
+
+            {!availabilityByServiceId[service.id] && (
+              <span className="pointer-events-none absolute top-full left-1/2 z-20 mt-2 hidden w-max max-w-[16rem] -translate-x-1/2 rounded-lg bg-[#111827] px-3 py-2 text-xs font-medium text-white shadow-lg group-hover:block">
+                Este servicio todavía no está disponible
+              </span>
+            )}
+          </div>
         ))}
       </div>
       {compatible.length === 0 && (
@@ -441,7 +500,12 @@ export function LegacyStepTechnician({
 }) {
   const available = technicians.filter((technician) => {
     if (!service || !scooterModel) return false
-    return isTechnicianCompatibleForBooking(technician, service.id, scooterModel.id, scooterModel.brandId)
+    return isTechnicianCompatibleForBooking(
+      technician,
+      service.id,
+      scooterModel.id,
+      scooterModel.brandId
+    )
   })
 
   return (
@@ -512,7 +576,12 @@ function StepTechnician({
     () =>
       technicians.filter((technician) => {
         if (!service || !scooterModel) return false
-        return isTechnicianCompatibleForBooking(technician, service.id, scooterModel.id, scooterModel.brandId)
+        return isTechnicianCompatibleForBooking(
+          technician,
+          service.id,
+          scooterModel.id,
+          scooterModel.brandId
+        )
       }),
     [technicians, service, scooterModel]
   )
@@ -528,7 +597,11 @@ function StepTechnician({
       available.map((technician) => ({
         ...technician,
         distanceKm: hasUserLocation
-          ? getDistanceToTechnician(technician, geolocation.lat ?? undefined, geolocation.lng ?? undefined)
+          ? getDistanceToTechnician(
+              technician,
+              geolocation.lat ?? undefined,
+              geolocation.lng ?? undefined
+            )
           : null,
       })),
     [available, geolocation.lat, geolocation.lng, hasUserLocation]
@@ -538,15 +611,23 @@ function StepTechnician({
     const next = [...techniciansWithDistance]
 
     next.sort((left, right) => {
-      const leftPrice = service && scooterModel
-        ? getPriceForBooking(left.pricingMatrix, service.id, scooterModel.id) ?? Number.POSITIVE_INFINITY
-        : Number.POSITIVE_INFINITY
-      const rightPrice = service && scooterModel
-        ? getPriceForBooking(right.pricingMatrix, service.id, scooterModel.id) ?? Number.POSITIVE_INFINITY
-        : Number.POSITIVE_INFINITY
+      const leftPrice =
+        service && scooterModel
+          ? (getPriceForBooking(left.pricingMatrix, service.id, scooterModel.id) ??
+            Number.POSITIVE_INFINITY)
+          : Number.POSITIVE_INFINITY
+      const rightPrice =
+        service && scooterModel
+          ? (getPriceForBooking(right.pricingMatrix, service.id, scooterModel.id) ??
+            Number.POSITIVE_INFINITY)
+          : Number.POSITIVE_INFINITY
 
       if (sortKey === "distance") {
-        if (left.distanceKm !== null && right.distanceKm !== null && left.distanceKm !== right.distanceKm) {
+        if (
+          left.distanceKm !== null &&
+          right.distanceKm !== null &&
+          left.distanceKm !== right.distanceKm
+        ) {
           return left.distanceKm - right.distanceKm
         }
         if (left.distanceKm !== null && right.distanceKm === null) return -1
@@ -572,7 +653,8 @@ function StepTechnician({
   const mappableTechnicians = useMemo(
     () =>
       sortedTechnicians.filter(
-        (technician) => (technician.coordinates ?? getCoordinatesForLocation(technician.location)) !== null
+        (technician) =>
+          (technician.coordinates ?? getCoordinatesForLocation(technician.location)) !== null
       ),
     [sortedTechnicians]
   )
@@ -580,7 +662,8 @@ function StepTechnician({
   const unmappableTechnicians = useMemo(
     () =>
       sortedTechnicians.filter(
-        (technician) => (technician.coordinates ?? getCoordinatesForLocation(technician.location)) === null
+        (technician) =>
+          (technician.coordinates ?? getCoordinatesForLocation(technician.location)) === null
       ),
     [sortedTechnicians]
   )
@@ -609,7 +692,9 @@ function StepTechnician({
               onClick={() => setViewMode("list")}
               className={cn(
                 "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                viewMode === "list" ? "bg-[#10b981] text-white" : "text-[#475569] hover:text-[#111827]"
+                viewMode === "list"
+                  ? "bg-[#10b981] text-white"
+                  : "text-[#475569] hover:text-[#111827]"
               )}
             >
               <List className="h-4 w-4" />
@@ -620,7 +705,9 @@ function StepTechnician({
               onClick={() => setViewMode("map")}
               className={cn(
                 "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                viewMode === "map" ? "bg-[#10b981] text-white" : "text-[#475569] hover:text-[#111827]"
+                viewMode === "map"
+                  ? "bg-[#10b981] text-white"
+                  : "text-[#475569] hover:text-[#111827]"
               )}
             >
               <Map className="h-4 w-4" />
@@ -639,7 +726,8 @@ function StepTechnician({
 
         {available.length === 1 ? (
           <div className="rounded-2xl border border-[#d1fae5] bg-[#f0fdf4] px-4 py-3 text-sm font-medium text-[#047857]">
-            Solo un tecnico disponible para este servicio. Lo dejamos preseleccionado para que avances mas rapido.
+            Solo un tecnico disponible para este servicio. Lo dejamos preseleccionado para que
+            avances mas rapido.
           </div>
         ) : null}
       </div>
@@ -781,8 +869,9 @@ function StepDateTime({
 
     const dayKey = getDayKey(dateValue)
     const availability = dayKey && technician ? technician.availability[dayKey] : undefined
-    const slots =
-      availability?.isAvailable ? buildHourSlots(availability.start, availability.end) : []
+    const slots = availability?.isAvailable
+      ? buildHourSlots(availability.start, availability.end)
+      : []
     const nextTime = slots.includes(selectedTime) ? selectedTime : ""
     onDateChange(nextTime ? `${dateValue}T${nextTime}` : `${dateValue}T`)
   }
@@ -801,15 +890,11 @@ function StepDateTime({
 
       {technician && availabilityEntries.length > 0 && (
         <div className="mb-4 rounded-lg border border-[#e5e7eb] bg-[#f9fafb] p-4">
-          <p className="mb-2 text-sm font-semibold text-[#374151]">
-            Disponibilidad del técnico
-          </p>
+          <p className="mb-2 text-sm font-semibold text-[#374151]">Disponibilidad del técnico</p>
           <ul className="space-y-1">
             {availabilityEntries.map(([day, avail]) => (
               <li key={day} className="flex items-center gap-2 text-sm text-[#6b7280]">
-                <span className="w-24 font-medium text-[#374151]">
-                  {DAY_LABELS[day] ?? day}
-                </span>
+                <span className="w-24 font-medium text-[#374151]">{DAY_LABELS[day] ?? day}</span>
                 <span>
                   {avail.start} - {avail.end}
                 </span>
@@ -831,7 +916,7 @@ function StepDateTime({
             max={maxDateStr}
             value={selectedDate}
             onChange={(e) => handleDateSelection(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] focus:border-[#10b981] focus:outline-none focus:ring-1 focus:ring-[#10b981]"
+            className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] focus:outline-none"
           />
         </div>
 
@@ -844,7 +929,7 @@ function StepDateTime({
             value={selectedDaySlots.includes(selectedTime) ? selectedTime : ""}
             onChange={(e) => handleTimeSelection(e.target.value)}
             disabled={!selectedDate || selectedDaySlots.length === 0}
-            className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] disabled:cursor-not-allowed disabled:bg-[#f3f4f6] disabled:text-[#9ca3af] focus:border-[#10b981] focus:outline-none focus:ring-1 focus:ring-[#10b981]"
+            className="mt-1 block w-full rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] focus:outline-none disabled:cursor-not-allowed disabled:bg-[#f3f4f6] disabled:text-[#9ca3af]"
           >
             <option value="">
               {!selectedDate
@@ -878,7 +963,7 @@ function StepDateTime({
             value={notes}
             onChange={(e) => onNotesChange(e.target.value)}
             placeholder="Ej: el scooter da error en el display o la bateria carga lento..."
-            className="mt-1 block w-full resize-none rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] placeholder-[#9ca3af] focus:border-[#10b981] focus:outline-none focus:ring-1 focus:ring-[#10b981]"
+            className="mt-1 block w-full resize-none rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-sm text-[#111827] placeholder-[#9ca3af] focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] focus:outline-none"
           />
           <p className="mt-1 text-right text-xs text-[#9ca3af]">{notes.length}/500</p>
         </div>
@@ -902,9 +987,10 @@ function StepConfirm({
     technician && service && model
       ? getTechnicianBookingPrice(technician, service.id, model.id)
       : null
-  const { basePrice, serviceFee, totalPrice } = bookingPrice !== null
-    ? calculatePricing(bookingPrice)
-    : { basePrice: 0, serviceFee: 0, totalPrice: 0 }
+  const { basePrice, serviceFee, totalPrice } =
+    bookingPrice !== null
+      ? calculatePricing(bookingPrice)
+      : { basePrice: 0, serviceFee: 0, totalPrice: 0 }
 
   const scheduled = wizardState.scheduledDate
     ? new Intl.DateTimeFormat("es-UY", {
@@ -991,6 +1077,16 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
   const model = models.find((item) => item.id === state.scooterModelId)
   const service = services.find((item) => item.id === state.serviceId)
   const technician = technicians.find((item) => item.id === state.technicianId)
+  const selectedServiceAvailable = useMemo(() => {
+    if (!service) return false
+    if (!model) return true
+    return isServiceAvailableFromAnyTechnicianForBooking(
+      technicians,
+      service.id,
+      model.id,
+      model.brandId
+    )
+  }, [model, service, technicians])
 
   const syncUrl = useCallback(
     (newState: Partial<WizardState>, newStep: Step) => {
@@ -1010,7 +1106,7 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
       }
       router.replace(`/booking/new?${params.toString()}`, { scroll: false })
     },
-    [router, state],
+    [router, state]
   )
 
   function update(patch: Partial<WizardState>) {
@@ -1022,7 +1118,7 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
       case 1:
         return !!state.scooterModelId
       case 2:
-        return !!state.serviceId
+        return !!state.serviceId && selectedServiceAvailable
       case 3:
         return !!state.technicianId
       case 4:
@@ -1169,6 +1265,7 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
           {step === 2 && (
             <StepService
               services={services}
+              technicians={technicians}
               model={model}
               selected={state.serviceId}
               onSelect={handleSelectService}
@@ -1222,9 +1319,7 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
                 <span className="text-sm text-[#065f46]">
                   Reserva online fija a pagar ahora ({formatUYU(DEFAULT_SERVICE_FEE_AMOUNT)})
                 </span>
-                <span className="text-lg font-bold text-[#10b981]">
-                  {formatUYU(serviceFee)}
-                </span>
+                <span className="text-lg font-bold text-[#10b981]">{formatUYU(serviceFee)}</span>
               </div>
             )
           })()}

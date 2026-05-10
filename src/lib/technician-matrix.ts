@@ -1,8 +1,8 @@
 import type { ServicePricing, Technician, TechnicianModelPricing } from "@/types"
 
-export function hasTechnicianMatrix(matrix?: Technician["pricingMatrix"] | null): matrix is NonNullable<
-  Technician["pricingMatrix"]
-> {
+export function hasTechnicianMatrix(
+  matrix?: Technician["pricingMatrix"] | null
+): matrix is NonNullable<Technician["pricingMatrix"]> {
   return Boolean(matrix && Object.keys(matrix).length > 0)
 }
 
@@ -133,7 +133,20 @@ export function isTechnicianCompatibleForBooking(
   }
 
   if (!modelBrandId) return false
-  return technician.services.includes(serviceId) && technician.supportedBrands.includes(modelBrandId)
+  return (
+    technician.services.includes(serviceId) && technician.supportedBrands.includes(modelBrandId)
+  )
+}
+
+export function isServiceAvailableFromAnyTechnicianForBooking(
+  technicians: Array<Pick<Technician, "pricingMatrix" | "services" | "supportedBrands">>,
+  serviceId: string,
+  modelId: string,
+  modelBrandId?: string
+): boolean {
+  return technicians.some((technician) =>
+    isTechnicianCompatibleForBooking(technician, serviceId, modelId, modelBrandId)
+  )
 }
 
 export function deriveLegacyFieldsFromMatrix(
@@ -160,7 +173,8 @@ export function normalizeMatrixInput(
   for (const [serviceId, models] of Object.entries(matrix)) {
     normalized[serviceId] = {}
     for (const [modelId, entry] of Object.entries(models ?? {})) {
-      const price = typeof entry?.price === "number" && Number.isFinite(entry.price) ? entry.price : 0
+      const price =
+        typeof entry?.price === "number" && Number.isFinite(entry.price) ? entry.price : 0
       normalized[serviceId][modelId] = {
         price: Math.max(0, price),
         currency: "UYU",

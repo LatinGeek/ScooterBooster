@@ -7,6 +7,7 @@ import {
   getTechnicianBookingPrice,
   isTechnicianCompatible,
   isTechnicianCompatibleForBooking,
+  isServiceAvailableFromAnyTechnicianForBooking,
 } from "@/lib/technician-matrix"
 
 describe("technician-matrix", () => {
@@ -73,5 +74,55 @@ describe("technician-matrix", () => {
         "xiaomi"
       )
     ).toBe(true)
+  })
+
+  it("detects when at least one technician can perform a service for the selected model", () => {
+    expect(
+      isServiceAvailableFromAnyTechnicianForBooking(
+        [
+          {
+            pricingMatrix: undefined,
+            services: ["maintenance"],
+            supportedBrands: ["xiaomi"],
+          },
+          {
+            pricingMatrix: {
+              maintenance: {
+                "xiaomi-mi5-gen3": { price: 600, currency: "UYU" as const, isAvailable: true },
+              },
+            },
+            services: [],
+            supportedBrands: [],
+          },
+        ],
+        "maintenance",
+        "xiaomi-mi5-gen3",
+        "xiaomi"
+      )
+    ).toBe(true)
+
+    expect(
+      isServiceAvailableFromAnyTechnicianForBooking(
+        [
+          {
+            pricingMatrix: undefined,
+            services: ["maintenance"],
+            supportedBrands: ["xiaomi"],
+          },
+          {
+            pricingMatrix: {
+              maintenance: {
+                "xiaomi-mi5-gen3": { price: 600, currency: "UYU" as const, isAvailable: false },
+              },
+            },
+            services: [],
+            supportedBrands: [],
+          },
+        ],
+        "speed-limit",
+        "xiaomi-mi5-gen3",
+        "xiaomi"
+      )
+    ).toBe(false)
   })
 })

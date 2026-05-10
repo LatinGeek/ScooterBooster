@@ -22,6 +22,12 @@ import { assertTrustedOrigin } from "@/lib/security"
 import { safeRevalidateTag } from "@/lib/revalidate"
 import type { Technician } from "@/types"
 
+const dayAvailabilitySchema = z.object({
+  start: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM requerido"),
+  end: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM requerido"),
+  isAvailable: z.boolean(),
+})
+
 const moderationSchema = z.object({
   action: z.enum(["approve", "reject", "request_changes"], { error: "Acción inválida" }),
   reason: z.string().max(500).optional(),
@@ -48,7 +54,17 @@ const overrideSchema = z.object({
   location: z.string().max(100).optional(),
   services: z.array(z.string()).optional(),
   supportedBrands: z.array(z.string()).optional(),
+  availability: z.record(z.string(), dayAvailabilitySchema).optional(),
   pricingMatrix: z.record(z.string(), z.record(z.string(), technicianModelPricingSchema)).optional(),
+  pricing: z
+    .record(
+      z.string(),
+      z.object({
+        basePrice: z.number().min(0),
+        currency: z.literal("UYU"),
+      }),
+    )
+    .optional(),
   isActive: z.boolean().optional(),
 })
 
@@ -80,7 +96,6 @@ export const PATCH = withErrorHandling<
     const { id } = await ctx.params
     const tech = await getTechnicianById(id)
     if (!tech) throw new NotFoundError("Técnico no encontrado")
-    const techRef = adminDb.collection("technicians").doc(id)
 
     const rawBody = (await req.json()) as Record<string, unknown>
     if (!["approve", "reject", "request_changes", "update"].includes(String(rawBody.action ?? ""))) {
@@ -104,27 +119,42 @@ export const PATCH = withErrorHandling<
         location: parsed.data.location,
         services: parsed.data.services,
         supportedBrands: parsed.data.supportedBrands,
+        availability: parsed.data.availability,
         pricingMatrix: parsed.data.pricingMatrix,
+        pricing: parsed.data.pricing,
         isActive: parsed.data.isActive,
       })
 
       safeRevalidateTag("technicians")
-      await addAuditLogEntry({
-        action: "technician_profile_overridden",
-        actorUid: session.uid,
-        targetType: "technician",
-        targetId: id,
-        metadata: {
-          services: updated.services,
-          supportedBrands: updated.supportedBrands,
-          isActive: updated.isActive,
-        },
-      })
+      const auditResult = await Promise.allSettled([
+        addAuditLogEntry({
+          action: "technician_profile_overridden",
+          actorUid: session.uid,
+          targetType: "technician",
+          targetId: id,
+          metadata: {
+            services: updated.services,
+            supportedBrands: updated.supportedBrands,
+            isActive: updated.isActive,
+          },
+        }),
+      ])
+      if (auditResult[0]?.status === "rejected") {
+        logger.warn(
+          {
+            adminUid: session.uid,
+            technicianId: id,
+            err: auditResult[0].reason,
+          },
+          "Failed to write technician audit log",
+        )
+      }
 
       return ok(updated)
     }
 
     if (parsed.data.action === "delete") {
+      const techRef = adminDb.collection("technicians").doc(id)
       const bookings = await getBookingsByTechnician(id)
       const activeBookings = bookings.filter((booking) =>
         ["pending", "confirmed", "in_progress"].includes(booking.status),

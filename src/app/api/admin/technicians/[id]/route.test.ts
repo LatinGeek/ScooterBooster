@@ -233,4 +233,64 @@ describe("/api/admin/technicians/[id]", () => {
       targetId: "tech-1",
     }))
   })
+
+  it("allows admins to update technician availability from the override panel", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
+    mocks.getTechnicianById.mockResolvedValue({
+      id: "tech-1",
+      userId: "user-1",
+      displayName: "Carlos",
+      services: ["service-1"],
+      supportedBrands: ["brand-1"],
+      availability: {},
+    })
+    mocks.updateTechnicianProfile.mockResolvedValue({
+      id: "tech-1",
+      displayName: "Carlos",
+      bio: "Perfil actualizado",
+      photoURL: "",
+      phone: "+59899111001",
+      whatsappNumber: "59899111001",
+      location: "Centro, Montevideo",
+      services: ["service-1"],
+      supportedBrands: ["brand-1"],
+      availability: {
+        monday: { start: "09:00", end: "18:00", isAvailable: true },
+      },
+      pricing: {},
+      rating: 5,
+      reviewCount: 12,
+      isApproved: true,
+      isActive: true,
+      createdAt: "2026-04-01T00:00:00.000Z",
+      updatedAt: "2026-04-21T00:00:00.000Z",
+    })
+
+    const response = await PATCH(
+      createPatchRequest({
+        action: "update",
+        availability: {
+          monday: { start: "09:00", end: "18:00", isAvailable: true },
+        },
+      }),
+      {
+        params: Promise.resolve({ id: "tech-1" }),
+      },
+    )
+    const json = (await response.json()) as { success: boolean; data: { availability: Record<string, unknown> } }
+
+    expect(response.status).toBe(200)
+    expect(json.success).toBe(true)
+    expect(json.data.availability).toEqual({
+      monday: { start: "09:00", end: "18:00", isAvailable: true },
+    })
+    expect(mocks.updateTechnicianProfile).toHaveBeenCalledWith(
+      "tech-1",
+      expect.objectContaining({
+        availability: {
+          monday: { start: "09:00", end: "18:00", isAvailable: true },
+        },
+      }),
+    )
+  })
 })

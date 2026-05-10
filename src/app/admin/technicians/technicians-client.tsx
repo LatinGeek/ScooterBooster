@@ -46,6 +46,19 @@ function statusStyles(technician: Technician) {
   return "bg-amber-50 text-amber-700"
 }
 
+async function readApiPayload<T>(response: Response): Promise<T | null> {
+  const contentType = response.headers.get("content-type") ?? ""
+  if (!contentType.includes("application/json")) {
+    return null
+  }
+
+  try {
+    return (await response.json()) as T
+  } catch {
+    return null
+  }
+}
+
 export function AdminTechniciansClient({ technicians: initial, services, models, brands }: Props) {
   const [technicians, setTechnicians] = useState<Technician[]>(initial)
   const [statusTab, setStatusTab] = useState<StatusTab>("pending")
@@ -102,9 +115,9 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
 
   async function refreshTechnicians() {
     const response = await fetch("/api/admin/technicians?status=all")
-    const payload = (await response.json()) as { data?: Technician[]; error?: string }
-    if (!response.ok || !payload.data) {
-      toast.error(payload.error ?? "No pudimos actualizar la lista.")
+    const payload = await readApiPayload<{ data?: Technician[]; error?: string }>(response)
+    if (!response.ok || !payload?.data) {
+      toast.error(payload?.error ?? "No pudimos actualizar la lista.")
       return
     }
 
@@ -126,9 +139,9 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, reason }),
       })
-      const payload = (await response.json()) as { error?: string }
+      const payload = await readApiPayload<{ error?: string }>(response)
       if (!response.ok) {
-        toast.error(payload.error ?? "No pudimos procesar la acción.")
+        toast.error(payload?.error ?? "No pudimos procesar la acción.")
         return
       }
 
@@ -162,9 +175,9 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "update", ...payload }),
       })
-      const json = (await response.json()) as { data?: Technician; error?: string }
-      if (!response.ok || !json.data) {
-        toast.error(json.error ?? "No pudimos guardar el perfil.")
+      const json = await readApiPayload<{ data?: Technician; error?: string }>(response)
+      if (!response.ok || !json?.data) {
+        toast.error(json?.error ?? "No pudimos guardar el perfil.")
         return
       }
       setTechnicians((current) => current.map((item) => (item.id === json.data!.id ? json.data! : item)))
@@ -183,9 +196,9 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "update", pricingMatrix: matrix }),
       })
-      const json = (await response.json()) as { data?: Technician; error?: string }
-      if (!response.ok || !json.data) {
-        toast.error(json.error ?? "No pudimos guardar la matriz.")
+      const json = await readApiPayload<{ data?: Technician; error?: string }>(response)
+      if (!response.ok || !json?.data) {
+        toast.error(json?.error ?? "No pudimos guardar la matriz.")
         return
       }
       setTechnicians((current) => current.map((item) => (item.id === json.data!.id ? json.data! : item)))
@@ -204,9 +217,9 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "update", availability }),
       })
-      const json = (await response.json()) as { data?: Technician; error?: string }
-      if (!response.ok || !json.data) {
-        toast.error(json.error ?? "No pudimos guardar los horarios.")
+      const json = await readApiPayload<{ data?: Technician; error?: string }>(response)
+      if (!response.ok || !json?.data) {
+        toast.error(json?.error ?? "No pudimos guardar los horarios.")
         return
       }
       setTechnicians((current) => current.map((item) => (item.id === json.data!.id ? json.data! : item)))
@@ -225,9 +238,9 @@ export function AdminTechniciansClient({ technicians: initial, services, models,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete", hard }),
       })
-      const json = (await response.json()) as { error?: string }
+      const json = await readApiPayload<{ error?: string }>(response)
       if (!response.ok) {
-        toast.error(json.error ?? "No pudimos eliminar el técnico.")
+        toast.error(json?.error ?? "No pudimos eliminar el técnico.")
         return
       }
       await refreshTechnicians()
