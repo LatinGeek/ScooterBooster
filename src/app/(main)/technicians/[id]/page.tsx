@@ -21,6 +21,7 @@ import { getActiveBrands } from "@/lib/db/brands"
 import { getReviewsByTechnician } from "@/lib/db/reviews"
 import { getServicesByIds } from "@/lib/db/services"
 import { getTechnicianByIdentifier } from "@/lib/db/technicians"
+import { getUsersByIds } from "@/lib/db/users"
 import {
   getDistanceToTechnician,
   getTechnicianLocationPreset,
@@ -105,10 +106,11 @@ export default async function TechnicianDetailPage({
     !Number.isNaN(latitude) &&
     !Number.isNaN(longitude)
 
-  const [reviews, services, brands] = await Promise.all([
-    getReviewsByTechnician(technician.id, 10),
+  const reviews = await getReviewsByTechnician(technician.id, 10)
+  const [services, brands, users] = await Promise.all([
     getServicesByIds(technician.services),
     getActiveBrands(),
+    getUsersByIds(reviews.map((review) => review.userId)),
   ])
 
   const currentSearch = new URLSearchParams()
@@ -290,7 +292,7 @@ export default async function TechnicianDetailPage({
             ) : (
               <div className="space-y-3">
                 {reviews.map((review) => (
-                  <ReviewCard key={review.id} review={review} />
+                  <ReviewCard key={review.id} review={review} reviewer={users[review.userId] ?? null} />
                 ))}
               </div>
             )}
