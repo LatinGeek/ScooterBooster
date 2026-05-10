@@ -3,6 +3,7 @@ import { getAllBrands } from "@/lib/db/brands"
 import { getAllModels } from "@/lib/db/models"
 import { getAllServices } from "@/lib/db/services"
 import { getSession } from "@/lib/session"
+import { AdminErrorBoundary } from "@/components/admin-error-boundary"
 import { AdminScootersClient } from "./scooters-client"
 
 export const dynamic = "force-dynamic"
@@ -18,5 +19,9 @@ export default async function AdminScootersPage() {
     getAllServices(),
   ])
 
-  return <AdminScootersClient brands={brands} models={models} services={services} />
+  return (
+    <AdminErrorBoundary>
+      <AdminScootersClient brands={brands} models={models} services={services} />
+    </AdminErrorBoundary>
+  )
 }

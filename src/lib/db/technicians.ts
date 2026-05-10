@@ -178,6 +178,11 @@ export async function getAllTechnicians(): Promise<Technician[]> {
   return snap.docs.map((doc) => docToTechnician(doc.id, doc.data()))
 }
 
+export async function getLatestTechnicians(limit = 200): Promise<Technician[]> {
+  const snap = await adminDb.collection(COLLECTION).orderBy("createdAt", "desc").limit(limit).get()
+  return snap.docs.map((doc) => docToTechnician(doc.id, doc.data()))
+}
+
 /** Update technician approval status */
 export async function setTechnicianApproval(id: string, isApproved: boolean): Promise<void> {
   await adminDb.collection(COLLECTION).doc(id).update({

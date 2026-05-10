@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation"
+import { Activity, Filter } from "lucide-react"
+import { AuditTimestamp } from "@/components/admin-audit-timestamp"
 import { getAuditEntries } from "@/lib/db/audit-log"
 import { getUsersByIds } from "@/lib/db/users"
 import { getSession } from "@/lib/session"
 import type { AuditLogEntry } from "@/types"
-import { Activity, Filter } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -12,14 +13,8 @@ interface PageProps {
     action?: string
     actor?: string
     target?: string
+    timezone?: string
   }>
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("es-UY", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  })
 }
 
 function prettyAction(action: string) {
@@ -164,7 +159,8 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
                     </div>
                     <p className="mt-3 text-sm font-medium text-[#111827]">{entrySummary(entry)}</p>
                     <p className="mt-1 text-xs text-[#6b7280]">
-                      {actor?.displayName || entry.actorUid || "Sistema"} · {formatDate(entry.createdAt)}
+                      {actor?.displayName || entry.actorUid || "Sistema"} ·{" "}
+                      <AuditTimestamp isoString={entry.createdAt} adminTimezone={filters.timezone} />
                     </p>
                   </div>
                   <div className="text-right text-xs text-[#6b7280]">
@@ -186,4 +182,3 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
     </section>
   )
 }
-

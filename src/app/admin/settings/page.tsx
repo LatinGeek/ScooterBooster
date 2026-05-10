@@ -32,6 +32,22 @@ export default function AdminSettingsPage() {
   }, [])
 
   async function handleSave() {
+    if (!Number.isFinite(fee) || fee < 0) {
+      setError("La comisión no puede ser negativa.")
+      return
+    }
+
+    if (fee > 100_000) {
+      setError("La comisión no puede exceder $100.000.")
+      return
+    }
+
+    const feeInt = Math.round(fee)
+    if (feeInt !== fee) {
+      setError("La comisión debe ser un número entero.")
+      return
+    }
+
     setSaving(true)
     setError(null)
     setSaved(false)
@@ -39,7 +55,7 @@ export default function AdminSettingsPage() {
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ serviceFeeAmount: fee }),
+        body: JSON.stringify({ serviceFeeAmount: feeInt }),
       })
       if (!res.ok) {
         const data = (await res.json()) as { error?: string }
@@ -72,7 +88,7 @@ export default function AdminSettingsPage() {
   return (
     <section>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#111827]">Configuracion de la plataforma</h1>
+        <h1 className="text-2xl font-bold text-[#111827]">Configuración de la plataforma</h1>
         <p className="mt-1 text-sm text-[#6b7280]">
           Estos cambios aplican a todas las reservas nuevas.
         </p>
@@ -86,7 +102,7 @@ export default function AdminSettingsPage() {
       {saved && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-[#a7f3d0] bg-[#d1fae5] px-4 py-3 text-sm text-[#065f46]">
           <CheckCircle className="h-4 w-4" />
-          Configuracion guardada. Efectiva en las proximas reservas.
+          Configuración guardada. Efectiva en las próximas reservas.
         </div>
       )}
 
@@ -96,7 +112,7 @@ export default function AdminSettingsPage() {
             <Settings className="h-5 w-5 text-amber-600" />
           </div>
           <div>
-            <h2 className="font-semibold text-[#111827]">Comision de la plataforma</h2>
+            <h2 className="font-semibold text-[#111827]">Comisión de la plataforma</h2>
             <p className="text-sm text-[#6b7280]">
               Monto fijo que ScooterBooster cobra para confirmar cada reserva online.
             </p>
@@ -132,7 +148,7 @@ export default function AdminSettingsPage() {
 
         {config?.updatedAt && (
           <p className="mb-4 text-xs text-[#9ca3af]">
-            Ultima actualizacion: {new Date(config.updatedAt).toLocaleString("es-UY")}
+            Última actualización: {new Date(config.updatedAt).toLocaleString("es-UY")}
           </p>
         )}
 
@@ -143,7 +159,7 @@ export default function AdminSettingsPage() {
               Guardando...
             </>
           ) : (
-            "Guardar configuracion"
+            "Guardar configuración"
           )}
         </Button>
       </div>

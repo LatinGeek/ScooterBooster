@@ -3,6 +3,7 @@ import { getTechnicianById } from "@/lib/db/technicians"
 import { getAllReviews } from "@/lib/db/reviews"
 import { getUsersByIds } from "@/lib/db/users"
 import { getSession } from "@/lib/session"
+import { AdminErrorBoundary } from "@/components/admin-error-boundary"
 import { AdminReviewsClient } from "./reviews-client"
 
 export const dynamic = "force-dynamic"
@@ -12,7 +13,7 @@ export default async function AdminReviewsPage() {
   if (!session) redirect("/login?redirect=/admin/reviews")
   if (session.role !== "admin") redirect("/")
 
-  const reviews = await getAllReviews()
+  const reviews = await getAllReviews(200)
   const users = await getUsersByIds(reviews.map((review) => review.userId))
   const technicians = Object.fromEntries(
     await Promise.all(
@@ -23,5 +24,9 @@ export default async function AdminReviewsPage() {
     ),
   )
 
-  return <AdminReviewsClient reviews={reviews} users={users} technicians={technicians} />
+  return (
+    <AdminErrorBoundary>
+      <AdminReviewsClient reviews={reviews} users={users} technicians={technicians} />
+    </AdminErrorBoundary>
+  )
 }

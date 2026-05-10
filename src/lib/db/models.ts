@@ -187,3 +187,7 @@ export async function updateModel(
   const updated = await adminDb.collection(COLLECTION).doc(id).get()
   return docToScooterModel(updated.id, updated.data()!)
 }
+
+export async function deleteModel(id: string): Promise<void> {
+  await adminDb.collection(COLLECTION).doc(id).delete()
+}

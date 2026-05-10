@@ -1,9 +1,20 @@
-﻿"use client"
+"use client"
 
 import Image from "next/image"
-import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import { AlertTriangle, Mail, Phone, Search, ShieldCheck, Trash2, User as UserIcon, UserCog, Wrench } from "lucide-react"
+import {
+  AlertTriangle,
+  Mail,
+  Phone,
+  Search,
+  ShieldCheck,
+  Trash2,
+  User as UserIcon,
+  UserCog,
+  Wrench,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { User } from "@/types"
@@ -11,6 +22,12 @@ import type { User } from "@/types"
 interface Props {
   users: User[]
   currentAdminUid: string
+  page: number
+  pageSize: number
+  hasMore: boolean
+  nextCursor?: string
+  currentCursor?: string
+  cursorStack: string[]
 }
 
 type RoleFilter = "all" | User["role"]
@@ -43,7 +60,16 @@ function formatDate(iso?: string | null) {
   })
 }
 
-export function AdminUsersClient({ users: initialUsers, currentAdminUid }: Props) {
+export function AdminUsersClient({
+  users: initialUsers,
+  currentAdminUid,
+  page,
+  pageSize,
+  hasMore,
+  nextCursor,
+  currentCursor,
+  cursorStack,
+}: Props) {
   const [users, setUsers] = useState(initialUsers)
   const [query, setQuery] = useState("")
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all")
@@ -65,17 +91,6 @@ export function AdminUsersClient({ users: initialUsers, currentAdminUid }: Props
   }, [query, roleFilter, stateFilter, users])
 
   const selectedUser = filteredUsers.find((user) => user.uid === selectedUid) ?? filteredUsers[0] ?? null
-
-  useEffect(() => {
-    if (filteredUsers.length === 0) {
-      if (selectedUid) setSelectedUid("")
-      return
-    }
-
-    if (!filteredUsers.some((user) => user.uid === selectedUid)) {
-      setSelectedUid(filteredUsers[0]!.uid)
-    }
-  }, [filteredUsers, selectedUid])
 
   async function updateRole(user: User, role: User["role"]) {
     setBusyKey(`role-${user.uid}`)
@@ -118,6 +133,18 @@ export function AdminUsersClient({ users: initialUsers, currentAdminUid }: Props
       setBusyKey(null)
     }
   }
+
+  const nextStack = nextCursor ? [...cursorStack, nextCursor].join(",") : undefined
+  const previousCursor = currentCursor && cursorStack.length > 1 ? cursorStack[cursorStack.length - 2] : undefined
+  const previousStack = currentCursor && cursorStack.length > 1 ? cursorStack.slice(0, -1).join(",") : undefined
+  const previousPageHref = page > 1
+    ? previousCursor
+      ? `/admin/users?page=${page - 1}&cursor=${encodeURIComponent(previousCursor)}${previousStack ? `&stack=${encodeURIComponent(previousStack)}` : ""}`
+      : "/admin/users"
+    : null
+  const nextPageHref = hasMore && nextCursor && nextStack
+    ? `/admin/users?page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}&stack=${encodeURIComponent(nextStack)}`
+    : null
 
   return (
     <section className="space-y-6">
@@ -233,6 +260,24 @@ export function AdminUsersClient({ users: initialUsers, currentAdminUid }: Props
             {filteredUsers.length === 0 ? (
               <div className="p-8 text-center text-sm text-[#6b7280]">No encontramos usuarios con esos filtros.</div>
             ) : null}
+          </div>
+
+          <div className="flex items-center justify-between rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#6b7280] shadow-sm">
+            <span>
+              Página {page} · hasta {pageSize} usuarios
+            </span>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" disabled={!previousPageHref}>
+                <Link href={previousPageHref ?? "/admin/users"} aria-disabled={!previousPageHref}>
+                  Anterior
+                </Link>
+              </Button>
+              <Button asChild variant="outline" disabled={!nextPageHref}>
+                <Link href={nextPageHref ?? "/admin/users"} aria-disabled={!nextPageHref}>
+                  Siguiente
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 

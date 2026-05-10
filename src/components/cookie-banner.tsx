@@ -1,7 +1,7 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   createCookiePreferences,
   readCookiePreferences,
@@ -9,15 +9,16 @@ import {
 } from "@/lib/analytics"
 
 export function CookieBanner() {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
     try {
       const consent = readCookiePreferences()
-      return !consent
+      setVisible(!consent)
     } catch {
-      return true
+      setVisible(true)
     }
-  })
+  }, [])
 
   function savePreferences(analytics: boolean) {
     try {

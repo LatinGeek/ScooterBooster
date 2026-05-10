@@ -1,8 +1,7 @@
-﻿import Link from "next/link"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Activity, ArrowRight, CalendarDays, Clock, DollarSign, Star, Users, Wrench } from "lucide-react"
 import { AdminOverviewCharts } from "./overview-charts"
-import { getAllTechnicians } from "@/lib/db/technicians"
 import { adminDb } from "@/lib/firebase-admin"
 import { getSession } from "@/lib/session"
 
@@ -12,6 +11,8 @@ type TrendPoint = {
   bookings: number
   gmv: number
 }
+
+type BookingRow = Record<string, unknown>
 
 export const dynamic = "force-dynamic"
 
@@ -51,76 +52,153 @@ function buildTrendSeed(days: number) {
   return seed
 }
 
+function extractBookingDate(createdAtRaw: unknown): string | null {
+  if (typeof createdAtRaw === "string") {
+    return createdAtRaw.slice(0, 10)
+  }
+
+  if (createdAtRaw && typeof (createdAtRaw as { toDate?: () => Date }).toDate === "function") {
+    try {
+      return (createdAtRaw as { toDate: () => Date }).toDate().toISOString().slice(0, 10)
+    } catch {
+      console.warn("Failed to parse booking Timestamp", createdAtRaw)
+      return null
+    }
+  }
+
+  if (createdAtRaw instanceof Date) {
+    return createdAtRaw.toISOString().slice(0, 10)
+  }
+
+  console.warn("Unknown booking createdAt format", createdAtRaw)
+  return null
+}
+
+function withTimeout<T>(label: string, promise: Promise<T>, fallback: T, timeoutMs = 5000): Promise<T> {
+  let timer: NodeJS.Timeout | undefined
+
+  const guarded = promise
+    .then((value) => value)
+    .catch((error) => {
+      console.warn(`Admin overview ${label} failed`, error)
+      return fallback
+    })
+
+  const timeout = new Promise<T>((resolve) => {
+    timer = setTimeout(() => {
+      console.warn(`Admin overview ${label} timed out after ${timeoutMs}ms`)
+      resolve(fallback)
+    }, timeoutMs)
+  })
+
+  return Promise.race([guarded, timeout]).finally(() => {
+    if (timer) clearTimeout(timer)
+  })
+}
+
+async function countDocuments(label: string, query: any, fallback = 0): Promise<number> {
+  return withTimeout(
+    label,
+    (async () => {
+      const snapshot = await query.count().get()
+      return (snapshot.data().count as number | undefined) ?? fallback
+    })(),
+    fallback,
+  )
+}
+
+async function loadRows(label: string, query: any, fallback: BookingRow[] = []): Promise<BookingRow[]> {
+  return withTimeout(
+    label,
+    (async () => {
+      const snapshot = await query.get()
+      return snapshot.docs.map((doc: { data: () => BookingRow }) => doc.data())
+    })(),
+    fallback,
+  )
+}
+
 export default async function AdminOverviewPage() {
   const session = await getSession()
   if (!session) redirect("/login?redirect=/admin")
   if (session.role !== "admin") redirect("/")
 
-  const [usersSnap, bookingsSnap, reviewsSnap, technicians] = await Promise.all([
-    adminDb.collection("users").get(),
-    adminDb.collection("bookings").get(),
-    adminDb.collection("reviews").get(),
-    getAllTechnicians(),
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setHours(0, 0, 0, 0)
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
+  const thirtyDaysAgoIso = thirtyDaysAgo.toISOString()
+
+  const [
+    totalUsers,
+    totalReviews,
+    approvedTechs,
+    pendingTechs,
+    pendingBookings,
+    confirmedBookings,
+    inProgressBookings,
+    completedBookings,
+    cancelledBookings,
+    expiredBookings,
+    recentBookings,
+    completedBookingRows,
+  ] = await Promise.all([
+    countDocuments("users", adminDb.collection("users")),
+    countDocuments("reviews", adminDb.collection("reviews")),
+    countDocuments("approved technicians", adminDb.collection("technicians").where("isApproved", "==", true)),
+    countDocuments("pending technicians", adminDb.collection("technicians").where("isApproved", "==", false)),
+    countDocuments("pending bookings", adminDb.collection("bookings").where("status", "==", "pending")),
+    countDocuments("confirmed bookings", adminDb.collection("bookings").where("status", "==", "confirmed")),
+    countDocuments("in-progress bookings", adminDb.collection("bookings").where("status", "==", "in_progress")),
+    countDocuments("completed bookings", adminDb.collection("bookings").where("status", "==", "completed")),
+    countDocuments("cancelled bookings", adminDb.collection("bookings").where("status", "==", "cancelled")),
+    countDocuments("expired bookings", adminDb.collection("bookings").where("status", "==", "expired")),
+    loadRows(
+      "recent bookings",
+      adminDb
+        .collection("bookings")
+        .where("createdAt", ">=", thirtyDaysAgoIso)
+        .orderBy("createdAt", "desc")
+        .limit(500),
+    ),
+    loadRows(
+      "completed booking rows",
+      adminDb.collection("bookings").where("status", "==", "completed").limit(500),
+    ),
   ])
 
-  const totalUsers = usersSnap.size
-  const approvedTechs = technicians.filter((technician) => technician.isApproved).length
-  const pendingTechs = technicians.filter((technician) => !technician.isApproved).length
-
   const bookingStatusCounts = {
-    pending: 0,
-    confirmed: 0,
-    in_progress: 0,
-    completed: 0,
-    cancelled: 0,
-    expired: 0,
+    pending: pendingBookings,
+    confirmed: confirmedBookings,
+    in_progress: inProgressBookings,
+    completed: completedBookings,
+    cancelled: cancelledBookings,
+    expired: expiredBookings,
   }
 
   const trends = buildTrendSeed(30)
-
   let totalGMV = 0
   let platformRevenue = 0
-  let completedBookings = 0
-  let activeBookings = 0
 
-  for (const doc of bookingsSnap.docs) {
-    const data = doc.data()
-    const status = (data["status"] as string | undefined) ?? "pending"
-    const totalPrice = (data["totalPrice"] as number) ?? 0
-    const serviceFee = (data["serviceFee"] as number) ?? 0
-    const createdAtRaw = data["createdAt"]
-    const createdAt =
-      typeof createdAtRaw === "string"
-        ? createdAtRaw
-        : typeof (createdAtRaw as FirebaseFirestore.Timestamp | undefined)?.toDate === "function"
-          ? (createdAtRaw as FirebaseFirestore.Timestamp).toDate().toISOString()
-          : null
+  for (const row of recentBookings) {
+    const totalPrice = (row["totalPrice"] as number) ?? 0
 
-    if (status === "completed") {
-      completedBookings++
-      totalGMV += totalPrice
-      platformRevenue += serviceFee
-    }
-
-    if (status === "pending" || status === "confirmed" || status === "in_progress") {
-      activeBookings++
-    }
-
-    if (status === "pending") bookingStatusCounts.pending++
-    else if (status === "confirmed") bookingStatusCounts.confirmed++
-    else if (status === "in_progress") bookingStatusCounts.in_progress++
-    else if (status === "completed") bookingStatusCounts.completed++
-    else if (status === "expired") bookingStatusCounts.expired++
-    else bookingStatusCounts.cancelled++
-
+    const createdAt = extractBookingDate(row["createdAt"])
     if (createdAt) {
-      const trend = trends.get(createdAt.slice(0, 10))
+      const trend = trends.get(createdAt)
       if (trend) {
         trend.bookings += 1
         trend.gmv += totalPrice
       }
     }
   }
+
+  for (const row of completedBookingRows) {
+    const totalPrice = (row["totalPrice"] as number) ?? 0
+    totalGMV += totalPrice
+    platformRevenue += (row["serviceFee"] as number) ?? 0
+  }
+
+  const activeBookings = pendingBookings + confirmedBookings + inProgressBookings
 
   const kpis = [
     {
@@ -175,7 +253,7 @@ export default async function AdminOverviewPage() {
     },
     {
       label: "Reseñas totales",
-      value: reviewsSnap.size.toString(),
+      value: totalReviews.toString(),
       icon: Star,
       color: "text-[#d97706]",
       bg: "bg-amber-50",
@@ -260,4 +338,3 @@ export default async function AdminOverviewPage() {
     </section>
   )
 }
-

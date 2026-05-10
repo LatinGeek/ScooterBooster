@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   getAllBrands: vi.fn(),
   createBrand: vi.fn(),
   updateBrand: vi.fn(),
+  deleteBrand: vi.fn(),
   addAuditLogEntry: vi.fn(),
   revalidateTag: vi.fn(),
 }))
@@ -15,13 +16,14 @@ vi.mock("@/lib/db/brands", () => ({
   getAllBrands: mocks.getAllBrands,
   createBrand: mocks.createBrand,
   updateBrand: mocks.updateBrand,
+  deleteBrand: mocks.deleteBrand,
 }))
 vi.mock("@/lib/db/audit-log", () => ({ addAuditLogEntry: mocks.addAuditLogEntry }))
 vi.mock("next/cache", () => ({ revalidateTag: mocks.revalidateTag }))
 
-import { GET, PATCH, POST } from "@/app/api/admin/catalog/brands/route"
+import { DELETE, GET, PATCH, POST } from "@/app/api/admin/catalog/brands/route"
 
-function createRequest(method: "POST" | "PATCH", body: unknown) {
+function createRequest(method: "POST" | "PATCH" | "DELETE", body: unknown) {
   return new NextRequest("http://localhost:3000/api/admin/catalog/brands", {
     method,
     body: JSON.stringify(body),
@@ -61,5 +63,16 @@ describe("/api/admin/catalog/brands", () => {
 
     expect(response.status).toBe(200)
     expect(json.data.name).toBe("NIU")
+  })
+
+  it("deletes a brand", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "admin-1", role: "admin" })
+
+    const response = await DELETE(createRequest("DELETE", { id: "brand-1" }))
+    const json = (await response.json()) as { data: { id: string } }
+
+    expect(response.status).toBe(200)
+    expect(json.data.id).toBe("brand-1")
+    expect(mocks.deleteBrand).toHaveBeenCalledWith("brand-1")
   })
 })

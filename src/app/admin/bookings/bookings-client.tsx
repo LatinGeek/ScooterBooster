@@ -78,6 +78,19 @@ export function AdminBookingsClient({ bookings: initialBookings, users, technici
   }, [bookings, models, paymentStatus, query, services, status, technicians, users])
 
   async function cancelBooking(booking: Booking) {
+    const confirmed = window.confirm(
+      [
+        "¿Cancelar esta reserva? Esta acción no se puede deshacer.",
+        "",
+        `Técnico: ${technicians[booking.technicianId]?.displayName ?? booking.technicianId}`,
+        `Usuario: ${users[booking.userId]?.displayName ?? booking.userId}`,
+      ].join("\n"),
+    )
+
+    if (!confirmed) {
+      return
+    }
+
     setBusyId(booking.id)
     try {
       const response = await fetch("/api/admin/bookings", {
@@ -99,6 +112,8 @@ export function AdminBookingsClient({ bookings: initialBookings, users, technici
         ),
       )
       toast.success("Reserva cancelada desde el panel admin.")
+    } catch {
+      toast.error("No pudimos cancelar la reserva.")
     } finally {
       setBusyId(null)
     }

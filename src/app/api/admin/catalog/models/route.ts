@@ -3,7 +3,7 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
-import { getAllModels, updateModel, createModel } from "@/lib/db/models"
+import { createModel, deleteModel, getAllModels, updateModel } from "@/lib/db/models"
 import { AuthError, ForbiddenError, ValidationError } from "@/lib/errors"
 import { getSession } from "@/lib/session"
 import { sanitizeOptionalPlainText, sanitizePlainText } from "@/lib/sanitize"
@@ -30,24 +30,29 @@ const modelUpdateSchema = modelBaseSchema.extend({
   id: z.string().min(1),
 })
 
+const modelDeleteSchema = z.object({
+  id: z.string().min(1),
+})
+
 function sanitizeModelBody(body: Record<string, unknown>) {
   return {
     ...body,
     name: typeof body.name === "string" ? sanitizePlainText(body.name) : body.name,
     imageURL: typeof body.imageURL === "string" ? sanitizeOptionalPlainText(body.imageURL) : body.imageURL,
-    specs: typeof body.specs === "object" && body.specs !== null
-      ? {
-          ...(body.specs as Record<string, unknown>),
-          battery:
-            typeof (body.specs as Record<string, unknown>).battery === "string"
-              ? sanitizePlainText((body.specs as Record<string, unknown>).battery as string)
-              : (body.specs as Record<string, unknown>).battery,
-          motor:
-            typeof (body.specs as Record<string, unknown>).motor === "string"
-              ? sanitizePlainText((body.specs as Record<string, unknown>).motor as string)
-              : (body.specs as Record<string, unknown>).motor,
-        }
-      : body.specs,
+    specs:
+      typeof body.specs === "object" && body.specs !== null
+        ? {
+            ...(body.specs as Record<string, unknown>),
+            battery:
+              typeof (body.specs as Record<string, unknown>).battery === "string"
+                ? sanitizePlainText((body.specs as Record<string, unknown>).battery as string)
+                : (body.specs as Record<string, unknown>).battery,
+            motor:
+              typeof (body.specs as Record<string, unknown>).motor === "string"
+                ? sanitizePlainText((body.specs as Record<string, unknown>).motor as string)
+                : (body.specs as Record<string, unknown>).motor,
+          }
+        : body.specs,
   }
 }
 
@@ -113,4 +118,32 @@ export const PATCH = withErrorHandling(async (req: NextRequest) => {
   })
 
   return ok(model)
+})
+
+export const DELETE = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
+  const session = await getSession()
+  if (!session) throw new AuthError()
+  if (session.role !== "admin") throw new ForbiddenError()
+
+  const body = (await req.json()) as Record<string, unknown>
+  const parsed = modelDeleteSchema.safeParse(body)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")
+  }
+
+  await deleteModel(parsed.data.id)
+  revalidateTag("brands", { expire: 0 })
+  revalidateTag("services", { expire: 0 })
+
+  await addAuditLogEntry({
+    action: "catalog_model_deleted",
+    actorUid: session.uid,
+    targetType: "model",
+    targetId: parsed.data.id,
+    metadata: {},
+  })
+
+  return ok({ id: parsed.data.id })
 })

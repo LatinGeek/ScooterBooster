@@ -3,8 +3,9 @@ import { getAllBrands } from "@/lib/db/brands"
 import { getAllServices } from "@/lib/db/services"
 import { getAllModels } from "@/lib/db/models"
 import { getSession } from "@/lib/session"
-import { getAllTechnicians } from "@/lib/db/technicians"
+import { getLatestTechnicians } from "@/lib/db/technicians"
 import lazyLoad from "next/dynamic"
+import { AdminErrorBoundary } from "@/components/admin-error-boundary"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const AdminTechniciansClient = lazyLoad(
@@ -20,10 +21,14 @@ export default async function AdminTechniciansPage() {
   if (session.role !== "admin") redirect("/")
 
   const [technicians, services, models, brands] = await Promise.all([
-    getAllTechnicians(),
+    getLatestTechnicians(200),
     getAllServices(),
     getAllModels(),
     getAllBrands(),
   ])
-  return <AdminTechniciansClient technicians={technicians} services={services} models={models} brands={brands} />
+  return (
+    <AdminErrorBoundary>
+      <AdminTechniciansClient technicians={technicians} services={services} models={models} brands={brands} />
+    </AdminErrorBoundary>
+  )
 }

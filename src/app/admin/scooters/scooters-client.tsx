@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import { Bike, PlusCircle, Save } from "lucide-react"
+import { Bike, PlusCircle, Save, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { ScooterBrand, ScooterModel, Service } from "@/types"
@@ -45,6 +45,8 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
   const [models, setModels] = useState(initialModels)
   const [savingBrand, setSavingBrand] = useState<string | null>(null)
   const [savingModel, setSavingModel] = useState<string | null>(null)
+  const [deletingBrandId, setDeletingBrandId] = useState<string | null>(null)
+  const [deletingModelId, setDeletingModelId] = useState<string | null>(null)
 
   const [newBrand, setNewBrand] = useState<BrandDraft>({
     name: "",
@@ -65,26 +67,16 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
     isActive: true,
   })
 
-  const brandMap = useMemo(
-    () => Object.fromEntries(brands.map((brand) => [brand.id, brand.name])),
-    [brands],
-  )
-
-  useEffect(() => {
-    if (brands.length === 0) return
-
-    setNewModel((current) => {
-      if (brands.some((brand) => brand.id === current.brandId)) return current
-      return { ...current, brandId: brands[0]!.id }
-    })
-  }, [brands])
+  const brandMap = useMemo(() => Object.fromEntries(brands.map((brand) => [brand.id, brand.name])), [brands])
+  const resolvedNewModelBrandId = brands.some((brand) => brand.id === newModel.brandId)
+    ? newModel.brandId
+    : brands[0]?.id ?? ""
 
   async function saveBrand(payload: BrandDraft & { id?: string }) {
     const isCreate = !payload.id
-    const endpoint = "/api/admin/catalog/brands"
     setSavingBrand(payload.id ?? "new")
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/admin/catalog/brands", {
         method: isCreate ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -93,16 +85,17 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
         }),
       })
 
-      const json = (await response.json()) as { success?: boolean; error?: string; data?: ScooterBrand }
+      const json = (await response.json()) as { error?: string; data?: ScooterBrand }
       if (!response.ok || !json.data) {
         toast.error(json.error ?? "No pudimos guardar la marca.")
         return
       }
+      const brand = json.data
 
       setBrands((current) =>
         isCreate
-          ? [...current, json.data!].sort((a, b) => a.name.localeCompare(b.name, "es"))
-          : current.map((brand) => (brand.id === json.data!.id ? json.data! : brand)),
+          ? [...current, brand].sort((a, b) => a.name.localeCompare(b.name, "es"))
+          : current.map((item) => (item.id === brand.id ? brand : item)),
       )
 
       if (isCreate) {
@@ -124,6 +117,7 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
+          brandId: payload.brandId || resolvedNewModelBrandId,
           imageURL: payload.imageURL.trim() || null,
           specs: {
             maxSpeed: Number(payload.maxSpeed),
@@ -135,16 +129,17 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
         }),
       })
 
-      const json = (await response.json()) as { success?: boolean; error?: string; data?: ScooterModel }
+      const json = (await response.json()) as { error?: string; data?: ScooterModel }
       if (!response.ok || !json.data) {
         toast.error(json.error ?? "No pudimos guardar el modelo.")
         return
       }
+      const model = json.data
 
       setModels((current) =>
         isCreate
-          ? [...current, json.data!].sort((a, b) => a.name.localeCompare(b.name, "es"))
-          : current.map((model) => (model.id === json.data!.id ? json.data! : model)),
+          ? [...current, model].sort((a, b) => a.name.localeCompare(b.name, "es"))
+          : current.map((item) => (item.id === model.id ? model : item)),
       )
 
       if (isCreate) {
@@ -158,6 +153,61 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
       toast.success(isCreate ? "Modelo creado." : "Modelo actualizado.")
     } finally {
       setSavingModel(null)
+    }
+  }
+
+  async function deleteBrand(brand: ScooterBrand) {
+    const confirmed = window.confirm(
+      `¿Eliminar la marca "${brand.name}"?\n\nEsto también eliminará todos sus modelos y no se puede deshacer.`,
+    )
+    if (!confirmed) return
+
+    setDeletingBrandId(brand.id)
+    try {
+      const response = await fetch("/api/admin/catalog/brands", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: brand.id }),
+      })
+      const json = (await response.json()) as { error?: string }
+      if (!response.ok) {
+        toast.error(json.error ?? "No pudimos eliminar la marca.")
+        return
+      }
+
+      setBrands((current) => current.filter((item) => item.id !== brand.id))
+      setModels((current) => current.filter((item) => item.brandId !== brand.id))
+      toast.success("Marca eliminada.")
+    } catch {
+      toast.error("No pudimos eliminar la marca.")
+    } finally {
+      setDeletingBrandId(null)
+    }
+  }
+
+  async function deleteModel(model: ScooterModel) {
+    const confirmed = window.confirm(`¿Eliminar el modelo "${model.name}"?\n\nEsta acción no se puede deshacer.`)
+    if (!confirmed) return
+
+    setDeletingModelId(model.id)
+    try {
+      const response = await fetch("/api/admin/catalog/models", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: model.id }),
+      })
+      const json = (await response.json()) as { error?: string }
+      if (!response.ok) {
+        toast.error(json.error ?? "No pudimos eliminar el modelo.")
+        return
+      }
+
+      setModels((current) => current.filter((item) => item.id !== model.id))
+      toast.success("Modelo eliminado.")
+    } catch {
+      toast.error("No pudimos eliminar el modelo.")
+    } finally {
+      setDeletingModelId(null)
     }
   }
 
@@ -202,10 +252,7 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
             Marca activa
           </label>
 
-          <Button
-            onClick={() => void saveBrand(newBrand)}
-            disabled={savingBrand === "new" || newBrand.name.trim().length < 2}
-          >
+          <Button onClick={() => void saveBrand(newBrand)} disabled={savingBrand === "new" || newBrand.name.trim().length < 2}>
             <Save className="h-4 w-4" />
             Crear marca
           </Button>
@@ -215,7 +262,14 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
               <EmptyMessage text="Todavía no hay marcas cargadas." />
             ) : (
               brands.map((brand) => (
-                <BrandRow key={brand.id} brand={brand} onSave={saveBrand} saving={savingBrand === brand.id} />
+                <BrandRow
+                  key={`${brand.id}:${brand.name}:${brand.logoURL ?? ""}:${brand.isActive}`}
+                  brand={brand}
+                  onSave={saveBrand}
+                  onDelete={deleteBrand}
+                  saving={savingBrand === brand.id}
+                  deleting={deletingBrandId === brand.id}
+                />
               ))
             )}
           </div>
@@ -229,7 +283,7 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
 
           <div className="grid gap-3 md:grid-cols-2">
             <select
-              value={newModel.brandId}
+              value={resolvedNewModelBrandId}
               onChange={(event) => setNewModel((current) => ({ ...current, brandId: event.target.value }))}
               className="h-11 rounded-lg border border-[#e5e7eb] bg-white px-4 text-sm text-[#111827]"
             >
@@ -302,13 +356,15 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
             ) : (
               models.map((model) => (
                 <ModelRow
-                  key={model.id}
+                  key={`${model.id}:${model.brandId}:${model.name}:${model.imageURL ?? ""}:${model.isActive}`}
                   model={model}
                   brands={brands}
                   services={services}
                   brandName={brandMap[model.brandId] ?? model.brandId}
                   onSave={saveModel}
+                  onDelete={deleteModel}
                   saving={savingModel === model.id}
+                  deleting={deletingModelId === model.id}
                 />
               ))
             )}
@@ -322,25 +378,21 @@ export function AdminScootersClient({ brands: initialBrands, models: initialMode
 function BrandRow({
   brand,
   saving,
+  deleting,
   onSave,
+  onDelete,
 }: {
   brand: ScooterBrand
   saving: boolean
+  deleting: boolean
   onSave: (payload: BrandDraft & { id?: string }) => Promise<void>
+  onDelete: (brand: ScooterBrand) => Promise<void>
 }) {
   const [draft, setDraft] = useState<BrandDraft>({
     name: brand.name,
     logoURL: brand.logoURL ?? "",
     isActive: brand.isActive,
   })
-
-  useEffect(() => {
-    setDraft({
-      name: brand.name,
-      logoURL: brand.logoURL ?? "",
-      isActive: brand.isActive,
-    })
-  }, [brand])
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">
@@ -357,9 +409,21 @@ function BrandRow({
           />
           Activa
         </label>
-        <Button size="sm" onClick={() => void onSave({ id: brand.id, ...draft })} disabled={saving}>
-          Guardar
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void onDelete(brand)}
+            disabled={saving || deleting}
+            className="border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800"
+          >
+            <Trash2 className="h-4 w-4" />
+            {deleting ? "Eliminando..." : "Eliminar"}
+          </Button>
+          <Button size="sm" onClick={() => void onSave({ id: brand.id, ...draft })} disabled={saving || deleting}>
+            Guardar
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -371,14 +435,18 @@ function ModelRow({
   services,
   brandName,
   saving,
+  deleting,
   onSave,
+  onDelete,
 }: {
   model: ScooterModel
   brands: ScooterBrand[]
   services: Service[]
   brandName: string
   saving: boolean
+  deleting: boolean
   onSave: (payload: ModelDraft & { id?: string }) => Promise<void>
+  onDelete: (model: ScooterModel) => Promise<void>
 }) {
   const [draft, setDraft] = useState<ModelDraft>({
     brandId: model.brandId,
@@ -392,21 +460,6 @@ function ModelRow({
     compatibleServices: model.compatibleServices,
     isActive: model.isActive,
   })
-
-  useEffect(() => {
-    setDraft({
-      brandId: model.brandId,
-      name: model.name,
-      imageURL: model.imageURL ?? "",
-      maxSpeed: String(model.specs.maxSpeed),
-      range: String(model.specs.range),
-      battery: model.specs.battery,
-      motor: model.specs.motor,
-      weight: String(model.specs.weight),
-      compatibleServices: model.compatibleServices,
-      isActive: model.isActive,
-    })
-  }, [model])
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-[#fafafa] p-4">
@@ -466,8 +519,18 @@ function ModelRow({
         ))}
       </div>
 
-      <div className="mt-3 flex justify-end">
-        <Button size="sm" onClick={() => void onSave({ id: model.id, ...draft })} disabled={saving}>
+      <div className="mt-3 flex justify-end gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => void onDelete(model)}
+          disabled={saving || deleting}
+          className="border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800"
+        >
+          <Trash2 className="h-4 w-4" />
+          {deleting ? "Eliminando..." : "Eliminar"}
+        </Button>
+        <Button size="sm" onClick={() => void onSave({ id: model.id, ...draft })} disabled={saving || deleting}>
           Guardar modelo
         </Button>
       </div>

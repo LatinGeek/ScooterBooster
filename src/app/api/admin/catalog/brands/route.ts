@@ -3,7 +3,7 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
-import { createBrand, getAllBrands, updateBrand } from "@/lib/db/brands"
+import { createBrand, deleteBrand, getAllBrands, updateBrand } from "@/lib/db/brands"
 import { AuthError, ForbiddenError, ValidationError } from "@/lib/errors"
 import { getSession } from "@/lib/session"
 import { sanitizeOptionalPlainText, sanitizePlainText } from "@/lib/sanitize"
@@ -16,6 +16,10 @@ const brandCreateSchema = z.object({
 })
 
 const brandUpdateSchema = brandCreateSchema.extend({
+  id: z.string().min(1),
+})
+
+const brandDeleteSchema = z.object({
   id: z.string().min(1),
 })
 
@@ -37,7 +41,10 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const body: unknown = await req.json()
   const parsed = brandCreateSchema.safeParse({
     ...(body as Record<string, unknown>),
-    name: typeof (body as Record<string, unknown>).name === "string" ? sanitizePlainText((body as Record<string, unknown>).name as string) : (body as Record<string, unknown>).name,
+    name:
+      typeof (body as Record<string, unknown>).name === "string"
+        ? sanitizePlainText((body as Record<string, unknown>).name as string)
+        : (body as Record<string, unknown>).name,
     logoURL:
       typeof (body as Record<string, unknown>).logoURL === "string"
         ? sanitizeOptionalPlainText((body as Record<string, unknown>).logoURL as string)
@@ -98,4 +105,32 @@ export const PATCH = withErrorHandling(async (req: NextRequest) => {
   })
 
   return ok(brand)
+})
+
+export const DELETE = withErrorHandling(async (req: NextRequest) => {
+  assertTrustedOrigin(req)
+
+  const session = await getSession()
+  if (!session) throw new AuthError()
+  if (session.role !== "admin") throw new ForbiddenError()
+
+  const body: unknown = await req.json()
+  const parsed = brandDeleteSchema.safeParse(body)
+  if (!parsed.success) {
+    throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")
+  }
+
+  await deleteBrand(parsed.data.id)
+  revalidateTag("brands", { expire: 0 })
+  revalidateTag("services", { expire: 0 })
+
+  await addAuditLogEntry({
+    action: "catalog_brand_deleted",
+    actorUid: session.uid,
+    targetType: "brand",
+    targetId: parsed.data.id,
+    metadata: {},
+  })
+
+  return ok({ id: parsed.data.id })
 })

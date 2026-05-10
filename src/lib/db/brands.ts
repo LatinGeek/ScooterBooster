@@ -130,3 +130,16 @@ export async function updateBrand(
   const updated = await adminDb.collection(COLLECTION).doc(id).get()
   return docToScooterBrand(updated.id, updated.data()!)
 }
+
+export async function deleteBrand(id: string): Promise<void> {
+  const brandRef = adminDb.collection(COLLECTION).doc(id)
+  const modelsSnap = await adminDb.collection("scooterModels").where("brandId", "==", id).get()
+  const batch = adminDb.batch()
+
+  for (const modelDoc of modelsSnap.docs) {
+    batch.delete(modelDoc.ref)
+  }
+
+  batch.delete(brandRef)
+  await batch.commit()
+}

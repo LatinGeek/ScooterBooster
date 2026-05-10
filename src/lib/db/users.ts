@@ -47,9 +47,27 @@ export async function getUsersByIds(userIds: string[]): Promise<Record<string, U
   return users
 }
 
-export async function getLatestUsers(limit = 100): Promise<User[]> {
-  const snap = await adminDb.collection("users").orderBy("createdAt", "desc").limit(limit).get()
-  return snap.docs.map((doc) => docToUser(doc.id, doc.data()))
+export async function getLatestUsers(
+  limit = 100,
+  options?: { startAfter?: string },
+): Promise<{ users: User[]; hasMore: boolean; lastId: string | undefined }> {
+  let query = adminDb.collection("users").orderBy("createdAt", "desc").limit(limit + 1)
+
+  if (options?.startAfter) {
+    const lastDoc = await adminDb.collection("users").doc(options.startAfter).get()
+    if (lastDoc.exists) {
+      query = query.startAfter(lastDoc)
+    }
+  }
+
+  const snapshot = await query.get()
+  const docs = snapshot.docs.slice(0, limit)
+
+  return {
+    users: docs.map((doc) => docToUser(doc.id, doc.data())),
+    hasMore: snapshot.docs.length > limit,
+    lastId: docs.at(-1)?.id,
+  }
 }
 
 export async function updateUserRole(uid: string, role: User["role"]): Promise<User> {
