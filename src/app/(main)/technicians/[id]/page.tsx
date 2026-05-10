@@ -66,9 +66,37 @@ export async function generateMetadata({
   const technician = await getTechnicianByIdentifier(id)
   if (!technician) return { title: "Tecnico no encontrado - ScooterBooster" }
 
+  const description = technician.bio?.trim()
+    ? `Técnico en ScooterBooster\nAgendá tu servicio técnico\n${technician.bio.trim()}`
+    : "Técnico en ScooterBooster\nAgendá tu servicio técnico"
+
   return {
-    title: `${technician.displayName} - ScooterBooster`,
-    description: `Tecnico de scooters electricos en ${technician.location}. ${technician.bio}`,
+    title: technician.displayName,
+    description,
+    alternates: {
+      canonical: `https://scooterbooster.uy/technicians/${id}`,
+    },
+    openGraph: {
+      title: technician.displayName,
+      description,
+      url: `https://scooterbooster.uy/technicians/${id}`,
+      siteName: "ScooterBooster",
+      type: "profile",
+      images: technician.photoURL
+        ? [
+            {
+              url: technician.photoURL,
+              alt: technician.displayName,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: technician.displayName,
+      description,
+      images: technician.photoURL ? [technician.photoURL] : undefined,
+    },
   }
 }
 
