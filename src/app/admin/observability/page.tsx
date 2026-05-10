@@ -1,6 +1,7 @@
 ﻿import Link from "next/link"
 import { redirect } from "next/navigation"
 import { AlertCircle, BarChart3, CheckCircle2, ExternalLink, HeartPulse, Logs, ShieldAlert } from "lucide-react"
+import { AdminLiveDataRefresh } from "@/components/admin-live-data-refresh"
 import { adminDb } from "@/lib/firebase-admin"
 import { getSession } from "@/lib/session"
 
@@ -155,10 +156,13 @@ export default async function AdminObservabilityPage() {
             Estado rápido de salud, analítica, errores y recordatorios para no depender solo de servicios externos.
           </p>
         </div>
-        <div className="rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#6b7280] shadow-sm">
-          <p>
-            URL base: <span className="font-semibold text-[#111827]">{appUrl}</span>
-          </p>
+        <div className="flex flex-col items-start gap-3">
+          <AdminLiveDataRefresh />
+          <div className="rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#6b7280] shadow-sm">
+            <p>
+              URL base: <span className="font-semibold text-[#111827]">{appUrl}</span>
+            </p>
+          </div>
         </div>
       </div>
 

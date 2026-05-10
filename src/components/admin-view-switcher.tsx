@@ -14,9 +14,9 @@ export function AdminViewSwitcher({ className, compact = false }: AdminViewSwitc
   const pathname = usePathname()
   const { role, loading } = useAuth()
 
-  if (loading || role !== "admin") return null
+  if (loading || role !== "admin" || !pathname.startsWith("/dashboard")) return null
 
-  const activeView = pathname.startsWith("/admin") ? "admin" : "customer"
+  const activeView = "customer"
   const links = [
     { href: "/dashboard", label: "Cliente", key: "customer" as const },
     { href: "/admin", label: "Admin", key: "admin" as const },
