@@ -37,7 +37,12 @@ export function BrandLogo({
         className={`h-10 w-10 shrink-0 ${imageClassName}`.trim()}
         priority
       />
-      <span className={`text-lg font-extrabold leading-none ${textClassName}`.trim()}>{label}</span>
+      <span
+        className={`text-lg font-black leading-none tracking-[-0.06em] ${textClassName}`.trim()}
+        style={{ fontFamily: "var(--font-brand)" }}
+      >
+        {label}
+      </span>
     </Link>
   )
 }
