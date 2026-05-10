@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import { BookingWizard } from "./booking-wizard"
 import { getActiveBrands } from "@/lib/db/brands"
+import { getPlatformSettings } from "@/lib/db/platform-settings"
 import { getActiveModels } from "@/lib/db/models"
 import { getActiveServices } from "@/lib/db/services"
 import { getActiveTechnicians } from "@/lib/db/technicians"
@@ -13,11 +14,12 @@ export const metadata = {
 }
 
 export default async function NewBookingPage() {
-  const [brands, models, services, technicians] = await Promise.all([
+  const [brands, models, services, technicians, platformSettings] = await Promise.all([
     getActiveBrands(),
     getActiveModels(),
     getActiveServices(),
     getActiveTechnicians(),
+    getPlatformSettings(),
   ])
   const visibleBrandIds = new Set(models.map((model) => model.brandId))
   const brandsWithModels = brands.filter((brand) => visibleBrandIds.has(brand.id))
@@ -36,6 +38,7 @@ export default async function NewBookingPage() {
           models={models}
           services={services}
           technicians={technicians}
+          serviceFeeAmount={platformSettings.serviceFeeAmount}
         />
       </Suspense>
     </main>

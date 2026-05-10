@@ -26,7 +26,7 @@ import { TechnicianCard } from "@/components/technician-card"
 import { useGeolocation } from "@/hooks/use-geolocation"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
-import { calculatePricing, DEFAULT_SERVICE_FEE_AMOUNT } from "@/lib/pricing"
+import { calculatePricing } from "@/lib/pricing"
 import { slugify } from "@/lib/slugs"
 import {
   getPriceForBooking,
@@ -69,6 +69,7 @@ interface Props {
   models: ScooterModel[]
   services: Service[]
   technicians: Technician[]
+  serviceFeeAmount: number
 }
 
 const BRAND_LOGO_BACKGROUNDS: Record<string, string> = {
@@ -977,11 +978,13 @@ function StepConfirm({
   model,
   service,
   technician,
+  serviceFeeAmount,
 }: {
   wizardState: WizardState
   model: ScooterModel | undefined
   service: Service | undefined
   technician: Technician | undefined
+  serviceFeeAmount: number
 }) {
   const bookingPrice =
     technician && service && model
@@ -989,7 +992,7 @@ function StepConfirm({
       : null
   const { basePrice, serviceFee, totalPrice } =
     bookingPrice !== null
-      ? calculatePricing(bookingPrice)
+      ? calculatePricing(bookingPrice, serviceFeeAmount)
       : { basePrice: 0, serviceFee: 0, totalPrice: 0 }
 
   const scheduled = wizardState.scheduledDate
@@ -1050,7 +1053,13 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
-export function BookingWizard({ brands, models, services, technicians }: Props) {
+export function BookingWizard({
+  brands,
+  models,
+  services,
+  technicians,
+  serviceFeeAmount,
+}: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -1295,6 +1304,7 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
               model={model}
               service={service}
               technician={technician}
+              serviceFeeAmount={serviceFeeAmount}
             />
           )}
         </div>
@@ -1312,12 +1322,12 @@ export function BookingWizard({ brands, models, services, technicians }: Props) 
           (() => {
             const pricing = getTechnicianBookingPrice(technician, service.id, model.id)
             if (pricing === null) return null
-            const { serviceFee } = calculatePricing(pricing)
+            const { serviceFee } = calculatePricing(pricing, serviceFeeAmount)
 
             return (
               <div className="mt-4 flex items-center justify-between rounded-lg bg-[#d1fae5] px-4 py-3">
                 <span className="text-sm text-[#065f46]">
-                  Reserva online fija a pagar ahora ({formatUYU(DEFAULT_SERVICE_FEE_AMOUNT)})
+                  Reserva online fija a pagar ahora ({formatUYU(serviceFeeAmount)})
                 </span>
                 <span className="text-lg font-bold text-[#10b981]">{formatUYU(serviceFee)}</span>
               </div>

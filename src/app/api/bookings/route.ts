@@ -9,6 +9,7 @@ import { getTechnicianById } from "@/lib/db/technicians"
 import { getServiceById } from "@/lib/db/services"
 import { getModelById } from "@/lib/db/models"
 import { getUserById } from "@/lib/db/users"
+import { getPlatformSettings } from "@/lib/db/platform-settings"
 import { addAuditLogEntry } from "@/lib/db/audit-log"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing, createPaymentLink } from "@/lib/mercadopago"
@@ -92,7 +93,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   if (basePrice === null) {
     throw new ValidationError("El servicio no está disponible para este modelo")
   }
-  const { serviceFee, totalPrice } = calculatePricing(basePrice)
+  const platformSettings = await getPlatformSettings()
+  const { serviceFee, totalPrice } = calculatePricing(basePrice, platformSettings.serviceFeeAmount)
 
   logger.info({ userId: session.uid, technicianId, serviceId, scheduledDate }, "Creating booking")
 

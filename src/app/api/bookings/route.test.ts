@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   getServiceById: vi.fn(),
   getModelById: vi.fn(),
   getUserById: vi.fn(),
+  getPlatformSettings: vi.fn(),
   createBooking: vi.fn(),
   updateBookingPaymentLink: vi.fn(),
   upsertPaymentLinkRecord: vi.fn(),
@@ -56,6 +57,10 @@ vi.mock("@/lib/db/models", () => ({
 
 vi.mock("@/lib/db/users", () => ({
   getUserById: mocks.getUserById,
+}))
+
+vi.mock("@/lib/db/platform-settings", () => ({
+  getPlatformSettings: mocks.getPlatformSettings,
 }))
 
 vi.mock("@/lib/db/audit-log", () => ({
@@ -106,6 +111,9 @@ describe("/api/bookings", () => {
       totalPrice: 1900,
       feeAmount: 100,
     })
+    mocks.getPlatformSettings.mockResolvedValue({
+      serviceFeeAmount: 100,
+    })
 
     mocks.getSession.mockResolvedValue({
       uid: "user-1",
@@ -150,6 +158,15 @@ describe("/api/bookings", () => {
       isApproved: true,
       isActive: true,
       services: ["service-1"],
+      pricingMatrix: {
+        "service-1": {
+          "model-1": {
+            price: 1800,
+            currency: "UYU",
+            isAvailable: true,
+          },
+        },
+      },
       pricing: { "service-1": { basePrice: 1800, currency: "UYU" } },
     })
     mocks.getServiceById.mockResolvedValue({
@@ -164,10 +181,19 @@ describe("/api/bookings", () => {
       isActive: true,
       compatibleServices: ["service-1"],
     })
+    mocks.getPlatformSettings.mockResolvedValue({
+      serviceFeeAmount: 250,
+    })
+    mocks.calculatePricing.mockImplementation((basePrice: number, serviceFeeAmount = 100) => ({
+      basePrice,
+      serviceFee: serviceFeeAmount,
+      totalPrice: basePrice + serviceFeeAmount,
+      feeAmount: serviceFeeAmount,
+    }))
     mocks.createBooking.mockResolvedValue({
       id: "booking-1",
-      serviceFee: 100,
-      totalPrice: 1900,
+      serviceFee: 250,
+      totalPrice: 2050,
     })
     mocks.createPaymentLink.mockResolvedValue({
       preferenceId: "pref-1",
@@ -198,8 +224,8 @@ describe("/api/bookings", () => {
         serviceId: "service-1",
         scooterModelId: "model-1",
         basePrice: 1800,
-        serviceFee: 100,
-        totalPrice: 1900,
+        serviceFee: 250,
+        totalPrice: 2050,
       })
     )
     expect(mocks.updateBookingPaymentLink).toHaveBeenCalledWith(
@@ -216,8 +242,9 @@ describe("/api/bookings", () => {
       bookingId: "booking-1",
       serviceName: "Firmware",
       scooterModelName: "Xiaomi 1S",
-      serviceFee: 100,
+      serviceFee: 250,
     })
+    expect(mocks.calculatePricing).toHaveBeenCalledWith(1800, 250)
   })
 
   it("blocks bookings that require a disclaimer until accepted", async () => {
@@ -226,6 +253,15 @@ describe("/api/bookings", () => {
       isApproved: true,
       isActive: true,
       services: ["speed-limit"],
+      pricingMatrix: {
+        "speed-limit": {
+          "model-1": {
+            price: 1800,
+            currency: "UYU",
+            isAvailable: true,
+          },
+        },
+      },
       pricing: { "speed-limit": { basePrice: 1800, currency: "UYU" } },
     })
     mocks.getServiceById.mockResolvedValue({
@@ -264,6 +300,15 @@ describe("/api/bookings", () => {
       isApproved: true,
       isActive: true,
       services: ["service-1"],
+      pricingMatrix: {
+        "service-1": {
+          "model-1": {
+            price: 1800,
+            currency: "UYU",
+            isAvailable: true,
+          },
+        },
+      },
       pricing: { "service-1": { basePrice: 1800, currency: "UYU" } },
     })
     mocks.getServiceById.mockResolvedValue({
@@ -301,6 +346,15 @@ describe("/api/bookings", () => {
       isApproved: true,
       isActive: true,
       services: ["service-1"],
+      pricingMatrix: {
+        "service-1": {
+          "model-1": {
+            price: 1800,
+            currency: "UYU",
+            isAvailable: true,
+          },
+        },
+      },
       pricing: { "service-1": { basePrice: 1800, currency: "UYU" } },
     })
     mocks.getServiceById.mockResolvedValue({
@@ -349,6 +403,15 @@ describe("/api/bookings", () => {
       isApproved: true,
       isActive: true,
       services: ["service-1"],
+      pricingMatrix: {
+        "service-1": {
+          "model-1": {
+            price: 1800,
+            currency: "UYU",
+            isAvailable: true,
+          },
+        },
+      },
       pricing: { "service-1": { basePrice: 1800, currency: "UYU" } },
     })
     mocks.getServiceById.mockResolvedValue({

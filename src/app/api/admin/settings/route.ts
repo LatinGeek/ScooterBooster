@@ -4,6 +4,7 @@ import { ok, withErrorHandling } from "@/lib/api-response"
 import { AuthError, ForbiddenError, ValidationError } from "@/lib/errors"
 import { adminDb } from "@/lib/firebase-admin"
 import logger from "@/lib/logger"
+import { DEFAULT_SERVICE_FEE_AMOUNT } from "@/lib/pricing"
 import { assertTrustedOrigin } from "@/lib/security"
 import { getSession } from "@/lib/session"
 
@@ -23,7 +24,7 @@ export const GET = withErrorHandling(async () => {
   if (session.role !== "admin") throw new ForbiddenError()
 
   const snap = await CONFIG_DOC.get()
-  const data = snap.exists ? snap.data()! : { serviceFeeAmount: 100 }
+  const data = snap.exists ? snap.data()! : { serviceFeeAmount: DEFAULT_SERVICE_FEE_AMOUNT }
 
   return ok(data)
 })
