@@ -681,9 +681,9 @@ function StepTechnician({
       <div className="flex flex-col gap-3 rounded-[1.75rem] border border-[#dbe4ea] bg-[linear-gradient(135deg,#f0fdf4_0%,#ffffff_62%,#ecfeff_100%)] p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-[#111827]">Elegi tu tecnico</h2>
+            <h2 className="text-xl font-semibold text-[#111827]">Elegí tu técnico</h2>
             <p className="mt-1 text-sm text-[#6b7280]">
-              Compara reputacion, precio y cercania antes de reservar.
+              Compará reputación, precio y cercanía antes de reservar.
             </p>
           </div>
 

@@ -34,7 +34,7 @@ export function TechnicianSortBar({
   const options = canSortByDistance
     ? [
         ...BASE_OPTIONS,
-        { value: "distance" as const, label: "Mas cerca", icon: MapPin },
+        { value: "distance" as const, label: "Más cerca", icon: MapPin },
       ]
     : BASE_OPTIONS
 
@@ -42,9 +42,9 @@ export function TechnicianSortBar({
     <div className="space-y-3">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-sm font-semibold text-[#111827]">Ordena por lo que mas te importa</p>
+          <p className="text-sm font-semibold text-[#111827]">Ordená por lo que más te importa</p>
           <p className="mt-1 text-xs text-[#6b7280]">
-            Prioriza reputacion, experiencia, precio o cercania.
+            Priorizá reputación, experiencia, precio o cercanía.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export function TechnicianSortBar({
           disabled={isLocating}
         >
           <LocateFixed className={cn("h-4 w-4", isLocating && "animate-spin")} />
-          {canSortByDistance ? "Ubicacion lista" : "Usar mi ubicacion"}
+          {canSortByDistance ? "Ubicación lista" : "Usar mi ubicación"}
         </Button>
       </div>
 
