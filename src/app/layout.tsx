@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Poppins } from "next/font/google"
+import { Inter, Quicksand } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "sonner"
@@ -14,11 +14,11 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
-const poppins = Poppins({
+const quicksand = Quicksand({
   subsets: ["latin"],
   display: "swap",
-  weight: ["700", "800"],
-  variable: "--font-poppins",
+  weight: ["700"],
+  variable: "--font-quicksand",
 })
 
 export const metadata: Metadata = {
@@ -63,7 +63,7 @@ export default function RootLayout({
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? null
 
   return (
-    <html lang="es" className={`${inter.variable} ${poppins.variable} h-full antialiased`}>
+    <html lang="es" className={`${inter.variable} ${quicksand.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AuthProvider>{children}</AuthProvider>
         <CookieBanner />

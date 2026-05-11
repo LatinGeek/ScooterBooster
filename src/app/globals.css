@@ -4,7 +4,7 @@
 :root {
   --background: #fafafa;
   --foreground: #111827;
-  --font-brand: var(--font-poppins), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-brand: var(--font-quicksand), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {
