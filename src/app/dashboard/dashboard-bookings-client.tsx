@@ -16,9 +16,11 @@ import {
   XCircle,
   Zap,
 } from "lucide-react"
+import { BookingReviewDialog } from "@/components/booking-review-dialog"
 import { Button } from "@/components/ui/button"
 import { getFirebaseDb } from "@/lib/firebase"
 import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
+import { canUserReviewBooking } from "@/lib/review-eligibility"
 import type { Booking, BookingStatus, ScooterModel, Service, Technician } from "@/types"
 
 interface Props {
@@ -374,6 +376,7 @@ export function DashboardBookingsClient({
   const [cancelling, setCancelling] = useState<string | null>(null)
   const [initiatingPayment, setInitiatingPayment] = useState<string | null>(null)
   const [hasReviewMap, setHasReviewMap] = useState<Record<string, boolean>>({})
+  const [reviewDialogBookingId, setReviewDialogBookingId] = useState<string | null>(null)
 
   useEffect(() => {
     const db = getFirebaseDb()
@@ -428,6 +431,24 @@ export function DashboardBookingsClient({
       setHasReviewMap(map)
     })
   }, [bookings])
+
+  useEffect(() => {
+    if (reviewDialogBookingId) return
+
+    const eligibleBooking = bookings.find((booking) => {
+      if (hasReviewMap[booking.id]) return false
+      if (!technicians[booking.technicianId]) return false
+      return canUserReviewBooking(booking)
+    })
+
+    if (!eligibleBooking) return
+
+    const storageKey = `sb:review-prompt-seen:${eligibleBooking.id}`
+    if (window.sessionStorage.getItem(storageKey)) return
+
+    window.sessionStorage.setItem(storageKey, "1")
+    setReviewDialogBookingId(eligibleBooking.id)
+  }, [bookings, hasReviewMap, reviewDialogBookingId, technicians])
 
   async function handleCancel(bookingId: string) {
     setCancelling(bookingId)
@@ -491,7 +512,7 @@ export function DashboardBookingsClient({
     (b) => UPCOMING_STATUSES.includes(b.status) && !isPastScheduledDate(b),
   )
   const past = bookings.filter(
-    (b) => PAST_STATUSES.includes(b.status) || (b.status === "pending" && isPastScheduledDate(b)),
+    (b) => PAST_STATUSES.includes(b.status) || (UPCOMING_STATUSES.includes(b.status) && isPastScheduledDate(b)),
   )
   const cancelled = bookings.filter((b) => CANCELLED_STATUSES.includes(b.status))
 
@@ -501,6 +522,11 @@ export function DashboardBookingsClient({
     { id: "past", label: "Historial", count: past.length },
     { id: "cancelled", label: "Canceladas", count: cancelled.length },
   ]
+  const reviewDialogBooking =
+    reviewDialogBookingId ? bookings.find((booking) => booking.id === reviewDialogBookingId) ?? null : null
+  const reviewDialogTechnician = reviewDialogBooking
+    ? technicians[reviewDialogBooking.technicianId] ?? null
+    : null
 
   return (
     <section>
@@ -557,6 +583,26 @@ export function DashboardBookingsClient({
           ))}
         </div>
       )}
+
+      {reviewDialogBooking && reviewDialogTechnician ? (
+        <BookingReviewDialog
+          booking={reviewDialogBooking}
+          technician={reviewDialogTechnician}
+          hasReview={!!hasReviewMap[reviewDialogBooking.id]}
+          open={!!reviewDialogBooking}
+          onOpenChange={(open) => {
+            if (!open) setReviewDialogBookingId(null)
+          }}
+          onSubmitted={() => {
+            setHasReviewMap((current) => ({ ...current, [reviewDialogBooking.id]: true }))
+            setBookings((current) =>
+              current.map((booking) =>
+                booking.id === reviewDialogBooking.id ? { ...booking, status: "completed" } : booking,
+              ),
+            )
+          }}
+        />
+      ) : null}
     </section>
   )
 }

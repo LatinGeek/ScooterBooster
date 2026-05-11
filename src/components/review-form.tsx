@@ -1,18 +1,33 @@
 "use client"
 
-import { useState } from "react"
-import { Star, Loader2, CheckCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useId, useState } from "react"
+import { CheckCircle, Loader2, Star } from "lucide-react"
 import { trackAnalyticsEvent } from "@/lib/analytics"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 interface ReviewFormProps {
   bookingId: string
   technicianId: string
   technicianName: string
   onSuccess?: () => void
+  compact?: boolean
+  title?: string
+  description?: string
+  submitLabel?: string
 }
 
-export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess }: ReviewFormProps) {
+export function ReviewForm({
+  bookingId,
+  technicianId,
+  technicianName,
+  onSuccess,
+  compact = false,
+  title,
+  description,
+  submitLabel = "Enviar reseña",
+}: ReviewFormProps) {
+  const textareaId = useId()
   const [rating, setRating] = useState(0)
   const [hovered, setHovered] = useState(0)
   const [comment, setComment] = useState("")
@@ -66,7 +81,7 @@ export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess 
       <div className="flex items-center gap-3 rounded-xl border border-[#a7f3d0] bg-[#d1fae5] px-4 py-4">
         <CheckCircle className="h-5 w-5 shrink-0 text-[#10b981]" />
         <div>
-          <p className="font-semibold text-[#065f46]">¡Gracias por tu reseña!</p>
+          <p className="font-semibold text-[#065f46]">Gracias por tu reseña</p>
           <p className="text-sm text-[#065f46]">Tu opinión ayuda a la comunidad ScooterBooster.</p>
         </div>
       </div>
@@ -74,20 +89,16 @@ export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess 
   }
 
   return (
-    <div className="rounded-xl border border-[#e5e7eb] bg-white p-5">
-      <h3 className="mb-4 font-semibold text-[#111827]">
-        ¿Cómo fue tu experiencia con {technicianName}?
+    <div className={cn("rounded-xl border border-[#e5e7eb] bg-white p-5", compact && "border-0 p-0 shadow-none")}>
+      <h3 className="mb-2 font-semibold text-[#111827]">
+        {title ?? `¿Cómo fue tu experiencia con ${technicianName}?`}
       </h3>
+      {description ? <p className="mb-4 text-sm text-[#6b7280]">{description}</p> : null}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Star rating */}
         <div>
           <p className="mb-2 text-sm font-medium text-[#374151]">Calificación *</p>
-          <div
-            className="flex gap-1"
-            role="group"
-            aria-label="Calificación de 1 a 5 estrellas"
-          >
+          <div className="flex gap-1" role="group" aria-label="Calificación de 1 a 5 estrellas">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -96,7 +107,7 @@ export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess 
                 onMouseEnter={() => setHovered(star)}
                 onMouseLeave={() => setHovered(0)}
                 aria-label={`${star} estrella${star > 1 ? "s" : ""}`}
-                className="cursor-pointer transition-transform duration-100 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] focus-visible:ring-offset-1 rounded"
+                className="cursor-pointer rounded transition-transform duration-100 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] focus-visible:ring-offset-1"
               >
                 <Star
                   className={`h-8 w-8 transition-colors duration-100 ${
@@ -108,20 +119,19 @@ export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess 
               </button>
             ))}
           </div>
-          {rating > 0 && (
+          {rating > 0 ? (
             <p className="mt-1 text-xs text-[#6b7280]">
               {["", "Muy malo", "Malo", "Regular", "Bueno", "Excelente"][rating]}
             </p>
-          )}
+          ) : null}
         </div>
 
-        {/* Comment */}
         <div>
-          <label htmlFor="review-comment" className="block text-sm font-medium text-[#374151]">
+          <label htmlFor={textareaId} className="block text-sm font-medium text-[#374151]">
             Comentario *
           </label>
           <textarea
-            id="review-comment"
+            id={textareaId}
             rows={4}
             minLength={10}
             maxLength={500}
@@ -133,12 +143,11 @@ export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess 
           <p className="mt-1 text-right text-xs text-[#9ca3af]">{comment.length}/500</p>
         </div>
 
-        {/* Error */}
-        {error && (
+        {error ? (
           <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
           </p>
-        )}
+        ) : null}
 
         <Button type="submit" disabled={submitting || rating === 0}>
           {submitting ? (
@@ -147,7 +156,7 @@ export function ReviewForm({ bookingId, technicianId, technicianName, onSuccess 
               Enviando...
             </>
           ) : (
-            "Enviar reseña"
+            submitLabel
           )}
         </Button>
       </form>

@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   getReviewsByTechnician: vi.fn(),
   getBookingById: vi.fn(),
+  updateBookingStatus: vi.fn(),
   getReviewByBooking: vi.fn(),
   createReview: vi.fn(),
   loggerInfo: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock("@/lib/db/reviews", () => ({
 
 vi.mock("@/lib/db/bookings", () => ({
   getBookingById: mocks.getBookingById,
+  updateBookingStatus: mocks.updateBookingStatus,
 }))
 
 vi.mock("@/lib/logger", () => ({
@@ -61,7 +63,7 @@ describe("/api/reviews", () => {
     mocks.getReviewsByTechnician.mockResolvedValue([{ id: "review-1", rating: 5 }])
 
     const response = await GET(
-      new NextRequest("http://localhost:3000/api/reviews?technicianId=tech-1")
+      new NextRequest("http://localhost:3000/api/reviews?technicianId=tech-1"),
     )
     const json = (await response.json()) as { success: boolean; data: Array<{ id: string }> }
 
@@ -80,7 +82,7 @@ describe("/api/reviews", () => {
         technicianId: "tech-1",
         rating: 5,
         comment: "Excelente servicio, muy recomendable.",
-      })
+      }),
     )
     const json = (await response.json()) as { success: boolean; error: string }
 
@@ -96,6 +98,8 @@ describe("/api/reviews", () => {
       userId: "user-2",
       technicianId: "tech-1",
       status: "completed",
+      paymentStatus: "paid",
+      scheduledDate: "2026-05-10T10:00:00.000Z",
     })
 
     const response = await POST(
@@ -104,7 +108,7 @@ describe("/api/reviews", () => {
         technicianId: "tech-1",
         rating: 5,
         comment: "Excelente servicio, muy recomendable.",
-      })
+      }),
     )
     const json = (await response.json()) as { success: boolean; error: string }
 
@@ -120,6 +124,8 @@ describe("/api/reviews", () => {
       userId: "user-1",
       technicianId: "tech-1",
       status: "completed",
+      paymentStatus: "paid",
+      scheduledDate: "2026-05-10T10:00:00.000Z",
     })
     mocks.getReviewByBooking.mockResolvedValue({ id: "review-1" })
 
@@ -129,7 +135,7 @@ describe("/api/reviews", () => {
         technicianId: "tech-1",
         rating: 5,
         comment: "Excelente servicio, muy recomendable.",
-      })
+      }),
     )
     const json = (await response.json()) as { success: boolean; error: string }
 
@@ -145,6 +151,8 @@ describe("/api/reviews", () => {
       userId: "user-1",
       technicianId: "tech-1",
       status: "completed",
+      paymentStatus: "paid",
+      scheduledDate: "2026-05-10T10:00:00.000Z",
     })
     mocks.getReviewByBooking.mockResolvedValue(null)
     mocks.createReview.mockResolvedValue({
@@ -161,7 +169,7 @@ describe("/api/reviews", () => {
         technicianId: "tech-1",
         rating: 5,
         comment: "Excelente servicio, muy recomendable.",
-      })
+      }),
     )
     const json = (await response.json()) as {
       success: boolean
@@ -178,7 +186,45 @@ describe("/api/reviews", () => {
       rating: 5,
       comment: "Excelente servicio, muy recomendable.",
     })
+    expect(mocks.updateBookingStatus).not.toHaveBeenCalled()
     expect(mocks.loggerInfo).toHaveBeenCalled()
+  })
+
+  it("marks an overdue paid booking as completed before creating the review", async () => {
+    mocks.getSession.mockResolvedValue({ uid: "user-1" })
+    mocks.getBookingById.mockResolvedValue({
+      id: "booking-1",
+      userId: "user-1",
+      technicianId: "tech-1",
+      status: "confirmed",
+      paymentStatus: "paid",
+      scheduledDate: "2026-05-08T10:00:00.000Z",
+    })
+    mocks.getReviewByBooking.mockResolvedValue(null)
+    mocks.createReview.mockResolvedValue({
+      id: "review-3",
+      bookingId: "booking-1",
+      technicianId: "tech-1",
+      rating: 5,
+      comment: "Excelente servicio, muy recomendable.",
+    })
+
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date("2026-05-09T10:00:01.000Z"))
+
+    const response = await POST(
+      createPostRequest({
+        bookingId: "booking-1",
+        technicianId: "tech-1",
+        rating: 5,
+        comment: "Excelente servicio, muy recomendable.",
+      }),
+    )
+
+    expect(response.status).toBe(201)
+    expect(mocks.updateBookingStatus).toHaveBeenCalledWith("booking-1", "completed")
+
+    vi.useRealTimers()
   })
 
   it("sanitizes html from review comments before storing them", async () => {
@@ -188,6 +234,8 @@ describe("/api/reviews", () => {
       userId: "user-1",
       technicianId: "tech-1",
       status: "completed",
+      paymentStatus: "paid",
+      scheduledDate: "2026-05-10T10:00:00.000Z",
     })
     mocks.getReviewByBooking.mockResolvedValue(null)
     mocks.createReview.mockResolvedValue({
@@ -204,7 +252,7 @@ describe("/api/reviews", () => {
         technicianId: "tech-1",
         rating: 5,
         comment: "<script>alert('x')</script><b>Excelente servicio.</b>",
-      })
+      }),
     )
 
     expect(response.status).toBe(201)
@@ -217,5 +265,3 @@ describe("/api/reviews", () => {
     })
   })
 })
-
-

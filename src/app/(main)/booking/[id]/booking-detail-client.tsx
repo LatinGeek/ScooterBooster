@@ -12,14 +12,16 @@ import {
   Loader2,
   MessageCircle,
   RefreshCw,
+  Star,
   User,
   Wrench,
   XCircle,
 } from "lucide-react"
+import { BookingReviewDialog } from "@/components/booking-review-dialog"
 import { Button } from "@/components/ui/button"
-import { ReviewForm } from "@/components/review-form"
 import { trackAnalyticsEventOncePerSession } from "@/lib/analytics"
 import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
+import { canUserReviewBooking } from "@/lib/review-eligibility"
 import type { Booking, BookingStatus, Technician, Service, ScooterModel } from "@/types"
 
 interface Props {
@@ -442,6 +444,8 @@ export function BookingDetailClient({
   const [error, setError] = useState<string | null>(null)
   const [initiatingPayment, setInitiatingPayment] = useState(false)
   const [paymentRefreshAttempts, setPaymentRefreshAttempts] = useState(0)
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
+  const [reviewSubmitted, setReviewSubmitted] = useState(hasReview)
 
   const statusCfg = STATUS_CONFIG[booking.status]
   const StatusIcon = statusCfg.icon
@@ -454,16 +458,36 @@ export function BookingDetailClient({
     (paymentReturnStatus === "success" || paymentReturnStatus === "pending") &&
     booking.status === "pending" &&
     booking.paymentStatus !== "paid"
+  const canContactTechnician =
+    booking.paymentStatus === "paid" &&
+    !!service &&
+    !!scooterModel &&
+    ["confirmed", "in_progress", "completed"].includes(booking.status)
+  const canOpenReviewDialog = role === "user" && !!technician && !reviewSubmitted && canUserReviewBooking(booking)
 
   useEffect(() => {
     setBooking(initialBooking)
   }, [initialBooking])
 
   useEffect(() => {
+    setReviewSubmitted(hasReview)
+  }, [hasReview])
+
+  useEffect(() => {
     if (!shouldAutoRefreshPayment) {
       setPaymentRefreshAttempts(0)
     }
   }, [shouldAutoRefreshPayment])
+
+  useEffect(() => {
+    if (!canOpenReviewDialog) return
+
+    const storageKey = `sb:review-prompt-seen:${booking.id}`
+    if (window.sessionStorage.getItem(storageKey)) return
+
+    window.sessionStorage.setItem(storageKey, "1")
+    setReviewDialogOpen(true)
+  }, [booking.id, canOpenReviewDialog])
 
   useEffect(() => {
     if (!shouldAutoRefreshPayment || paymentRefreshAttempts >= 5) return
@@ -530,12 +554,6 @@ export function BookingDetailClient({
       setInitiatingPayment(false)
     }
   }
-
-  const canContactTechnician =
-    booking.paymentStatus === "paid" &&
-    !!service &&
-    !!scooterModel &&
-    ["confirmed", "in_progress", "completed"].includes(booking.status)
 
   const whatsappUrl = technician?.whatsappNumber
     ? buildWhatsAppUrl(
@@ -684,23 +702,42 @@ export function BookingDetailClient({
           onInitiatePayment={handleInitiatePayment}
           initiatingPayment={initiatingPayment}
         />
+        {canOpenReviewDialog ? (
+          <Button variant="outline" onClick={() => setReviewDialogOpen(true)}>
+            <Star className="h-4 w-4 text-[#f59e0b]" />
+            {booking.status === "completed" ? "Dejar reseña" : "Marcar como completada y dejar reseña"}
+          </Button>
+        ) : null}
       </div>
 
       {booking.status === "completed" && role === "user" && technician && (
         <div className="mt-6">
-          {hasReview ? (
+          {reviewSubmitted ? (
             <div className="flex items-center gap-2 rounded-xl border border-[#e5e7eb] bg-[#f9fafb] px-4 py-3 text-sm text-[#6b7280]">
               <CheckCircle className="h-4 w-4 text-[#10b981]" />
               Ya dejaste una reseña para este servicio.
             </div>
           ) : (
-            <ReviewForm
-              bookingId={booking.id}
-              technicianId={booking.technicianId}
-              technicianName={technician.displayName}
-            />
+            <div className="rounded-xl border border-[#e5e7eb] bg-[#f9fafb] px-4 py-3 text-sm text-[#6b7280]">
+              Ya podés dejar una reseña desde el botón de esta reserva.
+            </div>
           )}
         </div>
+      )}
+
+      {technician && (
+        <BookingReviewDialog
+          booking={booking}
+          technician={technician}
+          hasReview={reviewSubmitted}
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          onSubmitted={() => {
+            setReviewSubmitted(true)
+            setBooking((current) => ({ ...current, status: "completed" }))
+            router.refresh()
+          }}
+        />
       )}
 
       <div className="mt-8 text-xs text-[#9ca3af]">

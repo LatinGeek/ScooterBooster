@@ -1,18 +1,19 @@
 import { NextRequest } from "next/server"
 import { ok, withErrorHandling } from "@/lib/api-response"
-import { getSession } from "@/lib/session"
-import { createReviewSchema } from "@/lib/validators/review"
+import { getBookingById, updateBookingStatus } from "@/lib/db/bookings"
 import { createReview, getReviewByBooking, getReviewsByTechnician } from "@/lib/db/reviews"
-import { getBookingById } from "@/lib/db/bookings"
-import { AuthError, ForbiddenError, NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
+import { AuthError, ConflictError, ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import logger from "@/lib/logger"
 import { enforceRateLimit } from "@/lib/ratelimit"
+import { canUserReviewBooking, isBookingOverdueForUserReview } from "@/lib/review-eligibility"
 import { sanitizePlainText } from "@/lib/sanitize"
 import { assertTrustedOrigin } from "@/lib/security"
+import { getSession } from "@/lib/session"
+import { createReviewSchema } from "@/lib/validators/review"
 
 export const dynamic = "force-dynamic"
 
-/** GET /api/reviews?technicianId=xxx — fetch reviews for a technician */
+/** GET /api/reviews?technicianId=xxx - fetch reviews for a technician */
 export const GET = withErrorHandling(async (req: NextRequest) => {
   const technicianId = req.nextUrl.searchParams.get("technicianId")
   if (!technicianId) {
@@ -22,7 +23,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
   return ok(reviews)
 })
 
-/** POST /api/reviews — submit a review for a completed booking */
+/** POST /api/reviews - submit a review for a completed or overdue paid booking */
 export const POST = withErrorHandling(async (req: NextRequest) => {
   assertTrustedOrigin(req)
 
@@ -43,30 +44,31 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   const { bookingId, technicianId, rating, comment } = parsed.data
 
-  // Verify the booking exists
   const booking = await getBookingById(bookingId)
   if (!booking) throw new NotFoundError("Reserva no encontrada")
 
-  // Only the booking owner can leave a review
   if (booking.userId !== session.uid) throw new ForbiddenError()
 
-  // Booking must be completed
-  if (booking.status !== "completed") {
-    throw new ValidationError("Solo podés dejar una reseña cuando el servicio esté completado")
+  if (!canUserReviewBooking(booking)) {
+    throw new ValidationError(
+      "Solo podés dejar una reseña cuando el servicio esté completado o haya pasado más de un día del turno",
+    )
   }
 
-  // Technician must match the booking
   if (booking.technicianId !== technicianId) {
     throw new ValidationError("El técnico no corresponde a esta reserva")
   }
 
-  // No duplicate reviews per booking
   const existing = await getReviewByBooking(bookingId)
   if (existing) {
     throw new ConflictError()
   }
 
   logger.info({ userId: session.uid, bookingId, technicianId, rating }, "Creating review")
+
+  if (booking.status !== "completed" && isBookingOverdueForUserReview(booking)) {
+    await updateBookingStatus(booking.id, "completed")
+  }
 
   const review = await createReview({
     bookingId,
