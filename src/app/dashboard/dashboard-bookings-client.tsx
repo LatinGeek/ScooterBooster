@@ -183,12 +183,22 @@ function BookingCard({
   const showWhatsApp =
     booking.paymentStatus === "paid" &&
     (booking.status === "confirmed" || booking.status === "in_progress") &&
-    technician?.whatsappNumber
+    technician?.whatsappNumber &&
+    service &&
+    model
   const showCancel = booking.status === "pending" || booking.status === "confirmed"
   const showReview = booking.status === "completed" && !hasReviewMap[booking.id]
 
   const whatsappUrl = technician?.whatsappNumber
-    ? buildWhatsAppUrl(technician.whatsappNumber, WA_MESSAGES.userContactTechnician(booking.id))
+    ? buildWhatsAppUrl(
+        technician.whatsappNumber,
+        WA_MESSAGES.userContactTechnician({
+          bookingId: booking.id,
+          scooterModel: model?.name ?? "Scooter",
+          service: service?.name ?? "Servicio",
+          bookingDateTime: booking.scheduledDate,
+        }),
+      )
     : null
 
   return (

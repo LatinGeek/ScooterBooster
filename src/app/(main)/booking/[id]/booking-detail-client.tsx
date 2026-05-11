@@ -533,12 +533,19 @@ export function BookingDetailClient({
 
   const canContactTechnician =
     booking.paymentStatus === "paid" &&
+    !!service &&
+    !!scooterModel &&
     ["confirmed", "in_progress", "completed"].includes(booking.status)
 
   const whatsappUrl = technician?.whatsappNumber
     ? buildWhatsAppUrl(
         technician.whatsappNumber,
-        WA_MESSAGES.userContactTechnician(booking.id.slice(0, 8).toUpperCase()),
+        WA_MESSAGES.userContactTechnician({
+          bookingId: booking.id,
+          scooterModel: scooterModel?.name ?? "Scooter",
+          service: service?.name ?? "Servicio",
+          bookingDateTime: booking.scheduledDate,
+        }),
       )
     : null
 
