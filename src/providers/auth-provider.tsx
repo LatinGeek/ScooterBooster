@@ -10,6 +10,7 @@ import {
   type User as FirebaseUser,
 } from "firebase/auth"
 import { doc, getDoc, setDoc } from "firebase/firestore"
+import { AuthFlowError } from "@/lib/auth-errors"
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase"
 import type { User } from "@/types"
 
@@ -77,38 +78,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         current?.uid === fbUser.uid ? { ...fallbackUser, ...current } : fallbackUser
       )
 
-      const userRef = doc(db, "users", fbUser.uid)
-      const userSnap = await getDoc(userRef)
+      try {
+        const userRef = doc(db, "users", fbUser.uid)
+        const userSnap = await getDoc(userRef)
 
-      if (userSnap.exists()) {
-        setUser({
-          uid: fbUser.uid,
-          ...(userSnap.data() as Omit<User, "uid">),
-        })
-      } else {
-        const newUser = buildFallbackUser(fbUser, "user")
-        await setDoc(userRef, {
-          displayName: newUser.displayName,
-          email: newUser.email,
-          photoURL: newUser.photoURL,
-          role: newUser.role,
-          phone: newUser.phone,
-          whatsappConsent: newUser.whatsappConsent,
-          createdAt: newUser.createdAt,
-          updatedAt: newUser.updatedAt,
-        })
-        setUser(newUser)
+        if (userSnap.exists()) {
+          setUser({
+            uid: fbUser.uid,
+            ...(userSnap.data() as Omit<User, "uid">),
+          })
+        } else {
+          const newUser = buildFallbackUser(fbUser, "user")
+          await setDoc(userRef, {
+            displayName: newUser.displayName,
+            email: newUser.email,
+            photoURL: newUser.photoURL,
+            role: newUser.role,
+            phone: newUser.phone,
+            whatsappConsent: newUser.whatsappConsent,
+            createdAt: newUser.createdAt,
+            updatedAt: newUser.updatedAt,
+          })
+          setUser(newUser)
+        }
+      } catch (error) {
+        throw new AuthFlowError(
+          "auth/profile-sync-failed",
+          "profile_sync",
+          "Failed to sync user profile after Google sign-in.",
+          error
+        )
       }
 
-      const idToken = await fbUser.getIdToken()
-      const response = await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      })
+      try {
+        const idToken = await fbUser.getIdToken()
+        const response = await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        })
 
-      if (!response.ok) {
-        throw new Error("No se pudo sincronizar la sesión del servidor.")
+        if (!response.ok) {
+          throw new Error("Server session sync failed.")
+        }
+      } catch (error) {
+        throw new AuthFlowError(
+          "auth/session-sync-failed",
+          "session_sync",
+          "Failed to sync server session after Google sign-in.",
+          error
+        )
       }
     })()
 

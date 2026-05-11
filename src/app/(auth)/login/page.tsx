@@ -22,7 +22,7 @@ function LoginForm() {
       router.replace(safeRedirect)
       router.refresh()
     } catch (err) {
-      console.error(err)
+      console.error("Login failed", err)
       setError("No se pudo iniciar sesión. Intentá de nuevo.")
     } finally {
       setLoading(false)
