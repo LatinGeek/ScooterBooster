@@ -116,4 +116,22 @@ describe("createPaymentLink", () => {
     expect(result.preferenceId).toBe("pref-456")
     expect(mocks.mercadoPagoConfig).toHaveBeenCalledWith({ accessToken: "live-token" })
   })
+
+  it("does not use generic or test credentials when the environment is live", async () => {
+    process.env.MERCADOPAGO_ENVIRONMENT = "live"
+    process.env.MERCADOPAGO_ACCESS_TOKEN = "legacy-token"
+    process.env.MERCADOPAGO_TEST_ACCESS_TOKEN = "test-token"
+    delete process.env.MERCADOPAGO_LIVE_ACCESS_TOKEN
+
+    await expect(
+      createPaymentLink({
+        bookingId: "booking-3",
+        serviceName: "Maintenance",
+        scooterModelName: "Xiaomi 5",
+        serviceFee: 250,
+      })
+    ).rejects.toThrow("Missing MercadoPago live access token")
+
+    expect(mocks.mercadoPagoConfig).not.toHaveBeenCalled()
+  })
 })

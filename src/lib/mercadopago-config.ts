@@ -16,7 +16,7 @@ export function getMercadoPagoEnvironment(): MercadoPagoEnvironment {
 
 export function getMercadoPagoEnvironmentCandidates(): MercadoPagoEnvironment[] {
   const selected = getMercadoPagoEnvironment()
-  return selected === "test" ? ["test", "live"] : ["live", "test"]
+  return selected === "test" ? ["test", "live"] : ["live"]
 }
 
 export function getMercadoPagoAccessToken(environment: MercadoPagoEnvironment): string {
@@ -30,7 +30,7 @@ export function getMercadoPagoAccessToken(environment: MercadoPagoEnvironment): 
     )
   }
 
-  return process.env.MERCADOPAGO_LIVE_ACCESS_TOKEN?.trim() || legacyAccessToken || ""
+  return process.env.MERCADOPAGO_LIVE_ACCESS_TOKEN?.trim() || ""
 }
 
 export function getMercadoPagoPublicKey(environment: MercadoPagoEnvironment): string | null {
@@ -47,8 +47,6 @@ export function getMercadoPagoPublicKey(environment: MercadoPagoEnvironment): st
   return (
     process.env.NEXT_PUBLIC_MERCADOPAGO_LIVE_PUBLIC_KEY?.trim() ||
     process.env.MERCADOPAGO_LIVE_PUBLIC_KEY?.trim() ||
-    process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY?.trim() ||
-    process.env.MERCADOPAGO_PUBLIC_KEY?.trim() ||
     null
   )
 }
@@ -63,4 +61,8 @@ export function getMercadoPagoWebhookSecrets(): string[] {
 
 export function getMercadoPagoSelectedAccessToken(): string {
   return getMercadoPagoAccessToken(getMercadoPagoEnvironment())
+}
+
+export function hasMercadoPagoSelectedAccessToken(): boolean {
+  return Boolean(getMercadoPagoSelectedAccessToken())
 }
