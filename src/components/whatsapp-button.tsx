@@ -6,7 +6,7 @@ interface WhatsAppButtonProps {
   message?: string
   label?: string
   className?: string
-  variant?: "default" | "icon"
+  variant?: "default" | "icon" | "floating"
 }
 
 /**
@@ -23,6 +23,31 @@ export function WhatsAppButton({
   const cleanNumber = phoneNumber.replace(/\D/g, "")
   const encodedMessage = message ? encodeURIComponent(message) : ""
   const href = `https://wa.me/${cleanNumber}${encodedMessage ? `?text=${encodedMessage}` : ""}`
+
+  if (variant === "floating") {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        className={cn(
+          "fixed bottom-24 right-4 z-50 inline-flex max-w-[calc(100vw-2rem)] items-center gap-3 overflow-hidden rounded-full",
+          "border border-white/20 bg-[#25d366] px-4 py-3 text-[13px] font-semibold leading-none text-white",
+          "shadow-[0_18px_45px_rgba(37,211,102,0.35)] transition-all duration-200",
+          "hover:-translate-y-0.5 hover:bg-[#1fb85a] focus-visible:outline-none focus-visible:ring-2",
+          "focus-visible:ring-[#25d366] focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+          "sm:bottom-6 sm:right-6 sm:max-w-none sm:px-5 sm:py-3.5 sm:text-sm",
+          className
+        )}
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+          <MessageCircle className="h-5 w-5" />
+        </span>
+        <span className="truncate whitespace-nowrap">{label}</span>
+      </a>
+    )
+  }
 
   if (variant === "icon") {
     return (
