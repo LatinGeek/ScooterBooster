@@ -9,6 +9,10 @@ import { assertTrustedOrigin } from "@/lib/security"
 
 const bodySchema = z.object({
   idToken: z.string().min(1),
+  phone: z
+    .string()
+    .regex(/^\+598\d{8}$/, "El teléfono debe tener formato +598XXXXXXXX")
+    .optional(),
 })
 
 export const POST = withErrorHandling(async (req: NextRequest) => {
@@ -31,6 +35,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     email: typeof decoded.email === "string" ? decoded.email : "",
     photoURL: typeof decoded.picture === "string" ? decoded.picture : null,
     role: role === "admin" || role === "technician" ? role : "user",
+    phone: parsed.data.phone,
   })
 
   const sessionCookie = await createSessionCookie(parsed.data.idToken)

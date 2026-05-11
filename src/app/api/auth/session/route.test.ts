@@ -134,4 +134,31 @@ describe("/api/auth/session", () => {
       expect.objectContaining({ httpOnly: false, path: "/" })
     )
   })
+
+  it("passes an imported Google phone number through to the profile bootstrap", async () => {
+    mocks.createSessionCookie.mockResolvedValue("session-cookie-value")
+    mocks.verifyIdToken.mockResolvedValue({
+      uid: "user-1",
+      role: "user",
+      name: "User Name",
+      email: "user@example.com",
+      picture: null,
+    })
+
+    const response = await POST(
+      createPostRequest({
+        idToken: "id-token-123",
+        phone: "+59899123456",
+      })
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.ensureUserProfile).toHaveBeenCalledWith("user-1", {
+      displayName: "User Name",
+      email: "user@example.com",
+      photoURL: null,
+      role: "user",
+      phone: "+59899123456",
+    })
+  })
 })

@@ -33,7 +33,9 @@ export async function getUserById(uid: string): Promise<User | null> {
 
 export async function ensureUserProfile(
   uid: string,
-  profile: Pick<User, "displayName" | "email" | "photoURL" | "role">
+  profile: Pick<User, "displayName" | "email" | "photoURL" | "role"> & {
+    phone?: string | null
+  }
 ): Promise<User> {
   const userRef = adminDb.collection("users").doc(uid)
   const snap = await userRef.get()
@@ -45,7 +47,7 @@ export async function ensureUserProfile(
       email: profile.email,
       photoURL: profile.photoURL,
       role: profile.role,
-      phone: null,
+      phone: profile.phone ?? null,
       whatsappConsent: false,
       createdAt: now,
       updatedAt: now,
@@ -58,7 +60,19 @@ export async function ensureUserProfile(
     }
   }
 
-  return docToUser(snap.id, snap.data()!)
+  const currentUser = docToUser(snap.id, snap.data()!)
+  if (profile.phone && !currentUser.phone) {
+    const updatedAt = new Date().toISOString()
+    await userRef.update({
+      phone: profile.phone,
+      updatedAt,
+    })
+
+    const updatedSnap = await userRef.get()
+    return docToUser(updatedSnap.id, updatedSnap.data()!)
+  }
+
+  return currentUser
 }
 
 export async function getUsersByIds(userIds: string[]): Promise<Record<string, User>> {

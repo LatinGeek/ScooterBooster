@@ -3,17 +3,19 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
 import {
   GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithCustomToken,
   signInWithPopup,
+  signInWithCustomToken,
+  onAuthStateChanged,
   signOut as firebaseSignOut,
   type User as FirebaseUser,
 } from "firebase/auth"
 import { AuthFlowError } from "@/lib/auth-errors"
+import { fetchGooglePhoneNumber, GOOGLE_PHONE_SCOPE } from "@/lib/google-people"
 import { getFirebaseAuth } from "@/lib/firebase"
 import type { User } from "@/types"
 
 const googleProvider = new GoogleAuthProvider()
+googleProvider.addScope(GOOGLE_PHONE_SCOPE)
 
 interface AuthContextValue {
   user: User | null
@@ -58,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const hadAuthenticatedSession = useRef(false)
   const syncPromiseRef = useRef<Promise<void> | null>(null)
 
-  const syncAuthenticatedUser = useCallback(async (fbUser: FirebaseUser) => {
+  const syncAuthenticatedUser = useCallback(async (fbUser: FirebaseUser, phone?: string | null) => {
     if (syncPromiseRef.current) {
       await syncPromiseRef.current
       return
@@ -81,7 +83,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await fetch("/api/auth/session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idToken }),
+          body: JSON.stringify({
+            idToken,
+            phone: phone ?? undefined,
+          }),
         })
 
         if (!response.ok) {
@@ -170,8 +175,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     try {
       const result = await signInWithPopup(getFirebaseAuth(), googleProvider)
+      const credential = GoogleAuthProvider.credentialFromResult(result)
+      const googlePhonePromise =
+        credential?.accessToken != null
+          ? fetchGooglePhoneNumber(credential.accessToken)
+          : Promise.resolve(null)
+
       hadAuthenticatedSession.current = true
+
       await syncAuthenticatedUser(result.user)
+
+      const googlePhone = await googlePhonePromise
+      if (googlePhone) {
+        await syncAuthenticatedUser(result.user, googlePhone)
+      }
     } finally {
       setLoading(false)
     }
