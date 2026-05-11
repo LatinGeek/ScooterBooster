@@ -22,11 +22,11 @@ export const URUGUAY_LOCATION_PRESETS: UruguayLocationPreset[] = [
     aliases: ["pocitos", "pocitos montevideo"],
   },
   {
-    slug: "malvin",
-    label: "Malvín",
+    slug: "union",
+    label: "Unión",
     latitude: -34.8858,
     longitude: -56.1367,
-    aliases: ["malvin", "malvín", "malvin montevideo", "malvín montevideo"],
+    aliases: ["union", "unión", "union montevideo", "unión montevideo"],
   },
   {
     slug: "punta-del-este",
