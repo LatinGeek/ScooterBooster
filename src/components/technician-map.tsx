@@ -20,7 +20,7 @@ interface TechnicianMapProps {
 }
 
 const MONTEVIDEO_CENTER: [number, number] = [-34.9011, -56.1645]
-const TECHNICIAN_RADIUS_METERS = 250
+const TECHNICIAN_RADIUS_METERS = 500
 
 function MapBoundsController({
   technicians,
