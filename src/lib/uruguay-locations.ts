@@ -23,10 +23,10 @@ export const URUGUAY_LOCATION_PRESETS: UruguayLocationPreset[] = [
   },
   {
     slug: "malvin",
-    label: "Malvin",
+    label: "Malvín",
     latitude: -34.8858,
     longitude: -56.1367,
-    aliases: ["malvin", "malvin montevideo"],
+    aliases: ["malvin", "malvín", "malvin montevideo", "malvín montevideo"],
   },
   {
     slug: "punta-del-este",

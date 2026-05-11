@@ -727,15 +727,15 @@ function StepTechnician({
 
         {available.length === 1 ? (
           <div className="rounded-2xl border border-[#d1fae5] bg-[#f0fdf4] px-4 py-3 text-sm font-medium text-[#047857]">
-            Solo un tecnico disponible para este servicio. Lo dejamos preseleccionado para que
-            avances mas rapido.
+            Solo un técnico disponible para este servicio. Lo dejamos preseleccionado para que
+            avances mas rápido.
           </div>
         ) : null}
       </div>
 
       {available.length === 0 ? (
         <p className="rounded-xl border border-[#e5e7eb] p-6 text-center text-[#6b7280]">
-          No hay tecnicos disponibles para esta combinacion de servicio y scooter.
+          No hay técnicos disponibles para esta combinación de servicio y scooter.
         </p>
       ) : viewMode === "list" ? (
         <div className="space-y-3">

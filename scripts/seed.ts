@@ -1104,6 +1104,10 @@ async function seedDemoTechnicians() {
       photoURL: "",
       phone: "+59899111003",
       whatsappNumber: "+59899111003",
+      coordinates: {
+        lat: -34.8858,
+        lng: -56.1367,
+      },
       location: "Malvín, Montevideo",
       pricingMatrix: buildPricingMatrixForBrands(
         Object.values(BRAND_IDS),
@@ -1154,7 +1158,7 @@ async function seedDemoTechnicians() {
         services: derivedFields.services,
         supportedBrands: derivedFields.supportedBrands,
         pricing: derivedFields.pricing,
-        coordinates: getCoordinatesForLocation(data.location),
+        coordinates: data.coordinates ?? getCoordinatesForLocation(data.location),
         normalizedLocation: normalizeSearchText(data.location),
         searchTokens: buildSearchTokens(
           data.displayName,

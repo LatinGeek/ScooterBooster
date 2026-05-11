@@ -20,7 +20,7 @@ const BASE_OPTIONS: Array<{
   icon: typeof Star
 }> = [
   { value: "rating", label: "Mejor valorados", icon: Star },
-  { value: "reviewCount", label: "Mas resenas", icon: MessageSquareText },
+  { value: "reviewCount", label: "Más reseñas", icon: MessageSquareText },
   { value: "price", label: "Menor precio", icon: DollarSign },
 ]
 

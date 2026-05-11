@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo } from "react"
-import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
+import { Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
 import L from "leaflet"
 import { Button } from "@/components/ui/button"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
@@ -20,6 +20,7 @@ interface TechnicianMapProps {
 }
 
 const MONTEVIDEO_CENTER: [number, number] = [-34.9011, -56.1645]
+const TECHNICIAN_RADIUS_METERS = 250
 
 function MapBoundsController({
   technicians,
@@ -150,10 +151,10 @@ export function TechnicianMap({
           const isSelected = technician.id === selectedId
 
           return (
-            <CircleMarker
+            <Circle
               key={technician.id}
               center={[coordinates.lat, coordinates.lng]}
-              radius={isSelected ? 13 : 10}
+              radius={TECHNICIAN_RADIUS_METERS}
               eventHandlers={{
                 click: () => {
                   onSelect(technician.id)
@@ -162,8 +163,8 @@ export function TechnicianMap({
               pathOptions={{
                 color: isSelected ? "#0f766e" : "#10b981",
                 fillColor: isSelected ? "#14b8a6" : "#34d399",
-                fillOpacity: 0.92,
-                weight: isSelected ? 4 : 3,
+                fillOpacity: 0.18,
+                weight: isSelected ? 3 : 2,
               }}
             >
               <Popup>
@@ -171,6 +172,7 @@ export function TechnicianMap({
                   <div>
                     <p className="text-sm font-semibold text-[#111827]">{technician.displayName}</p>
                     <p className="text-xs text-[#6b7280]">{technician.location}</p>
+                    <p className="mt-1 text-xs text-[#6b7280]">Cobertura aproximada de 250 m</p>
                   </div>
                   <div className="flex items-center justify-between gap-3 text-xs text-[#4b5563]">
                     <span>{technician.rating.toFixed(1)} estrellas</span>
@@ -189,7 +191,7 @@ export function TechnicianMap({
                   </Button>
                 </div>
               </Popup>
-            </CircleMarker>
+            </Circle>
           )
         })}
       </MapContainer>
