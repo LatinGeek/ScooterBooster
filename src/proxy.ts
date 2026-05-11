@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { SESSION_COOKIE_NAME } from "@/lib/session"
 
 // Routes that require authentication
-const PROTECTED_PREFIXES = ["/dashboard", "/admin", "/onboarding"]
+const PROTECTED_PREFIXES = ["/dashboard", "/admin", "/onboarding", "/booking/new"]
 
 // Routes that redirect authenticated users away (e.g. login)
 const AUTH_ONLY_ROUTES = ["/login"]
@@ -10,6 +10,10 @@ const AUTH_ONLY_ROUTES = ["/login"]
 // Role-restricted route prefixes
 const ADMIN_ONLY_PREFIXES = ["/admin"]
 const TECHNICIAN_ONLY_PREFIXES = ["/dashboard/technician"]
+
+function buildLoginRedirectTarget(req: NextRequest) {
+  return `${req.nextUrl.pathname}${req.nextUrl.search}`
+}
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -21,7 +25,7 @@ export async function proxy(req: NextRequest) {
   const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
   if (isProtected && !isAuthenticated) {
     const loginUrl = new URL("/login", req.nextUrl)
-    loginUrl.searchParams.set("redirect", pathname)
+    loginUrl.searchParams.set("redirect", buildLoginRedirectTarget(req))
     return NextResponse.redirect(loginUrl)
   }
 
