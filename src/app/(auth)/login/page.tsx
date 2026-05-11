@@ -1,8 +1,8 @@
 "use client"
 
-import { Suspense, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 
 function getErrorCode(err: unknown): string | undefined {
@@ -58,7 +58,7 @@ function LoginForm() {
     } catch (err) {
       console.error("Login failed", err)
       reportLoginError(err)
-      setError("No se pudo iniciar sesión. Intentá de nuevo.")
+      setError("No se pudo iniciar sesion. Intenta de nuevo.")
     } finally {
       setLoading(false)
     }
@@ -80,7 +80,7 @@ function LoginForm() {
       <button
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-[#e5e7eb] bg-white px-6 py-3 text-sm font-semibold text-[#374151] shadow-sm transition-all duration-200 hover:bg-[#f9fafb] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#10b981] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-[#e5e7eb] bg-white px-6 py-3 text-sm font-semibold text-[#374151] shadow-sm transition-all duration-200 hover:bg-[#f9fafb] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -100,7 +100,7 @@ function LoginForm() {
             fill="#EA4335"
           />
         </svg>
-        {loading ? "Iniciando sesión..." : "Continuar con Google"}
+        {loading ? "Iniciando sesion..." : "Continuar con Google"}
       </button>
 
       <p className="mt-6 text-center text-xs text-[#9ca3af]">
@@ -122,20 +122,29 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f9fafb] px-4">
       <div className="w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-[#e5e7eb]">
+        <div className="relative mb-10 flex flex-col items-center gap-4 text-center">
+          <div
+            aria-hidden="true"
+            className="absolute top-2 h-24 w-24 rounded-full bg-emerald-400/15 blur-3xl"
+          />
+          <div className="relative flex items-center justify-center">
             <Image
               src="/assets/scooterbooster-logo.png"
               alt="ScooterBooster logo"
-              width={40}
-              height={40}
-              className="h-10 w-10"
+              width={96}
+              height={96}
+              className="h-20 w-20 drop-shadow-[0_18px_35px_rgba(16,185,129,0.24)] md:h-24 md:w-24"
               priority
             />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-[#111827]">ScooterBooster</h1>
-            <p className="mt-1 text-sm text-[#6b7280]">Potenciá tu scooter eléctrico</p>
+            <h1
+              className="text-3xl font-black tracking-[-0.06em] text-[#111827] md:text-4xl"
+              style={{ fontFamily: "var(--font-brand)" }}
+            >
+              ScooterBooster
+            </h1>
+            <p className="mt-2 text-sm text-[#6b7280]">Potencia tu scooter electrico</p>
           </div>
         </div>
 
