@@ -12,9 +12,10 @@ interface AdminViewSwitcherProps {
 
 export function AdminViewSwitcher({ className, compact = false }: AdminViewSwitcherProps) {
   const pathname = usePathname()
-  const { role, loading } = useAuth()
+  const { role, user, loading } = useAuth()
+  const effectiveRole = role ?? user?.role ?? null
 
-  if (loading || role !== "admin" || !pathname.startsWith("/dashboard")) return null
+  if (loading || effectiveRole !== "admin" || !pathname.startsWith("/dashboard")) return null
 
   const activeView = "customer"
   const links = [

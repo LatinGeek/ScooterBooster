@@ -8,6 +8,7 @@ import { AdminViewSwitcher } from "@/components/admin-view-switcher"
 import { useAuth } from "@/hooks/use-auth"
 import { NotificationBell } from "@/components/notification-bell"
 import { BrandLogo } from "@/components/brand-logo"
+import { Navbar } from "@/components/navbar"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Mis reservas", icon: CalendarDays, exact: true },
@@ -32,6 +33,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
+      <Navbar />
+
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <aside className="hidden w-60 shrink-0 md:block">
           <div className="sticky top-24">

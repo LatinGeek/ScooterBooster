@@ -8,6 +8,7 @@ import { AdminViewSwitcher } from "@/components/admin-view-switcher"
 const mocks = vi.hoisted(() => ({
   pathname: "/dashboard",
   role: "admin" as "admin" | "user" | "technician" | null,
+  user: null as null | { role: "admin" | "user" | "technician" },
   loading: false,
 }))
 
@@ -26,6 +27,7 @@ vi.mock("next/link", () => ({
 vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => ({
     role: mocks.role,
+    user: mocks.user,
     loading: mocks.loading,
   }),
 }))
@@ -34,6 +36,7 @@ describe("AdminViewSwitcher", () => {
   beforeEach(() => {
     mocks.pathname = "/dashboard"
     mocks.role = "admin"
+    mocks.user = null
     mocks.loading = false
   })
 
@@ -55,10 +58,21 @@ describe("AdminViewSwitcher", () => {
 
   it("hides for non-admin accounts", () => {
     mocks.role = "user"
+    mocks.user = { role: "user" }
 
     render(<AdminViewSwitcher />)
 
     expect(screen.queryByText("Cliente")).toBeNull()
     expect(screen.queryByText("Admin")).toBeNull()
+  })
+
+  it("falls back to the loaded user role when the auth role is not ready", () => {
+    mocks.role = null
+    mocks.user = { role: "admin" }
+
+    render(<AdminViewSwitcher />)
+
+    expect(screen.getByText("Cliente")).toBeTruthy()
+    expect(screen.getByText("Admin")).toBeTruthy()
   })
 })

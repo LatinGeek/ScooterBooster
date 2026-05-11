@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Bike } from "lucide-react"
+import Image from "next/image"
 import { useAuth } from "@/hooks/use-auth"
 
 function getErrorCode(err: unknown): string | undefined {
@@ -123,8 +123,15 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-[#f9fafb] px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#10b981]">
-            <Bike className="h-8 w-8 text-white" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-[#e5e7eb]">
+            <Image
+              src="/assets/scooterbooster-logo.png"
+              alt="ScooterBooster logo"
+              width={40}
+              height={40}
+              className="h-10 w-10"
+              priority
+            />
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-[#111827]">ScooterBooster</h1>
