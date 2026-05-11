@@ -117,6 +117,30 @@ describe("createPaymentLink", () => {
     expect(mocks.mercadoPagoConfig).toHaveBeenCalledWith({ accessToken: "live-token" })
   })
 
+  it("uses the canonical www host for webhook delivery when the app URL is the apex domain", async () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://scooterbooster.uy"
+
+    mocks.preferenceCreate.mockResolvedValue({
+      id: "pref-789",
+      init_point: "https://mp.test/pay/pref-789",
+    })
+
+    await createPaymentLink({
+      bookingId: "booking-4",
+      serviceName: "Maintenance",
+      scooterModelName: "Xiaomi 5",
+      serviceFee: 250,
+    })
+
+    const createArg = mocks.preferenceCreate.mock.calls[0]?.[0] as {
+      body: { notification_url: string }
+    }
+
+    expect(createArg.body.notification_url).toBe(
+      "https://www.scooterbooster.uy/api/payments/webhook",
+    )
+  })
+
   it("does not use generic or test credentials when the environment is live", async () => {
     process.env.MERCADOPAGO_ENVIRONMENT = "live"
     process.env.MERCADOPAGO_ACCESS_TOKEN = "legacy-token"

@@ -10,6 +10,23 @@ interface CreatePaymentLinkParams {
   serviceFee: number
 }
 
+function getMercadoPagoWebhookUrl(): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://scooterbooster.uy"
+  const url = new URL(appUrl)
+
+  // MercadoPago webhook delivery should hit the canonical host directly.
+  // The apex domain currently redirects to www, and webhook providers can fail
+  // to deliver POSTs cleanly through that redirect chain.
+  if (url.hostname === "scooterbooster.uy") {
+    url.hostname = "www.scooterbooster.uy"
+  }
+
+  url.pathname = "/api/payments/webhook"
+  url.search = ""
+  url.hash = ""
+  return url.toString()
+}
+
 export async function createPaymentLink(params: CreatePaymentLinkParams): Promise<PaymentLink> {
   if (process.env.E2E_MOCK_MERCADOPAGO === "1") {
     return {
@@ -48,7 +65,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
         pending: `${appUrl}/booking/${params.bookingId}/pending`,
       },
       auto_return: "approved",
-      notification_url: `${appUrl}/api/payments/webhook`,
+      notification_url: getMercadoPagoWebhookUrl(),
       external_reference: `booking_${params.bookingId}`,
       expires: true,
       expiration_date_to: expiresAt,
