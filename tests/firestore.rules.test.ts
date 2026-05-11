@@ -62,6 +62,8 @@ describe("firestore.rules", () => {
   it("allows users to create and read their own profile, but not elevate their role", async () => {
     const userDb = authedDb("user-1")
 
+    await assertSucceeds(getDoc(doc(userDb, "users", "user-1")))
+
     await assertSucceeds(
       setDoc(doc(userDb, "users", "user-1"), {
         displayName: "Alan",
