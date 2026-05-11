@@ -5,6 +5,40 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Bike } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 
+function getErrorCode(err: unknown): string | undefined {
+  if (typeof err !== "object" || err === null) return undefined
+  const code = (err as { code?: unknown }).code
+  return typeof code === "string" && code.trim() ? code : undefined
+}
+
+function getErrorStage(err: unknown): string | undefined {
+  if (typeof err !== "object" || err === null) return undefined
+  const stage = (err as { stage?: unknown }).stage
+  return typeof stage === "string" && stage.trim() ? stage : undefined
+}
+
+function getErrorMessage(err: unknown): string | undefined {
+  if (typeof err !== "object" || err === null) return undefined
+  const message = (err as { message?: unknown }).message
+  return typeof message === "string" && message.trim() ? message : undefined
+}
+
+function reportLoginError(err: unknown) {
+  if (typeof window === "undefined") return
+
+  void fetch("/api/client-errors", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      scope: "login",
+      code: getErrorCode(err),
+      stage: getErrorStage(err),
+      message: getErrorMessage(err),
+    }),
+    keepalive: true,
+  }).catch(() => {})
+}
+
 function LoginForm() {
   const { signInWithGoogle } = useAuth()
   const router = useRouter()
@@ -23,6 +57,7 @@ function LoginForm() {
       router.refresh()
     } catch (err) {
       console.error("Login failed", err)
+      reportLoginError(err)
       setError("No se pudo iniciar sesión. Intentá de nuevo.")
     } finally {
       setLoading(false)
