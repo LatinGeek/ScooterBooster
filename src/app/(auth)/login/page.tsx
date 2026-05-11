@@ -58,7 +58,7 @@ function LoginForm() {
     } catch (err) {
       console.error("Login failed", err)
       reportLoginError(err)
-      setError("No se pudo iniciar sesion. Intenta de nuevo.")
+      setError("No se pudo iniciar sesión. Intentá de nuevo.")
     } finally {
       setLoading(false)
     }
@@ -100,7 +100,7 @@ function LoginForm() {
             fill="#EA4335"
           />
         </svg>
-        {loading ? "Iniciando sesion..." : "Continuar con Google"}
+        {loading ? "Iniciando sesión..." : "Continuar con Google"}
       </button>
 
       <p className="mt-6 text-center text-xs text-[#9ca3af]">
@@ -120,31 +120,28 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f9fafb] px-4">
+    <main className="flex min-h-dvh items-start justify-center bg-[linear-gradient(180deg,#ecfdf5_0%,#f8fafc_42%,#f9fafb_100%)] px-4 pt-12 pb-32 sm:items-center sm:py-12">
       <div className="w-full max-w-md">
-        <div className="relative mb-10 flex flex-col items-center gap-4 text-center">
-          <div
-            aria-hidden="true"
-            className="absolute top-2 h-24 w-24 rounded-full bg-emerald-400/15 blur-3xl"
-          />
-          <div className="relative flex items-center justify-center">
+        <div className="mb-12 flex flex-col items-center gap-6 text-center sm:mb-10">
+          <div className="flex items-center justify-center">
             <Image
               src="/assets/scooterbooster-logo.png"
               alt="ScooterBooster logo"
-              width={96}
-              height={96}
-              className="h-20 w-20 drop-shadow-[0_18px_35px_rgba(16,185,129,0.24)] md:h-24 md:w-24"
+              width={192}
+              height={192}
+              className="h-40 w-40 drop-shadow-[0_26px_42px_rgba(16,185,129,0.28)] sm:h-44 sm:w-44 md:h-40 md:w-40"
               priority
             />
           </div>
           <div>
             <h1
-              className="text-3xl font-black tracking-[-0.06em] text-[#111827] md:text-4xl"
+              className="text-[2.8rem] leading-none font-black tracking-normal text-[#111827] sm:text-5xl"
               style={{ fontFamily: "var(--font-brand)" }}
             >
-              ScooterBooster
+              <span className="text-[#006349]">Scooter</span>
+              <span className="text-[#10b388]">Booster</span>
             </h1>
-            <p className="mt-2 text-sm text-[#6b7280]">Potencia tu scooter electrico</p>
+            <p className="mt-3 text-sm font-medium text-[#475569]">Potenciá tu scooter eléctrico</p>
           </div>
         </div>
 
