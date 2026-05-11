@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   createSessionCookie: vi.fn(),
   cookies: vi.fn(),
   cookieSet: vi.fn(),
+  ensureUserProfile: vi.fn(),
   verifyIdToken: vi.fn(),
 }))
 
@@ -21,6 +22,10 @@ vi.mock("@/lib/firebase-admin", () => ({
   adminAuth: {
     verifyIdToken: mocks.verifyIdToken,
   },
+}))
+
+vi.mock("@/lib/db/users", () => ({
+  ensureUserProfile: mocks.ensureUserProfile,
 }))
 
 import { POST } from "@/app/api/auth/session/route"
@@ -42,6 +47,7 @@ describe("/api/auth/session", () => {
     mocks.cookies.mockResolvedValue({
       set: mocks.cookieSet,
     })
+    mocks.ensureUserProfile.mockResolvedValue(undefined)
   })
 
   it("validates the idToken payload", async () => {
@@ -73,7 +79,7 @@ describe("/api/auth/session", () => {
 
   it("allows missing origin headers on loopback hosts for local e2e flows", async () => {
     mocks.createSessionCookie.mockResolvedValue("session-cookie-value")
-    mocks.verifyIdToken.mockResolvedValue({ role: "user" })
+    mocks.verifyIdToken.mockResolvedValue({ uid: "user-1", role: "user" })
 
     const response = await POST(
       new NextRequest("http://127.0.0.1:3000/api/auth/session", {
@@ -93,7 +99,13 @@ describe("/api/auth/session", () => {
 
   it("creates the session cookie and role cookie", async () => {
     mocks.createSessionCookie.mockResolvedValue("session-cookie-value")
-    mocks.verifyIdToken.mockResolvedValue({ role: "technician" })
+    mocks.verifyIdToken.mockResolvedValue({
+      uid: "user-1",
+      role: "technician",
+      name: "Tech User",
+      email: "tech@example.com",
+      picture: "https://example.com/photo.png",
+    })
 
     const response = await POST(createPostRequest({ idToken: "id-token-123" }))
     const json = (await response.json()) as { success: boolean; data: { message: string } }
@@ -103,6 +115,12 @@ describe("/api/auth/session", () => {
     expect(json.data.message).toBe("Sesión iniciada")
     expect(mocks.createSessionCookie).toHaveBeenCalledWith("id-token-123")
     expect(mocks.verifyIdToken).toHaveBeenCalledWith("id-token-123")
+    expect(mocks.ensureUserProfile).toHaveBeenCalledWith("user-1", {
+      displayName: "Tech User",
+      email: "tech@example.com",
+      photoURL: "https://example.com/photo.png",
+      role: "technician",
+    })
     expect(mocks.cookieSet).toHaveBeenNthCalledWith(
       1,
       "__session",

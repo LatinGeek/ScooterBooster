@@ -9,9 +9,8 @@ import {
   signOut as firebaseSignOut,
   type User as FirebaseUser,
 } from "firebase/auth"
-import { doc, getDoc, setDoc } from "firebase/firestore"
 import { AuthFlowError } from "@/lib/auth-errors"
-import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase"
+import { getFirebaseAuth } from "@/lib/firebase"
 import type { User } from "@/types"
 
 const googleProvider = new GoogleAuthProvider()
@@ -66,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     syncPromiseRef.current = (async () => {
-      const db = getFirebaseDb()
       const idTokenResult = await fbUser.getIdTokenResult()
       const claimedRole =
         (idTokenResult.claims["role"] as "user" | "technician" | "admin" | undefined) ?? "user"
@@ -77,38 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser((current) =>
         current?.uid === fbUser.uid ? { ...fallbackUser, ...current } : fallbackUser
       )
-
-      try {
-        const userRef = doc(db, "users", fbUser.uid)
-        const userSnap = await getDoc(userRef)
-
-        if (userSnap.exists()) {
-          setUser({
-            uid: fbUser.uid,
-            ...(userSnap.data() as Omit<User, "uid">),
-          })
-        } else {
-          const newUser = buildFallbackUser(fbUser, "user")
-          await setDoc(userRef, {
-            displayName: newUser.displayName,
-            email: newUser.email,
-            photoURL: newUser.photoURL,
-            role: newUser.role,
-            phone: newUser.phone,
-            whatsappConsent: newUser.whatsappConsent,
-            createdAt: newUser.createdAt,
-            updatedAt: newUser.updatedAt,
-          })
-          setUser(newUser)
-        }
-      } catch (error) {
-        throw new AuthFlowError(
-          "auth/profile-sync-failed",
-          "profile_sync",
-          "Failed to sync user profile after Google sign-in.",
-          error
-        )
-      }
 
       try {
         const idToken = await fbUser.getIdToken()
@@ -126,6 +92,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           "auth/session-sync-failed",
           "session_sync",
           "Failed to sync server session after Google sign-in.",
+          error
+        )
+      }
+
+      try {
+        const profileResponse = await fetch("/api/auth/me", {
+          method: "GET",
+          cache: "no-store",
+        })
+
+        if (!profileResponse.ok) {
+          throw new Error("Server profile bootstrap failed.")
+        }
+
+        const payload = (await profileResponse.json()) as {
+          success: boolean
+          data?: User
+        }
+
+        if (!payload.success || !payload.data) {
+          throw new Error("Missing user profile payload.")
+        }
+
+        setUser(payload.data)
+      } catch (error) {
+        throw new AuthFlowError(
+          "auth/profile-sync-failed",
+          "profile_sync",
+          "Failed to load user profile after Google sign-in.",
           error
         )
       }

@@ -31,6 +31,36 @@ export async function getUserById(uid: string): Promise<User | null> {
   return docToUser(snap.id, snap.data()!)
 }
 
+export async function ensureUserProfile(
+  uid: string,
+  profile: Pick<User, "displayName" | "email" | "photoURL" | "role">
+): Promise<User> {
+  const userRef = adminDb.collection("users").doc(uid)
+  const snap = await userRef.get()
+
+  if (!snap.exists) {
+    const now = new Date().toISOString()
+    const nextUser: Omit<User, "uid"> = {
+      displayName: profile.displayName,
+      email: profile.email,
+      photoURL: profile.photoURL,
+      role: profile.role,
+      phone: null,
+      whatsappConsent: false,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    await userRef.set(nextUser)
+    return {
+      uid,
+      ...nextUser,
+    }
+  }
+
+  return docToUser(snap.id, snap.data()!)
+}
+
 export async function getUsersByIds(userIds: string[]): Promise<Record<string, User>> {
   const uniqueIds = [...new Set(userIds.filter(Boolean))]
   if (uniqueIds.length === 0) return {}
