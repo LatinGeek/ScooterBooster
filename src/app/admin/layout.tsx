@@ -16,6 +16,7 @@ import {
   Wrench,
 } from "lucide-react"
 import { AdminViewSwitcher } from "@/components/admin-view-switcher"
+import { Navbar } from "@/components/navbar"
 import { useAuth } from "@/hooks/use-auth"
 
 const NAV_ITEMS = [
@@ -48,6 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
+      <Navbar />
       <div className="mx-auto flex max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <aside className="hidden w-60 shrink-0 md:block">
           <div className="sticky top-24">
