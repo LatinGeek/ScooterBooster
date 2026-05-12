@@ -25,28 +25,23 @@ export default async function NewBookingPage() {
   const brandsWithModels = brands.filter((brand) => visibleBrandIds.has(brand.id))
 
   return (
-    <main className="bg-[#f3f4f6]">
-      <section className="relative overflow-hidden bg-[#020c0a] text-white">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.08)_1px,transparent_1px)] bg-[size:34px_34px]" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(2,12,10,0)_0%,#f3f4f6_100%)]" />
-
-        <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-14 sm:px-6 sm:pt-14 lg:px-8">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold tracking-[0.22em] text-[#34d399] uppercase">
-              Reserva guiada
-            </p>
-            <h1 className="mt-3 text-4xl leading-[0.98] font-black text-white sm:text-5xl">
-              Elegí scooter, servicio y técnico sin vueltas.
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/70 sm:text-lg">
-              Armamos el turno paso a paso con precios claros, disponibilidad del técnico y seña
-              online para confirmar.
-            </p>
-          </div>
+    <main className="bg-[#f6f8f7]">
+      <section className="border-b border-[#e5e7eb] bg-white">
+        <div className="mx-auto max-w-4xl px-4 pt-8 pb-6 sm:px-6 sm:pt-10 lg:px-8">
+          <p className="text-xs font-bold tracking-[0.2em] text-[#10b981] uppercase">
+            Reserva guiada
+          </p>
+          <h1 className="mt-3 text-3xl leading-tight font-black text-[#111827] sm:text-4xl">
+            Reservá tu servicio.
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4b5563] sm:text-base">
+            Elegí el scooter, el servicio, un técnico verificado y el horario. La seña online
+            confirma el turno.
+          </p>
         </div>
       </section>
 
-      <section className="relative mx-auto -mt-8 max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Suspense fallback={<WizardSkeleton />}>
           <BookingWizard
             brands={brandsWithModels}
@@ -63,12 +58,9 @@ export default async function NewBookingPage() {
 
 function WizardSkeleton() {
   return (
-    <div className="animate-pulse rounded-[1.75rem] border border-[#dbe4ea] bg-white p-4 shadow-[0_28px_80px_-48px_rgba(15,23,42,0.45)] sm:p-6">
-      <div className="mb-5 h-20 rounded-2xl bg-[#e5e7eb]" />
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="h-80 rounded-2xl bg-[#e5e7eb]" />
-        <div className="hidden h-80 rounded-2xl bg-[#e5e7eb] lg:block" />
-      </div>
+    <div className="animate-pulse rounded-2xl border border-[#dbe4ea] bg-white p-4 shadow-sm sm:p-6">
+      <div className="mb-5 h-16 rounded-2xl bg-[#e5e7eb]" />
+      <div className="h-80 rounded-2xl bg-[#e5e7eb]" />
     </div>
   )
 }

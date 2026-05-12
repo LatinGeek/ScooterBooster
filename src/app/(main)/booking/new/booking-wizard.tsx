@@ -163,7 +163,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
   return (
     <nav
       aria-label="Pasos de la reserva"
-      className="mb-4 rounded-[1.5rem] border border-[#dbe4ea] bg-[linear-gradient(135deg,#f8fffb_0%,#ffffff_55%,#f0fdf4_100%)] p-3 sm:p-4"
+      className="mb-4 rounded-2xl border border-[#dbe4ea] bg-white p-3 sm:p-4"
     >
       <div className="mb-3 flex items-center justify-between gap-4 sm:hidden">
         <div>
@@ -199,7 +199,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
         />
       </div>
 
-      <ol className="grid grid-cols-5 gap-2 sm:flex sm:items-start sm:justify-between sm:gap-0">
+      <ol className="grid grid-cols-5 gap-1 sm:flex sm:items-start sm:justify-between sm:gap-0">
         {STEPS.map((step, idx) => {
           const stepNum = (idx + 1) as Step
           const done = stepNum < currentStep
@@ -209,7 +209,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
           return (
             <li key={step.label} className="relative flex min-w-0 flex-col items-center sm:flex-1">
               <div
-                className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm transition-all duration-300 sm:h-11 sm:w-11 ${
+                className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border text-sm transition-all duration-300 sm:h-10 sm:w-10 ${
                   done
                     ? "border-[#10b981] bg-[#10b981] text-white shadow-[0_10px_24px_rgba(16,185,129,0.24)]"
                     : active
@@ -221,7 +221,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
                 {done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
               </div>
 
-              <div className="mt-2 text-center">
+              <div className="mt-1.5 text-center">
                 <p
                   className={`text-[10px] font-semibold sm:text-xs ${
                     active || done ? "text-[#111827]" : "text-[#9ca3af]"
@@ -269,7 +269,7 @@ function StepScooter({
     <div className="space-y-5">
       <div>
         <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso uno</p>
-        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827]">
+        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
           ¿Cuál es tu scooter?
         </h2>
       </div>
@@ -413,7 +413,7 @@ function StepService({
     <div className="space-y-5">
       <div>
         <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso dos</p>
-        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827]">
+        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
           ¿Qué servicio necesitás?
         </h2>
       </div>
@@ -703,7 +703,7 @@ function StepTechnician({
             <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">
               Paso tres
             </p>
-            <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827]">
+            <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
               Elegí tu técnico
             </h2>
             <p className="mt-1 text-sm text-[#6b7280]">
@@ -913,7 +913,7 @@ function StepDateTime({
     <div className="space-y-5">
       <div>
         <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso cuatro</p>
-        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827]">
+        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
           Elegí fecha y hora
         </h2>
       </div>
@@ -1038,7 +1038,9 @@ function StepConfirm({
     <div className="space-y-5">
       <div>
         <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso cinco</p>
-        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827]">Revisa tu reserva</h2>
+        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
+          Revisa tu reserva
+        </h2>
       </div>
       <div className="divide-y divide-[#e5e7eb] overflow-hidden rounded-2xl border border-[#dbe4ea] bg-white shadow-sm">
         <Row label="Scooter" value={model?.name ?? "-"} />
@@ -1112,6 +1114,7 @@ function AnimatedStep({
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SelectionSummary({
   step,
   state,
@@ -1405,68 +1408,57 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
         initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
         animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: "easeOut" }}
-        className="rounded-[1.75rem] border border-[#dbe4ea] bg-white p-3 shadow-[0_28px_80px_-48px_rgba(15,23,42,0.45)] sm:p-5"
+        className="rounded-2xl border border-[#dbe4ea] bg-white p-3 shadow-sm sm:p-5"
       >
         <Stepper currentStep={step} />
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-          <div className="min-h-[300px] rounded-[1.5rem] border border-[#eef2f7] bg-[#f8fafc] p-4 sm:p-5 lg:p-6">
-            <AnimatedStep step={step} reduceMotion={Boolean(shouldReduceMotion)}>
-              {step === 1 && (
-                <StepScooter
-                  brands={brands}
-                  models={models}
-                  selected={state.scooterModelId}
-                  onSelect={handleSelectModel}
-                />
-              )}
-              {step === 2 && (
-                <StepService
-                  services={services}
-                  technicians={technicians}
-                  model={model}
-                  selected={state.serviceId}
-                  onSelect={handleSelectService}
-                />
-              )}
-              {step === 3 && (
-                <StepTechnician
-                  technicians={technicians}
-                  service={service}
-                  scooterModel={model}
-                  selected={state.technicianId}
-                  onSelect={handleSelectTechnician}
-                />
-              )}
-              {step === 4 && (
-                <StepDateTime
-                  technician={technician}
-                  scheduledDate={state.scheduledDate}
-                  notes={state.notes}
-                  onDateChange={(v) => update({ scheduledDate: v })}
-                  onNotesChange={(v) => update({ notes: v })}
-                />
-              )}
-              {step === 5 && (
-                <StepConfirm
-                  wizardState={state}
-                  model={model}
-                  service={service}
-                  technician={technician}
-                  serviceFeeAmount={serviceFeeAmount}
-                />
-              )}
-            </AnimatedStep>
-          </div>
-
-          <SelectionSummary
-            step={step}
-            state={state}
-            model={model}
-            service={service}
-            technician={technician}
-            serviceFeeAmount={serviceFeeAmount}
-          />
+        <div className="min-h-[300px] rounded-2xl border border-[#eef2f7] bg-[#f8fafc] p-4 sm:p-5 lg:p-6">
+          <AnimatedStep step={step} reduceMotion={Boolean(shouldReduceMotion)}>
+            {step === 1 && (
+              <StepScooter
+                brands={brands}
+                models={models}
+                selected={state.scooterModelId}
+                onSelect={handleSelectModel}
+              />
+            )}
+            {step === 2 && (
+              <StepService
+                services={services}
+                technicians={technicians}
+                model={model}
+                selected={state.serviceId}
+                onSelect={handleSelectService}
+              />
+            )}
+            {step === 3 && (
+              <StepTechnician
+                technicians={technicians}
+                service={service}
+                scooterModel={model}
+                selected={state.technicianId}
+                onSelect={handleSelectTechnician}
+              />
+            )}
+            {step === 4 && (
+              <StepDateTime
+                technician={technician}
+                scheduledDate={state.scheduledDate}
+                notes={state.notes}
+                onDateChange={(v) => update({ scheduledDate: v })}
+                onNotesChange={(v) => update({ notes: v })}
+              />
+            )}
+            {step === 5 && (
+              <StepConfirm
+                wizardState={state}
+                model={model}
+                service={service}
+                technician={technician}
+                serviceFeeAmount={serviceFeeAmount}
+              />
+            )}
+          </AnimatedStep>
         </div>
 
         {error && (
@@ -1494,7 +1486,7 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
             )
           })()}
 
-        <div className="sticky bottom-36 z-20 -mx-1 mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-[#e5e7eb] bg-white/95 p-2 shadow-[0_22px_60px_-34px_rgba(15,23,42,0.55)] backdrop-blur sm:static sm:mx-0 sm:flex sm:items-center sm:justify-between sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none">
+        <div className="mt-5 grid grid-cols-2 gap-3 border-t border-[#e5e7eb] pt-4 sm:flex sm:items-center sm:justify-between">
           <Button
             variant="outline"
             onClick={handleBack}
