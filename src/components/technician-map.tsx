@@ -1,7 +1,15 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
+import { useEffect, useMemo, useState } from "react"
+import {
+  Circle,
+  CircleMarker,
+  MapContainer,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet"
 import L from "leaflet"
 import { Button } from "@/components/ui/button"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
@@ -115,39 +123,6 @@ function MapInteractionLayer({ onClearSelection }: { onClearSelection?: () => vo
   return null
 }
 
-function MapGestureController({ onTouchHint }: { onTouchHint: () => void }) {
-  const map = useMap()
-  const onTouchHintRef = useRef(onTouchHint)
-  onTouchHintRef.current = onTouchHint
-
-  useEffect(() => {
-    const container = map.getContainer()
-
-    function onTouchStart(e: TouchEvent) {
-      if (e.touches.length >= 2) {
-        map.dragging.enable()
-      } else {
-        map.dragging.disable()
-        onTouchHintRef.current()
-      }
-    }
-
-    function onTouchEnd() {
-      map.dragging.enable()
-    }
-
-    container.addEventListener("touchstart", onTouchStart, { passive: true })
-    container.addEventListener("touchend", onTouchEnd)
-
-    return () => {
-      container.removeEventListener("touchstart", onTouchStart)
-      container.removeEventListener("touchend", onTouchEnd)
-    }
-  }, [map])
-
-  return null
-}
-
 function formatDistance(distanceKm?: number | null): string | null {
   if (distanceKm === null || distanceKm === undefined) return null
   return distanceKm < 10 ? `${distanceKm.toFixed(1)} km` : `${Math.round(distanceKm)} km`
@@ -162,17 +137,6 @@ export function TechnicianMap({
 }: TechnicianMapProps) {
   const hasCoarsePointer = useHasCoarsePointer()
   const allowSingleFingerDrag = !hasCoarsePointer
-  const [showTouchHint, setShowTouchHint] = useState(false)
-  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const handleTouchHint = useCallback(() => {
-    setShowTouchHint(true)
-    if (hintTimer.current) clearTimeout(hintTimer.current)
-    hintTimer.current = setTimeout(() => setShowTouchHint(false), 1500)
-  }, [])
-
-  useEffect(() => () => { if (hintTimer.current) clearTimeout(hintTimer.current) }, [])
-
   const mapReadyTechnicians = technicians
     .map((technician) => ({
       technician,
@@ -203,7 +167,7 @@ export function TechnicianMap({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[1.75rem] border border-[#dbe4ea] bg-white shadow-[0_18px_50px_-30px_rgba(15,23,42,0.45)]">
+    <div className="overflow-hidden rounded-[1.75rem] border border-[#dbe4ea] bg-white shadow-[0_18px_50px_-30px_rgba(15,23,42,0.45)]">
       <MapContainer
         center={MONTEVIDEO_CENTER}
         zoom={12}
@@ -220,7 +184,6 @@ export function TechnicianMap({
         <MapBoundsController technicians={technicians} userLocation={userLocation} />
         <MapTouchInteractionController allowSingleFingerDrag={allowSingleFingerDrag} />
         <MapInteractionLayer onClearSelection={onClearSelection} />
-        <MapGestureController onTouchHint={handleTouchHint} />
 
         {userLocation ? (
           <>
@@ -285,14 +248,6 @@ export function TechnicianMap({
           )
         })}
       </MapContainer>
-
-      {showTouchHint ? (
-        <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center">
-          <div className="rounded-2xl bg-black/60 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-sm">
-            Usá dos dedos para mover el mapa
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }
