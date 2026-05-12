@@ -814,7 +814,7 @@ function StepTechnician({
                     .map((technician) => (
                       <div
                         key={technician.id}
-                        className="fixed inset-x-4 bottom-4 z-30 rounded-[1.5rem] border border-[#dbe4ea] bg-white p-3 shadow-[0_25px_80px_-30px_rgba(15,23,42,0.45)]"
+                        className="rounded-[1.5rem] border border-[#dbe4ea] bg-white p-3 shadow-[0_4px_24px_-6px_rgba(15,23,42,0.15)]"
                       >
                         <TechnicianCard
                           technician={technician}
