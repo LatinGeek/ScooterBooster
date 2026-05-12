@@ -1,4 +1,7 @@
+"use client"
+
 import { MessageCircle } from "lucide-react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
 interface WhatsAppButtonProps {
@@ -24,6 +27,26 @@ export function WhatsAppButton({
   const encodedMessage = message ? encodeURIComponent(message) : ""
   const href = `https://wa.me/${cleanNumber}${encodedMessage ? `?text=${encodedMessage}` : ""}`
 
+  const [nearBottom, setNearBottom] = useState(false)
+
+  useEffect(() => {
+    if (variant !== "floating") return
+
+    function check() {
+      const distanceFromBottom =
+        document.documentElement.scrollHeight - window.innerHeight - window.scrollY
+      setNearBottom(distanceFromBottom < 140)
+    }
+
+    check()
+    window.addEventListener("scroll", check, { passive: true })
+    window.addEventListener("resize", check, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", check)
+      window.removeEventListener("resize", check)
+    }
+  }, [variant])
+
   if (variant === "floating") {
     return (
       <a
@@ -34,10 +57,12 @@ export function WhatsAppButton({
         className={cn(
           "fixed left-4 bottom-5 z-40 inline-flex max-w-[calc(100vw-2rem)] items-center gap-3 overflow-hidden rounded-full",
           "border border-white/20 bg-[#25d366] px-4 py-3 text-[13px] leading-none font-semibold text-white",
-          "shadow-[0_18px_45px_rgba(37,211,102,0.35)] transition-all duration-200",
+          "shadow-[0_18px_45px_rgba(37,211,102,0.35)]",
           "hover:-translate-y-0.5 hover:bg-[#1fb85a] focus-visible:ring-2 focus-visible:outline-none",
           "focus-visible:ring-[#25d366] focus-visible:ring-offset-2 focus-visible:ring-offset-white",
           "sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-none sm:px-5 sm:py-3.5 sm:text-sm",
+          "transition-[opacity,transform] duration-300 ease-in-out",
+          nearBottom ? "pointer-events-none translate-y-3 opacity-0" : "translate-y-0 opacity-100",
           className
         )}
       >
