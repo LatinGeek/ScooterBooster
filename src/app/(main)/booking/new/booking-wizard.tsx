@@ -163,7 +163,7 @@ function Stepper({ currentStep }: { currentStep: Step }) {
   return (
     <nav
       aria-label="Pasos de la reserva"
-      className="mb-4 rounded-2xl border border-[#dbe4ea] bg-white p-3 sm:p-4"
+      className="mb-4 rounded-2xl border border-[#dbe4ea] bg-white p-3 shadow-sm sm:p-4 sm:shadow-none"
     >
       <div className="mb-3 flex items-center justify-between gap-4 sm:hidden">
         <div>
@@ -268,8 +268,11 @@ function StepScooter({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso uno</p>
-        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
+        <p className="flex items-center gap-2 text-[11px] font-bold text-[#059669] uppercase">
+          <span className="h-px w-4 bg-[#10b981]" aria-hidden="true" />
+          01 · Scooter
+        </p>
+        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827] sm:text-3xl">
           ¿Cuál es tu scooter?
         </h2>
       </div>
@@ -412,8 +415,11 @@ function StepService({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso dos</p>
-        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
+        <p className="flex items-center gap-2 text-[11px] font-bold text-[#059669] uppercase">
+          <span className="h-px w-4 bg-[#10b981]" aria-hidden="true" />
+          02 · Servicio
+        </p>
+        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827] sm:text-3xl">
           ¿Qué servicio necesitás?
         </h2>
       </div>
@@ -700,10 +706,11 @@ function StepTechnician({
       <div className="flex flex-col gap-4 rounded-[1.5rem] border border-[#dbe4ea] bg-[linear-gradient(135deg,#f0fdf4_0%,#ffffff_62%,#ecfeff_100%)] p-4 sm:p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">
-              Paso tres
+            <p className="flex items-center gap-2 text-[11px] font-bold text-[#059669] uppercase">
+              <span className="h-px w-4 bg-[#10b981]" aria-hidden="true" />
+              03 · Técnico
             </p>
-            <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
+            <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827] sm:text-3xl">
               Elegí tu técnico
             </h2>
             <p className="mt-1 text-sm text-[#6b7280]">
@@ -912,8 +919,11 @@ function StepDateTime({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso cuatro</p>
-        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
+        <p className="flex items-center gap-2 text-[11px] font-bold text-[#059669] uppercase">
+          <span className="h-px w-4 bg-[#10b981]" aria-hidden="true" />
+          04 · Horario
+        </p>
+        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827] sm:text-3xl">
           Elegí fecha y hora
         </h2>
       </div>
@@ -1037,9 +1047,12 @@ function StepConfirm({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-xs font-bold tracking-[0.18em] text-[#10b981] uppercase">Paso cinco</p>
-        <h2 className="mt-2 text-xl leading-tight font-black text-[#111827] sm:text-2xl">
-          Revisa tu reserva
+        <p className="flex items-center gap-2 text-[11px] font-bold text-[#059669] uppercase">
+          <span className="h-px w-4 bg-[#10b981]" aria-hidden="true" />
+          05 · Confirmar
+        </p>
+        <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827] sm:text-3xl">
+          Revisá tu reserva
         </h2>
       </div>
       <div className="divide-y divide-[#e5e7eb] overflow-hidden rounded-2xl border border-[#dbe4ea] bg-white shadow-sm">
@@ -1408,11 +1421,11 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
         initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
         animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: "easeOut" }}
-        className="rounded-2xl border border-[#dbe4ea] bg-white p-3 shadow-sm sm:p-5"
+        className="sm:rounded-2xl sm:border sm:border-[#dbe4ea] sm:bg-white sm:p-5 sm:shadow-sm"
       >
         <Stepper currentStep={step} />
 
-        <div className="min-h-[300px] rounded-2xl border border-[#eef2f7] bg-[#f8fafc] p-4 sm:p-5 lg:p-6">
+        <div className="min-h-[300px] py-4 sm:py-5">
           <AnimatedStep step={step} reduceMotion={Boolean(shouldReduceMotion)}>
             {step === 1 && (
               <StepScooter
@@ -1462,63 +1475,66 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        {step >= 3 &&
-          technician &&
-          service &&
-          model &&
-          (() => {
-            const pricing = getTechnicianBookingPrice(technician, service.id, model.id)
-            if (pricing === null) return null
-            const { serviceFee } = calculatePricing(pricing, serviceFeeAmount)
+        {/* mobile: own white card for pricing + nav; sm+: transparent, part of outer card */}
+        <div className="rounded-2xl border border-[#dbe4ea] bg-white p-4 sm:rounded-none sm:border-none sm:bg-transparent sm:p-0">
+          {step >= 3 &&
+            technician &&
+            service &&
+            model &&
+            (() => {
+              const pricing = getTechnicianBookingPrice(technician, service.id, model.id)
+              if (pricing === null) return null
+              const { serviceFee } = calculatePricing(pricing, serviceFeeAmount)
 
-            return (
-              <div className="mt-4 flex flex-col gap-1 rounded-2xl border border-[#bbf7d0] bg-[#d1fae5] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <span className="text-sm font-medium text-[#065f46]">
-                  Reserva online fija a pagar ahora ({formatUYU(serviceFeeAmount)})
-                </span>
-                <span className="text-lg font-bold text-[#10b981]">{formatUYU(serviceFee)}</span>
-              </div>
-            )
-          })()}
+              return (
+                <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[#bbf7d0] bg-[#d1fae5] px-4 py-3">
+                  <span className="text-sm font-medium text-[#065f46]">
+                    Reserva online ({formatUYU(serviceFeeAmount)})
+                  </span>
+                  <span className="text-base font-black text-[#10b981]">{formatUYU(serviceFee)}</span>
+                </div>
+              )
+            })()}
 
-        <div className="mt-5 grid grid-cols-2 gap-3 border-t border-[#e5e7eb] pt-4 sm:flex sm:items-center sm:justify-between">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={step === 1 || submitting}
-            className="h-12 w-full sm:w-auto"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Atras
-          </Button>
+          <div className="grid grid-cols-2 gap-3 border-t border-[#e5e7eb] pt-4 sm:flex sm:items-center sm:justify-between">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              disabled={step === 1 || submitting}
+              className="h-12 w-full sm:w-auto"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Atrás
+            </Button>
 
-          <Button
-            onClick={handleNext}
-            disabled={!canAdvance() || submitting}
-            className="h-12 w-full sm:w-auto"
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Creando reserva...
-              </>
-            ) : step === 5 ? (
-              <>
-                Confirmar reserva
-                <Check className="h-4 w-4" />
-              </>
-            ) : (
-              <>
-                Siguiente
-                <ChevronRight className="h-4 w-4" />
-              </>
-            )}
-          </Button>
+            <Button
+              onClick={handleNext}
+              disabled={!canAdvance() || submitting}
+              className="h-12 w-full sm:w-auto"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creando reserva...
+                </>
+              ) : step === 5 ? (
+                <>
+                  Confirmar reserva
+                  <Check className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Siguiente
+                  <ChevronRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </motion.div>
     </>
