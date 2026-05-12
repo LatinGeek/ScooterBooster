@@ -166,7 +166,7 @@ const faqs = [
   {
     question: "¿Mi modelo no aparece en el catálogo?",
     answer:
-      "Mandanos marca, modelo y año a soporte@scooterbooster.uy. La mayoría de los modelos Xiaomi, Joyor, MiStyle, Navee y Atom ya están listos.",
+      "Mandanos marca, modelo y año por WhatsApp. La mayoría de los modelos Xiaomi, Joyor, MiStyle, Navee y Atom ya están listos.",
   },
 ]
 
@@ -552,7 +552,7 @@ export function HomePageClient() {
             {steps.map((step, index) => (
               <motion.li
                 key={step.title}
-                className="border-b border-[#e5e7eb] p-5 last:border-b-0 sm:p-7 md:border-r md:border-b-0 md:last:border-r-0"
+                className="flex flex-col border-b border-[#e5e7eb] p-5 last:border-b-0 sm:p-7 md:border-r md:border-b-0 md:last:border-r-0"
                 initial={shouldReduceMotion ? false : { opacity: 0, x: -16 }}
                 whileInView={shouldReduceMotion ? undefined : { opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
@@ -566,7 +566,7 @@ export function HomePageClient() {
                 </div>
                 <h3 className="mt-6 text-xl font-black sm:mt-7 sm:text-2xl">{step.title}</h3>
                 <p className="mt-3 leading-7 text-[#4b5563]">{step.description}</p>
-                <div className="mt-7 flex items-center gap-3 rounded-md border border-[#e5e7eb] bg-[#fafafa] p-4">
+                <div className="mt-7 flex items-center gap-3 rounded-md border border-[#e5e7eb] bg-[#fafafa] p-4 md:mt-auto">
                   <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#111827] text-[#34d399]">
                     <step.icon className="h-5 w-5" />
                   </div>
@@ -608,10 +608,10 @@ export function HomePageClient() {
             </blockquote>
             <div className="mt-8 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#10b981] text-lg font-black text-white">
-                M
+                G
               </div>
               <div>
-                <p className="font-bold">Cliente verificado</p>
+                <p className="font-bold">Germán</p>
                 <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[#d1d5db]">
                   <span className="inline-flex text-[#f59e0b]" aria-label="5 de 5 estrellas">
                     <Star className="h-4 w-4 fill-current" />
