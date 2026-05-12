@@ -268,7 +268,7 @@ export function HomePageClient() {
                   <span className="absolute top-1/2 left-0 h-1 w-full -rotate-2 rounded-full bg-[#10b981]" />
                 </span>
                 <br />
-                Más caballos.
+                Más potencia.
                 <br />
                 <span className="text-[#34d399]">Sin límites.</span>
               </h1>
