@@ -79,7 +79,43 @@ const ribbonStats = [
   ["100%", "Pago via MercadoPago"],
 ]
 
-const brands = ["Xiaomi", "Joyor", "MiStyle", "Navee", "Atom"]
+const brands = [
+  {
+    name: "Xiaomi",
+    fontFamily: '"Arial Black", "Arial Narrow", Arial, sans-serif',
+    fontWeight: 900,
+    fontStyle: "normal",
+  },
+  {
+    name: "Joyor",
+    fontFamily: '"Trebuchet MS", "Arial Rounded MT Bold", Arial, sans-serif',
+    fontWeight: 800,
+    fontStyle: "normal",
+  },
+  {
+    name: "MiStyle",
+    fontFamily: '"Gill Sans", "Trebuchet MS", Arial, sans-serif',
+    fontWeight: 700,
+    fontStyle: "italic",
+  },
+  {
+    name: "Navee",
+    fontFamily: 'Verdana, "Trebuchet MS", Arial, sans-serif',
+    fontWeight: 800,
+    fontStyle: "normal",
+  },
+  {
+    name: "Atom",
+    fontFamily: 'Impact, "Arial Black", Arial, sans-serif',
+    fontWeight: 700,
+    fontStyle: "normal",
+  },
+] satisfies Array<{
+  name: string
+  fontFamily: string
+  fontWeight: number
+  fontStyle: "normal" | "italic"
+}>
 
 const steps = [
   {
@@ -446,11 +482,17 @@ export function HomePageClient() {
           <span className="text-xs font-bold text-[#9ca3af] uppercase">Trabajamos con</span>
           {brands.map((brand) => (
             <Link
-              key={brand}
-              href={`/scooters?brand=${brand.toLowerCase()}`}
+              key={brand.name}
+              href={`/scooters?brand=${brand.name.toLowerCase()}`}
               className="text-lg font-black text-white/55 transition-colors hover:text-[#34d399] sm:text-xl"
+              style={{
+                fontFamily: brand.fontFamily,
+                fontWeight: brand.fontWeight,
+                fontStyle: brand.fontStyle,
+                letterSpacing: 0,
+              }}
             >
-              {brand}
+              {brand.name}
             </Link>
           ))}
         </div>
