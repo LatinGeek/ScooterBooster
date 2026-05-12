@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { AdminViewSwitcher } from "@/components/admin-view-switcher"
@@ -12,6 +13,7 @@ import { BrandLogo } from "@/components/brand-logo"
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const pathname = usePathname()
   const { user, role, loading } = useAuth()
 
   const links = [
@@ -19,6 +21,8 @@ export function Navbar() {
     { href: "/services", label: "Servicios" },
     { href: "/technicians", label: "Técnicos" },
   ]
+  const visibleLinks =
+    pathname === "/" ? links.filter((link) => link.href !== "/technicians") : links
 
   const dashboardHref =
     role === "technician" ? "/dashboard/technician" : role === "admin" ? "/admin" : "/dashboard"
@@ -99,7 +103,7 @@ export function Navbar() {
           />
 
           <nav className="hidden items-center gap-6 md:flex">
-            {links.map((link) => (
+            {visibleLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -143,7 +147,7 @@ export function Navbar() {
               onNavigate={() => setMobileOpen(false)}
             />
 
-            {links.map((link) => (
+            {visibleLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -154,7 +158,9 @@ export function Navbar() {
               </Link>
             ))}
 
-            <div className="flex flex-col gap-2 border-t border-[#e5e7eb] pt-2">{mobileAuthActions}</div>
+            <div className="flex flex-col gap-2 border-t border-[#e5e7eb] pt-2">
+              {mobileAuthActions}
+            </div>
           </div>
         ) : null}
       </div>
