@@ -107,7 +107,7 @@ const brands = [
   {
     name: "Atom",
     fontFamily: 'Impact, "Arial Black", Arial, sans-serif',
-    fontWeight: 700,
+    fontWeight: 500,
     fontStyle: "normal",
   },
 ] satisfies Array<{
