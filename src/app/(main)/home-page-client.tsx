@@ -197,7 +197,7 @@ const faqs = [
   {
     question: "¿Qué pasa si el técnico no se presenta?",
     answer:
-      "Escribinos a soporte@scooterbooster.uy. Gestionamos el reembolso completo de la seña y tomamos acciones sobre el técnico.",
+      "Escribinos a nuestro soporte vía WhatsApp. Gestionamos el reembolso completo de la seña y tomamos acciones sobre el técnico.",
   },
   {
     question: "¿Mi modelo no aparece en el catálogo?",

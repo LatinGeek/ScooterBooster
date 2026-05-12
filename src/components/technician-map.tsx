@@ -1,7 +1,15 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
-import { Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
+import { useEffect, useMemo, useState } from "react"
+import {
+  Circle,
+  CircleMarker,
+  MapContainer,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet"
 import L from "leaflet"
 import { Button } from "@/components/ui/button"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
@@ -21,6 +29,46 @@ interface TechnicianMapProps {
 
 const MONTEVIDEO_CENTER: [number, number] = [-34.9011, -56.1645]
 const TECHNICIAN_RADIUS_METERS = 500
+
+function useHasCoarsePointer() {
+  const [hasCoarsePointer, setHasCoarsePointer] = useState(() =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia("(pointer: coarse)").matches
+      : false
+  )
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return
+
+    const mediaQuery = window.matchMedia("(pointer: coarse)")
+    const handleChange = () => setHasCoarsePointer(mediaQuery.matches)
+
+    handleChange()
+    mediaQuery.addEventListener("change", handleChange)
+
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [])
+
+  return hasCoarsePointer
+}
+
+function MapTouchInteractionController({
+  allowSingleFingerDrag,
+}: {
+  allowSingleFingerDrag: boolean
+}) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (allowSingleFingerDrag) {
+      map.dragging.enable()
+    } else {
+      map.dragging.disable()
+    }
+  }, [allowSingleFingerDrag, map])
+
+  return null
+}
 
 function MapBoundsController({
   technicians,
@@ -87,6 +135,8 @@ export function TechnicianMap({
   onClearSelection,
   onSelect,
 }: TechnicianMapProps) {
+  const hasCoarsePointer = useHasCoarsePointer()
+  const allowSingleFingerDrag = !hasCoarsePointer
   const mapReadyTechnicians = technicians
     .map((technician) => ({
       technician,
@@ -121,7 +171,9 @@ export function TechnicianMap({
       <MapContainer
         center={MONTEVIDEO_CENTER}
         zoom={12}
+        dragging={allowSingleFingerDrag}
         scrollWheelZoom
+        touchZoom
         className="h-[60vh] min-h-[24rem] w-full"
       >
         <TileLayer
@@ -130,6 +182,7 @@ export function TechnicianMap({
         />
 
         <MapBoundsController technicians={technicians} userLocation={userLocation} />
+        <MapTouchInteractionController allowSingleFingerDrag={allowSingleFingerDrag} />
         <MapInteractionLayer onClearSelection={onClearSelection} />
 
         {userLocation ? (
