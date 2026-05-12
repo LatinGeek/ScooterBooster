@@ -767,17 +767,15 @@ export function HomePageClient() {
         aria-hidden="true"
       />
         <Reveal className="relative z-10 mx-auto max-w-3xl">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
-            <Image
-              src="/assets/scooterbooster-logo.png"
-              alt=""
-              aria-hidden="true"
-              width={64}
-              height={64}
-              className="h-12 w-12"
-              unoptimized
-            />
-          </div>
+          <Image
+            src="/assets/scooterbooster-logo.png"
+            alt=""
+            aria-hidden="true"
+            width={96}
+            height={96}
+            className="mx-auto h-20 w-20"
+            unoptimized
+          />
           <h2
             id="final-title"
             className="mt-5 text-4xl leading-none font-black sm:text-5xl md:text-7xl"
