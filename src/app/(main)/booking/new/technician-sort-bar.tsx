@@ -32,10 +32,7 @@ export function TechnicianSortBar({
   onSortChange,
 }: TechnicianSortBarProps) {
   const options = canSortByDistance
-    ? [
-        ...BASE_OPTIONS,
-        { value: "distance" as const, label: "Más cerca", icon: MapPin },
-      ]
+    ? [...BASE_OPTIONS, { value: "distance" as const, label: "Más cerca", icon: MapPin }]
     : BASE_OPTIONS
 
   return (
@@ -52,7 +49,7 @@ export function TechnicianSortBar({
           type="button"
           size="sm"
           variant={canSortByDistance ? "secondary" : "outline"}
-          className="rounded-full"
+          className="h-10 rounded-xl sm:rounded-full"
           onClick={onRequestLocation}
           disabled={isLocating}
         >
@@ -62,7 +59,7 @@ export function TechnicianSortBar({
       </div>
 
       <div className="-mx-1 overflow-x-auto pb-1">
-        <div className="flex min-w-max gap-2 px-1">
+        <div className="flex min-w-max gap-2 px-1 sm:min-w-0 sm:flex-wrap">
           {options.map((option) => {
             const Icon = option.icon
             const isActive = activeSort === option.value
@@ -73,7 +70,7 @@ export function TechnicianSortBar({
                 type="button"
                 onClick={() => onSortChange(option.value)}
                 className={cn(
-                  "inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold whitespace-nowrap transition-colors",
+                  "inline-flex h-10 items-center gap-2 rounded-xl border px-4 text-sm font-semibold whitespace-nowrap transition-colors sm:rounded-full",
                   isActive
                     ? "border-[#10b981] bg-[#10b981] text-white"
                     : "border-[#d1d5db] bg-white text-[#374151] hover:border-[#10b981] hover:text-[#059669]"

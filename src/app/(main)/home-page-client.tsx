@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
 import {
@@ -12,7 +13,6 @@ import {
   MonitorUp,
   Search,
   ShieldCheck,
-  Sparkles,
   Star,
   Wrench,
   Zap,
@@ -608,7 +608,7 @@ export function HomePageClient() {
                 </div>
                 <h3 className="mt-6 text-xl font-black sm:mt-7 sm:text-2xl">{step.title}</h3>
                 <p className="mt-3 leading-7 text-[#4b5563]">{step.description}</p>
-                <div className="mt-7 flex items-center gap-3 rounded-md border border-[#e5e7eb] bg-[#fafafa] p-4 md:mt-auto">
+                <div className="mt-7 flex items-center gap-3 rounded-md border border-[#e5e7eb] bg-[#fafafa] p-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#111827] text-[#34d399]">
                     <step.icon className="h-5 w-5" />
                   </div>
@@ -764,10 +764,20 @@ export function HomePageClient() {
               "linear-gradient(115deg, transparent 0 48%, rgba(16,185,129,0.42) 48% 49%, transparent 49% 100%)",
             backgroundSize: "92px 92px",
           }}
-          aria-hidden="true"
-        />
+        aria-hidden="true"
+      />
         <Reveal className="relative z-10 mx-auto max-w-3xl">
-          <Sparkles className="mx-auto h-10 w-10 text-[#34d399]" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
+            <Image
+              src="/assets/scooterbooster-logo.png"
+              alt=""
+              aria-hidden="true"
+              width={64}
+              height={64}
+              className="h-12 w-12"
+              unoptimized
+            />
+          </div>
           <h2
             id="final-title"
             className="mt-5 text-4xl leading-none font-black sm:text-5xl md:text-7xl"

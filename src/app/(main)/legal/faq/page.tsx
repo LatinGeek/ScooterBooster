@@ -26,7 +26,7 @@ const FAQS = [
   },
   {
     q: "¿Qué pasa si el técnico no se presenta?",
-    a: "Contactá a soporte en soporte@scooterbooster.uy. Gestionamos el reembolso y tomamos acciones sobre el técnico.",
+    a: "Contactá a soporte en WhatsApp. Gestionamos el reembolso y tomamos acciones sobre el técnico.",
   },
   {
     q: "¿Cómo me registro como técnico?",
