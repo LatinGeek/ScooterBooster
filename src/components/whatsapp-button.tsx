@@ -32,12 +32,12 @@ export function WhatsAppButton({
         rel="noopener noreferrer"
         aria-label={label}
         className={cn(
-          "fixed right-4 bottom-5 z-40 inline-flex max-w-[calc(100vw-2rem)] items-center gap-3 overflow-hidden rounded-full",
+          "fixed left-4 bottom-5 z-40 inline-flex max-w-[calc(100vw-2rem)] items-center gap-3 overflow-hidden rounded-full",
           "border border-white/20 bg-[#25d366] px-4 py-3 text-[13px] leading-none font-semibold text-white",
           "shadow-[0_18px_45px_rgba(37,211,102,0.35)] transition-all duration-200",
           "hover:-translate-y-0.5 hover:bg-[#1fb85a] focus-visible:ring-2 focus-visible:outline-none",
           "focus-visible:ring-[#25d366] focus-visible:ring-offset-2 focus-visible:ring-offset-white",
-          "sm:right-6 sm:bottom-6 sm:max-w-none sm:px-5 sm:py-3.5 sm:text-sm",
+          "sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-none sm:px-5 sm:py-3.5 sm:text-sm",
           className
         )}
       >
