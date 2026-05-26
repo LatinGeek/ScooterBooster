@@ -28,7 +28,7 @@ interface TechnicianMapProps {
 }
 
 const MONTEVIDEO_CENTER: [number, number] = [-34.9011, -56.1645]
-const TECHNICIAN_RADIUS_METERS = 800
+const TECHNICIAN_RADIUS_METERS = 900
 
 function useHasCoarsePointer() {
   const [hasCoarsePointer, setHasCoarsePointer] = useState(() =>
@@ -225,7 +225,7 @@ export function TechnicianMap({
                   <div>
                     <p className="text-sm font-semibold text-[#111827]">{technician.displayName}</p>
                     <p className="text-xs text-[#6b7280]">{technician.location}</p>
-                    <p className="mt-1 text-xs text-[#6b7280]">Cobertura aproximada de 400 m</p>
+                    <p className="mt-1 text-xs text-[#6b7280]">Cobertura aproximada de 450 m</p>
                   </div>
                   <div className="flex items-center justify-between gap-3 text-xs text-[#4b5563]">
                     <span>{technician.rating.toFixed(1)} estrellas</span>
