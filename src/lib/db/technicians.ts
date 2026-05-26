@@ -359,7 +359,9 @@ export async function updateTechnicianProfile(
     const bio = input.bio ?? existing.bio
     const location = input.location ?? existing.location
     const coordinates =
-      input.coordinates !== undefined ? input.coordinates : getCoordinatesForLocation(location)
+      input.coordinates !== undefined
+        ? input.coordinates
+        : (existing.coordinates ?? getCoordinatesForLocation(location))
     const services = matrixProvided ? matrixFields!.services : input.services ?? existing.services
     const supportedBrands = matrixProvided
       ? matrixFields!.supportedBrands
