@@ -1084,8 +1084,8 @@ function StepConfirm({
             <span className="text-[#10b981]">{formatUYU(totalPrice)}</span>
           </div>
           <p className="mt-3 text-xs text-[#6b7280]">
-            Pagas {formatUYU(serviceFee)} ahora para confirmar la reserva. Los{" "}
-            {formatUYU(basePrice)} del servicio se coordinan directamente con el técnico.
+            Pagas {formatUYU(serviceFee)} ahora para confirmar la reserva. El saldo de{" "}
+            {formatUYU(basePrice)} se paga al momento de realizar el servicio.
           </p>
         </div>
       </div>
