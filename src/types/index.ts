@@ -82,6 +82,7 @@ export interface ScooterModel {
   imageURL: string | null
   specs: ScooterSpecs
   compatibleServices: string[]
+  bookingFeeAmount?: number
   isActive: boolean
   searchTokens?: string[]
   createdAt: string

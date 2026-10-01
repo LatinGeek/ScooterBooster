@@ -64,6 +64,7 @@ function resolveModelImageURL(imageURL: string | null | undefined): string | nul
 }
 
 function docToScooterModel(id: string, data: FirebaseFirestore.DocumentData): ScooterModel {
+  const bookingFeeAmount = data["bookingFeeAmount"]
   return {
     id,
     brandId: data["brandId"] as string,
@@ -72,6 +73,9 @@ function docToScooterModel(id: string, data: FirebaseFirestore.DocumentData): Sc
     imageURL: resolveModelImageURL((data["imageURL"] as string | null) ?? null),
     specs: data["specs"] as ScooterModel["specs"],
     compatibleServices: (data["compatibleServices"] as string[]) ?? [],
+    ...(typeof bookingFeeAmount === "number" && Number.isFinite(bookingFeeAmount)
+      ? { bookingFeeAmount: Math.max(0, Math.round(bookingFeeAmount)) }
+      : {}),
     isActive: Boolean(data["isActive"]),
     searchTokens: (data["searchTokens"] as string[]) ?? [],
     createdAt:

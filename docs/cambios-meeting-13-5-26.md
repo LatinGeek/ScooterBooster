@@ -1,0 +1,11 @@
+- Al ingresar el inmueble, automatizar el estado en function al contrato
+- Al ingresar el inmueble, cambiar "Particular" en destino por "Casa/Habitacion" (Darle prioridad a el segundo)
+- Al crear contrato -> Agregar campo Garantia asociada a un inmueble (Desplegable)
+    - Garantia Banco Hipotecario
+    - Casa/Habitacion
+    - Porto Seguro
+- Posibilidad de retener IRPF al inquilino. Descuentan IRPF al pagar el alquiler, aplicar para TAFACE. Agregar un flag manual para que el dueño confirme si se presento el resguardo asociado de parte del inquilino, y poder guardar el numero de resguardo.
+- En los contratos, La comision se aplica sobre el total y el IVA se aplica sobre la commission. Cambiar campo IVA por IVA Sobre commission
+- Al momento de generar el recibo, eliminar los .00 decimales
+- En nuevo contrato, poder buscar inmueble por numero de inmueble
+- En nuevo contrato / editar contrato - Asegurado/No Asegurado no se guarda

@@ -95,7 +95,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     throw new ValidationError("El servicio no está disponible para este modelo")
   }
   const platformSettings = await getPlatformSettings()
-  const { serviceFee, totalPrice } = calculatePricing(basePrice, platformSettings.serviceFeeAmount)
+  const bookingFeeAmount = scooterModel.bookingFeeAmount ?? platformSettings.serviceFeeAmount
+  const { serviceFee, totalPrice } = calculatePricing(basePrice, bookingFeeAmount)
 
   logger.info({ userId: session.uid, technicianId, serviceId, scheduledDate }, "Creating booking")
 

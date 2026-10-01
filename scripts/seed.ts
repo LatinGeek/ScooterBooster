@@ -132,7 +132,13 @@ const SERVICE_NAMES_BY_ID: Record<string, string> = {
 }
 
 const SEED_MODEL_IDS_BY_BRAND: Record<string, string[]> = {
-  [BRAND_IDS.xiaomi]: ["xiaomi-1s", "xiaomi-5-standard", "xiaomi-6-pro"],
+  [BRAND_IDS.xiaomi]: [
+    "xiaomi-1s",
+    "xiaomi-5-standard",
+    "xiaomi-6-lite",
+    "xiaomi-6-standard",
+    "xiaomi-6-pro",
+  ],
   [BRAND_IDS.atom]: ["atom-energy", "atom-kaizen-pro"],
   [BRAND_IDS.joyor]: ["joyor-s5", "joyor-s10-s"],
   [BRAND_IDS.mistyle]: ["mistyle-me500", "mistyle-me1000"],
@@ -155,7 +161,7 @@ function buildPricingMatrixForBrands(
   brandIds: string[],
   servicePrices: Record<string, number>,
   unavailable: Array<{ serviceId: string; modelId: string }> = []
-): Technician["pricingMatrix"] {
+): NonNullable<Technician["pricingMatrix"]> {
   const unavailableSet = new Set(unavailable.map(({ serviceId, modelId }) => `${serviceId}:${modelId}`))
   const matrix: Technician["pricingMatrix"] = {}
 
@@ -349,6 +355,9 @@ async function seedBrands() {
 
 // All services except firmware for Inokim (limited support)
 const ALL_SERVICES = Object.values(SERVICE_IDS)
+const SERVICES_EXCEPT_SPEED_LIMIT = ALL_SERVICES.filter(
+  (serviceId) => serviceId !== SERVICE_IDS.speedLimit
+)
 const INOKIM_SERVICES = [SERVICE_IDS.speedLimit, SERVICE_IDS.cruiseControl, SERVICE_IDS.maintenance]
 
 async function seedModels() {
@@ -365,6 +374,7 @@ async function seedModels() {
     imageURL: string | null
     specs: { maxSpeed: number; range: number; battery: string; motor: string; weight: number }
     compatibleServices: string[]
+    bookingFeeAmount?: number
     isActive: boolean
     createdAt: FirebaseFirestore.Timestamp
   }> = [
@@ -519,7 +529,7 @@ async function seedModels() {
       slug: "xiaomi-scooter-6-lite",
       imageURL: `${imageBasePath}/xiaomi-scooter-6-lite${imageSuffix}.png`,
       specs: { maxSpeed: 25, range: 40, battery: "360 Wh", motor: "350W", weight: 19.2 },
-      compatibleServices: ALL_SERVICES,
+      compatibleServices: SERVICES_EXCEPT_SPEED_LIMIT,
       isActive: true,
       createdAt: now,
     },
@@ -531,6 +541,7 @@ async function seedModels() {
       imageURL: `${imageBasePath}/xiaomi-scooter-6-standard${imageSuffix}.png`,
       specs: { maxSpeed: 25, range: 60, battery: "477 Wh", motor: "400W", weight: 22.5 },
       compatibleServices: ALL_SERVICES,
+      bookingFeeAmount: 500,
       isActive: true,
       createdAt: now,
     },
@@ -541,7 +552,7 @@ async function seedModels() {
       slug: "xiaomi-scooter-6-pro",
       imageURL: `${imageBasePath}/xiaomi-scooter-6-pro${imageSuffix}.png`,
       specs: { maxSpeed: 25, range: 60, battery: "477 Wh", motor: "500W", weight: 26.2 },
-      compatibleServices: ALL_SERVICES,
+      compatibleServices: SERVICES_EXCEPT_SPEED_LIMIT,
       isActive: true,
       createdAt: now,
     },
@@ -1021,15 +1032,29 @@ async function seedDemoTechnicians() {
       phone: "+59899111001",
       whatsappNumber: "+59899111001",
       location: "Montevideo Centro",
-      pricingMatrix: buildPricingMatrixForBrands(
-        [BRAND_IDS.xiaomi, BRAND_IDS.navee, BRAND_IDS.mistyle],
-        {
-          [SERVICE_IDS.speedLimit]: 1800,
-          [SERVICE_IDS.firmware]: 1200,
-          [SERVICE_IDS.cruiseControl]: 1500,
-          [SERVICE_IDS.maintenance]: 1000,
+      pricingMatrix: (() => {
+        const pricingMatrix = buildPricingMatrixForBrands(
+          [BRAND_IDS.xiaomi, BRAND_IDS.navee, BRAND_IDS.mistyle],
+          {
+            [SERVICE_IDS.speedLimit]: 1800,
+            [SERVICE_IDS.firmware]: 1200,
+            [SERVICE_IDS.cruiseControl]: 1500,
+            [SERVICE_IDS.maintenance]: 1000,
+          }
+        )
+
+        const speedLimitPricing = pricingMatrix[SERVICE_IDS.speedLimit]!
+        for (const modelId of ["xiaomi-6-lite", "xiaomi-6-pro"]) {
+          speedLimitPricing[modelId]!.isAvailable = false
         }
-      ),
+        speedLimitPricing["xiaomi-6-standard"] = {
+          price: 3000,
+          currency: "UYU",
+          isAvailable: true,
+        }
+
+        return pricingMatrix
+      })(),
       services: ALL_SERVICES,
       supportedBrands: [BRAND_IDS.xiaomi, BRAND_IDS.navee, BRAND_IDS.mistyle],
       availability: {

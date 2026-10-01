@@ -777,6 +777,7 @@ function StepTechnician({
               distanceKm={technician.distanceKm}
               variant="compact"
               serviceId={service?.id}
+              scooterModelId={scooterModel?.id}
               selected={selected === technician.id}
               onSelect={() => onSelect(technician.id)}
             />
@@ -793,6 +794,7 @@ function StepTechnician({
                   distanceKm={technician.distanceKm}
                   variant="compact"
                   serviceId={service?.id}
+                  scooterModelId={scooterModel?.id}
                   selected={selected === technician.id}
                   onSelect={() => onSelect(technician.id)}
                 />
@@ -821,6 +823,7 @@ function StepTechnician({
                           distanceKm={technician.distanceKm}
                           variant="compact"
                           serviceId={service?.id}
+                          scooterModelId={scooterModel?.id}
                           selected
                           onSelect={() => onSelect(technician.id)}
                         />
@@ -845,6 +848,7 @@ function StepTechnician({
                     distanceKm={technician.distanceKm}
                     variant="compact"
                     serviceId={service?.id}
+                    scooterModelId={scooterModel?.id}
                     selected={selected === technician.id}
                     onSelect={() => onSelect(technician.id)}
                   />
@@ -1032,9 +1036,10 @@ function StepConfirm({
     technician && service && model
       ? getTechnicianBookingPrice(technician, service.id, model.id)
       : null
+  const bookingFeeAmount = model?.bookingFeeAmount ?? serviceFeeAmount
   const { basePrice, serviceFee, totalPrice } =
     bookingPrice !== null
-      ? calculatePricing(bookingPrice, serviceFeeAmount)
+      ? calculatePricing(bookingPrice, bookingFeeAmount)
       : { basePrice: 0, serviceFee: 0, totalPrice: 0 }
 
   const scheduled = wizardState.scheduledDate
@@ -1147,7 +1152,8 @@ function SelectionSummary({
     technician && service && model
       ? getTechnicianBookingPrice(technician, service.id, model.id)
       : null
-  const pricing = bookingPrice !== null ? calculatePricing(bookingPrice, serviceFeeAmount) : null
+  const bookingFeeAmount = model?.bookingFeeAmount ?? serviceFeeAmount
+  const pricing = bookingPrice !== null ? calculatePricing(bookingPrice, bookingFeeAmount) : null
   const scheduled = state.scheduledDate
     ? new Intl.DateTimeFormat("es-UY", {
         day: "2-digit",
@@ -1206,7 +1212,7 @@ function SelectionSummary({
       <div className="mt-4 rounded-2xl border border-[#34d399]/25 bg-[#10b981]/10 p-4">
         <p className="text-xs font-semibold text-[#a7f3d0]">Reserva online</p>
         <p className="mt-1 text-2xl font-black text-white">
-          {pricing ? formatUYU(pricing.serviceFee) : formatUYU(serviceFeeAmount)}
+          {pricing ? formatUYU(pricing.serviceFee) : formatUYU(bookingFeeAmount)}
         </p>
         <p className="mt-2 text-xs leading-5 text-white/55">
           Pagás solo la seña para confirmar. El resto se coordina directo con el técnico.
@@ -1489,12 +1495,13 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
             (() => {
               const pricing = getTechnicianBookingPrice(technician, service.id, model.id)
               if (pricing === null) return null
-              const { serviceFee } = calculatePricing(pricing, serviceFeeAmount)
+              const bookingFeeAmount = model.bookingFeeAmount ?? serviceFeeAmount
+              const { serviceFee } = calculatePricing(pricing, bookingFeeAmount)
 
               return (
                 <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-[#bbf7d0] bg-[#d1fae5] px-4 py-3">
                   <span className="text-sm font-medium text-[#065f46]">
-                    Reserva online ({formatUYU(serviceFeeAmount)})
+                    Reserva online ({formatUYU(bookingFeeAmount)})
                   </span>
                   <span className="text-base font-black text-[#10b981]">{formatUYU(serviceFee)}</span>
                 </div>

@@ -108,7 +108,7 @@ export function getActiveTechnicians(opts: GetTechniciansOptions = {}): Promise<
   return nextCache(
     async () => _getActiveTechnicians(opts),
     [cacheKey],
-    { tags: ["technicians"], revalidate: 15 },
+    { tags: ["technicians"], revalidate: 21600 },
   )()
 }
 
