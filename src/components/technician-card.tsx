@@ -19,6 +19,7 @@ interface TechnicianCardProps {
   onSelect?: (() => void) | null
   serviceId?: string
   scooterModelId?: string
+  bookingFeeAmount?: number
 }
 
 function formatDistance(distanceKm: number): string {
@@ -42,6 +43,7 @@ export function TechnicianCard({
   onSelect = null,
   serviceId,
   scooterModelId,
+  bookingFeeAmount,
 }: TechnicianCardProps) {
   const router = useRouter()
   const technicianHref = href ?? `/technicians/${technician.slug}`
@@ -52,6 +54,9 @@ export function TechnicianCard({
     .toUpperCase()
     .slice(0, 2)
   const startingPrice = getTechnicianStartingPrice(technician, serviceId, scooterModelId)
+  const displayedPrice =
+    startingPrice !== null ? startingPrice + (bookingFeeAmount ?? 0) : null
+  const priceLabel = bookingFeeAmount === undefined ? "Servicio técnico" : "Total del servicio"
 
   if (variant === "compact") {
     return (
@@ -84,9 +89,9 @@ export function TechnicianCard({
               A {formatDistance(distanceKm)} km de tu ubicacion
             </p>
           ) : null}
-          {startingPrice !== null ? (
+          {displayedPrice !== null ? (
             <p className="mt-1 text-sm font-semibold text-[#10b981]">
-              Servicio técnico {formatUYU(startingPrice)}
+              {priceLabel} {formatUYU(displayedPrice)}
             </p>
           ) : null}
         </div>

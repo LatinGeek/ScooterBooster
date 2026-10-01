@@ -778,6 +778,7 @@ function StepTechnician({
               variant="compact"
               serviceId={service?.id}
               scooterModelId={scooterModel?.id}
+              bookingFeeAmount={scooterModel?.bookingFeeAmount}
               selected={selected === technician.id}
               onSelect={() => onSelect(technician.id)}
             />
@@ -795,6 +796,7 @@ function StepTechnician({
                   variant="compact"
                   serviceId={service?.id}
                   scooterModelId={scooterModel?.id}
+                  bookingFeeAmount={scooterModel?.bookingFeeAmount}
                   selected={selected === technician.id}
                   onSelect={() => onSelect(technician.id)}
                 />
@@ -824,6 +826,7 @@ function StepTechnician({
                           variant="compact"
                           serviceId={service?.id}
                           scooterModelId={scooterModel?.id}
+                          bookingFeeAmount={scooterModel?.bookingFeeAmount}
                           selected
                           onSelect={() => onSelect(technician.id)}
                         />
@@ -849,6 +852,7 @@ function StepTechnician({
                     variant="compact"
                     serviceId={service?.id}
                     scooterModelId={scooterModel?.id}
+                    bookingFeeAmount={scooterModel?.bookingFeeAmount}
                     selected={selected === technician.id}
                     onSelect={() => onSelect(technician.id)}
                   />
