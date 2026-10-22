@@ -1,0 +1,9 @@
+[   44648ms] [LOG] [Client Instrumentation Hook] Slow execution detected: 19ms (Note: Code download overhead is not included in this measurement) @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:703
+[   44694ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074
+[   45161ms] [LOG] [HMR] connected @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074
+[   45411ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074
+[   45490ms] [LOG] [Fast Refresh] done in 189ms @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074
+[   45968ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074
+[   46020ms] [LOG] [Fast Refresh] done in 152ms @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074
+[   59166ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074
+[   59214ms] [LOG] [Fast Refresh] done in 149ms @ http://127.0.0.1:3010/_next/static/chunks/node_modules_next_dist_0nzbwyu._.js:1074

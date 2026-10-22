@@ -8,6 +8,7 @@ interface CreatePaymentLinkParams {
   serviceName: string
   scooterModelName: string
   serviceFee: number
+  guestAccessToken?: string
 }
 
 function getMercadoPagoWebhookUrl(): string {
@@ -48,6 +49,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://scooterbooster.uy"
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
 
+  const guestQuery = params.guestAccessToken ? `?guest_token=${encodeURIComponent(params.guestAccessToken)}` : ""
   const result = await preference.create({
     body: {
       items: [
@@ -60,9 +62,9 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
         },
       ],
       back_urls: {
-        success: `${appUrl}/booking/${params.bookingId}/success`,
-        failure: `${appUrl}/booking/${params.bookingId}/failure`,
-        pending: `${appUrl}/booking/${params.bookingId}/pending`,
+        success: `${appUrl}/booking/${params.bookingId}/success${guestQuery}`,
+        failure: `${appUrl}/booking/${params.bookingId}/failure${guestQuery}`,
+        pending: `${appUrl}/booking/${params.bookingId}/pending${guestQuery}`,
       },
       auto_return: "approved",
       notification_url: getMercadoPagoWebhookUrl(),

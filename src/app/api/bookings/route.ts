@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server"
 import { after } from "next/server"
+import crypto from "crypto"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { createBookingSchema } from "@/lib/validators/booking"
@@ -19,7 +20,7 @@ import {
 } from "@/lib/technician-matrix"
 import { ValidationError, AuthError, NotFoundError } from "@/lib/errors"
 import logger from "@/lib/logger"
-import { enforceRateLimit } from "@/lib/ratelimit"
+import { enforceRateLimit, getRequestIp } from "@/lib/ratelimit"
 import { assertTrustedOrigin } from "@/lib/security"
 import { notify } from "@/lib/notifications"
 import { sendBookingCreatedEmail } from "@/lib/notification-emails"
@@ -41,18 +42,27 @@ export const GET = withErrorHandling(async () => {
 export const POST = withErrorHandling(async (req: NextRequest) => {
   assertTrustedOrigin(req)
 
-  const session = await getSession()
-  if (!session) throw new AuthError()
-  await enforceRateLimit("bookingUser", session.uid)
-
   const body: unknown = await req.json()
   const parsed = createBookingSchema.safeParse(body)
   if (!parsed.success) {
     throw new ValidationError(parsed.error.issues[0]?.message ?? "Datos inválidos")
   }
 
-  const { technicianId, serviceId, scooterModelId, scheduledDate, notes, disclaimerAccepted } =
+  const { technicianId, serviceId, scooterModelId, scheduledDate, notes, disclaimerAccepted, guest } =
     parsed.data
+  const session = await getSession()
+  if (session && guest) {
+    throw new ValidationError("Las reservas con cuenta no pueden usar el modo invitado")
+  }
+  if (!session && !guest) {
+    throw new AuthError("Iniciá sesión o completá tus datos para reservar como invitado")
+  }
+  await enforceRateLimit(session ? "bookingUser" : "bookingGuest", session?.uid ?? getRequestIp(req))
+  const guestAccessToken = guest ? crypto.randomBytes(32).toString("base64url") : null
+  const guestAccessTokenHash = guestAccessToken
+    ? crypto.createHash("sha256").update(guestAccessToken).digest("hex")
+    : null
+  const bookingUserId = session?.uid ?? `guest:${crypto.randomUUID()}`
 
   // Verify technician exists and is approved
   const technician = await getTechnicianById(technicianId)
@@ -98,12 +108,14 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const bookingFeeAmount = scooterModel.bookingFeeAmount ?? platformSettings.serviceFeeAmount
   const { serviceFee, totalPrice } = calculatePricing(basePrice, bookingFeeAmount)
 
-  logger.info({ userId: session.uid, technicianId, serviceId, scheduledDate }, "Creating booking")
+  logger.info({ userId: bookingUserId, technicianId, serviceId, scheduledDate, isGuest: !!guest }, "Creating booking")
 
   let booking
   try {
     booking = await createBooking({
-      userId: session.uid,
+      userId: bookingUserId,
+      guestContact: guest ?? null,
+      guestAccessTokenHash,
       technicianId,
       serviceId,
       scooterModelId,
@@ -134,6 +146,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
         serviceName: service.name,
         scooterModelName: scooterModel.name,
         serviceFee: booking.serviceFee,
+        ...(guestAccessToken ? { guestAccessToken } : {}),
       })
       await updateBookingPaymentLink(booking.id, preferenceId, initPoint)
       await upsertPaymentLinkRecord({
@@ -150,7 +163,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
 
   after(async () => {
-    const user = await getUserById(session.uid)
+    const user = session ? await getUserById(session.uid) : null
     const requestIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       req.headers.get("x-real-ip") ??
@@ -158,16 +171,12 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     const userAgent = req.headers.get("user-agent") ?? null
 
     await Promise.allSettled([
-      notify({
-        type: "bookingCreated",
-        userId: session.uid,
-        bookingId: booking.id,
-        serviceName: service.name,
-        serviceFee: booking.serviceFee,
-      }),
+      ...(session
+        ? [notify({ type: "bookingCreated" as const, userId: session.uid, bookingId: booking.id, serviceName: service.name, serviceFee: booking.serviceFee })]
+        : []),
       addAuditLogEntry({
         action: "booking_created",
-        actorUid: session.uid,
+        actorUid: session?.uid ?? null,
         targetType: "booking",
         targetId: booking.id,
         metadata: {
@@ -176,13 +185,14 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
           scooterModelId,
           scheduledDate,
           paymentLinkCreated: Boolean(paymentLinkUrl),
+          isGuest: !!guest,
         },
       }),
       ...(disclaimerAccepted
         ? [
             addAuditLogEntry({
               action: "disclaimer_accepted",
-              actorUid: session.uid,
+              actorUid: session?.uid ?? null,
               targetType: "booking",
               targetId: booking.id,
               metadata: {
@@ -193,10 +203,10 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
             }),
           ]
         : []),
-      ...(user?.email
+      ...((user?.email || guest?.email)
         ? [
             sendBookingCreatedEmail({
-              to: user.email,
+              to: user?.email ?? guest!.email,
               bookingId: booking.id,
               serviceName: service.name,
               technicianName: technician.displayName,
@@ -212,5 +222,6 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     ])
   })
 
-  return ok({ booking: { ...booking, paymentLinkUrl }, paymentLinkUrl }, 201)
+  const { guestAccessTokenHash: _guestAccessTokenHash, ...bookingForClient } = booking
+  return ok({ booking: { ...bookingForClient, paymentLinkUrl }, paymentLinkUrl, guestAccessToken }, 201)
 })

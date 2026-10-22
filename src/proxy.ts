@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { SESSION_COOKIE_NAME } from "@/lib/session"
 
 // Routes that require authentication
-const PROTECTED_PREFIXES = ["/dashboard", "/admin", "/onboarding", "/booking/new"]
+const PROTECTED_PREFIXES = ["/dashboard", "/admin", "/onboarding"]
 
 // Routes that redirect authenticated users away (e.g. login)
 const AUTH_ONLY_ROUTES = ["/login"]

@@ -1,0 +1,79 @@
+- generic [active] [ref=f5e1]:
+  - banner [ref=f5e2]:
+    - generic [ref=f5e4]:
+      - link "ScooterBooster" [ref=f5e5] [cursor=pointer]:
+        - /url: /
+      - button "Abrir menú" [ref=f5e8] [cursor=pointer]
+  - main [ref=f5e11]:
+    - generic [ref=f5e14]:
+      - generic [ref=f5e15]: Reserva guiada
+      - heading "Reservá tu servicio." [level=1] [ref=f5e17]
+      - paragraph [ref=f5e18]: Elegí el scooter, el servicio, un técnico verificado y el horario. La seña online confirma el turno.
+    - generic [ref=f5e20]:
+      - navigation "Pasos de la reserva" [ref=f5e21]:
+        - generic [ref=f5e22]:
+          - generic [ref=f5e23]:
+            - paragraph [ref=f5e24]: Paso 1 de 5
+            - paragraph [ref=f5e25]: Scooter
+          - generic [ref=f5e26]: 20%
+        - list [ref=f5e30]:
+          - listitem [ref=f5e31]:
+            - paragraph [ref=f5e39]: Scooter
+          - listitem [ref=f5e40]:
+            - paragraph [ref=f5e45]: Servicio
+          - listitem [ref=f5e46]:
+            - paragraph [ref=f5e52]: Técnico
+          - listitem [ref=f5e53]:
+            - paragraph [ref=f5e58]: Horario
+          - listitem [ref=f5e59]:
+            - paragraph [ref=f5e66]: Confirmar
+      - generic [ref=f5e69]:
+        - generic [ref=f5e70]:
+          - paragraph [ref=f5e71]: 01 · Scooter
+          - heading "¿Cuál es tu scooter?" [level=2] [ref=f5e73]
+        - paragraph [ref=f5e74]: Primero elegí la marca y después seleccioná tu modelo.
+        - generic [ref=f5e76]:
+          - generic [ref=f5e78]:
+            - button [ref=f5e79] [cursor=pointer]:
+              - img "Logo de Atom" [ref=f5e81]
+              - generic [ref=f5e82]:
+                - paragraph [ref=f5e83]: Atom
+                - paragraph [ref=f5e84]: 4 modelos disponibles
+            - button [ref=f5e87] [cursor=pointer]:
+              - img "Logo de Joyor" [ref=f5e89]
+              - generic [ref=f5e90]:
+                - paragraph [ref=f5e91]: Joyor
+                - paragraph [ref=f5e92]: 6 modelos disponibles
+            - button [ref=f5e95] [cursor=pointer]:
+              - img "Logo de MiStyle" [ref=f5e97]
+              - generic [ref=f5e98]:
+                - paragraph [ref=f5e99]: MiStyle
+                - paragraph [ref=f5e100]: 5 modelos disponibles
+            - button [ref=f5e103] [cursor=pointer]:
+              - img "Logo de Navee" [ref=f5e105]
+              - generic [ref=f5e106]:
+                - paragraph [ref=f5e107]: Navee
+                - paragraph [ref=f5e108]: 2 modelos disponibles
+            - button [ref=f5e111] [cursor=pointer]:
+              - img "Logo de Segway-Ninebot" [ref=f5e113]
+              - generic [ref=f5e114]:
+                - paragraph [ref=f5e115]: Segway-Ninebot
+                - paragraph [ref=f5e116]: 3 modelos disponibles
+            - button [ref=f5e119] [cursor=pointer]:
+              - img "Logo de Xiaomi" [ref=f5e121]
+              - generic [ref=f5e122]:
+                - paragraph [ref=f5e123]: Xiaomi
+                - paragraph [ref=f5e124]: 12 modelos disponibles
+          - generic [ref=f5e128]:
+            - generic [ref=f5e129]:
+              - paragraph [ref=f5e130]: Marca
+              - paragraph [ref=f5e131]: Selecciona una marca
+            - button "Volver" [ref=f5e132] [cursor=pointer]
+      - generic [ref=f5e136]:
+        - button "Atrás" [disabled]
+        - button "Siguiente" [disabled]
+  - link "Tenés dudas? Escribinos!" [ref=f5e137] [cursor=pointer]:
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f5e147] [cursor=pointer]
+  - alert [ref=f5e151]

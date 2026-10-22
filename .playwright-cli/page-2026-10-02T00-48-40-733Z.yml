@@ -1,0 +1,88 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "ScooterBooster" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e8]:
+        - link "Scooters" [ref=e9] [cursor=pointer]:
+          - /url: /scooters
+        - link "Servicios" [ref=e10] [cursor=pointer]:
+          - /url: /services
+        - link "Técnicos" [ref=e11] [cursor=pointer]:
+          - /url: /technicians
+      - searchbox "Buscar scooters, servicios o técnicos" [ref=e19]
+      - generic [ref=e20]:
+        - link "Iniciar sesión" [ref=e21] [cursor=pointer]:
+          - /url: /login
+        - link "Reservar ahora" [ref=e22] [cursor=pointer]:
+          - /url: /booking
+  - main [ref=e24]:
+    - generic [ref=e27]:
+      - generic [ref=e28]: Reserva guiada
+      - heading "Reservá tu servicio." [level=1] [ref=e30]
+      - paragraph [ref=e31]: Elegí el scooter, el servicio, un técnico verificado y el horario. La seña online confirma el turno.
+    - generic [ref=e33]:
+      - navigation "Pasos de la reserva" [ref=e34]:
+        - list [ref=e36]:
+          - listitem [ref=e37]:
+            - generic [ref=e44]:
+              - paragraph [ref=e45]: Scooter
+              - paragraph [ref=e46]: Marca y modelo
+          - listitem [ref=e47]:
+            - generic [ref=e51]:
+              - paragraph [ref=e52]: Servicio
+              - paragraph [ref=e53]: Trabajo a realizar
+          - listitem [ref=e54]:
+            - generic [ref=e59]:
+              - paragraph [ref=e60]: Técnico
+              - paragraph [ref=e61]: Profesional verificado
+          - listitem [ref=e62]:
+            - generic [ref=e66]:
+              - paragraph [ref=e67]: Horario
+              - paragraph [ref=e68]: Día y horario
+          - listitem [ref=e69]:
+            - generic [ref=e75]:
+              - paragraph [ref=e76]: Confirmar
+              - paragraph [ref=e77]: Pago de reserva
+      - generic [ref=e303]:
+        - generic [ref=e304]:
+          - generic [ref=e305]:
+            - generic [ref=e306]:
+              - paragraph [ref=e307]: 03 · Técnico
+              - heading "Elegí tu técnico" [level=2] [ref=e309]
+              - paragraph [ref=e310]: Compará reputación, precio y cercanía antes de reservar.
+            - generic [ref=e311]:
+              - button "Lista" [ref=e312]
+              - button "Mapa" [ref=e314]
+          - generic [ref=e317]:
+            - generic [ref=e318]:
+              - generic [ref=e319]:
+                - paragraph [ref=e320]: Ordená por lo que más te importa
+                - paragraph [ref=e321]: Priorizá reputación, experiencia, precio o cercanía.
+              - button "Usar mi ubicación" [ref=e322] [cursor=pointer]
+            - generic [ref=e327]:
+              - button "Mejor valorados" [pressed] [ref=e328]
+              - button "Más reseñas" [ref=e331]
+              - button "Menor precio" [ref=e334]
+          - generic [ref=e337]: Solo un técnico disponible para este servicio. Lo dejamos preseleccionado para que avances mas rápido.
+        - button "Jonathan Denis Jonathan Denis 5.0 (3) Unión, Montevideo Servicio técnico $ 1.800" [active] [ref=e339] [cursor=pointer]:
+          - img "Jonathan Denis" [ref=e341]
+          - generic [ref=e342]:
+            - generic [ref=e343]:
+              - paragraph [ref=e344]: Jonathan Denis
+              - generic [ref=e345]:
+                - text: "5.0"
+                - generic [ref=e348]: (3)
+            - paragraph [ref=e349]: Unión, Montevideo
+            - paragraph [ref=e350]: Servicio técnico $ 1.800
+      - generic [ref=e138]:
+        - generic [ref=e353]:
+          - generic [ref=e354]: Reserva online ($ 150)
+          - generic [ref=e355]: $ 150
+        - generic [ref=e139]:
+          - button "Atrás" [ref=e295] [cursor=pointer]
+          - button "Siguiente" [ref=e243] [cursor=pointer]
+  - link "Tenés dudas? Escribinos!":
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - region "Notifications alt+T"
+  - alert [ref=e150]

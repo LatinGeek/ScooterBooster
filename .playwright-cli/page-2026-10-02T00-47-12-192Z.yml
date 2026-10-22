@@ -1,0 +1,102 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "ScooterBooster" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=e8]:
+        - link "Scooters" [ref=e9] [cursor=pointer]:
+          - /url: /scooters
+        - link "Servicios" [ref=e10] [cursor=pointer]:
+          - /url: /services
+        - link "Técnicos" [ref=e11] [cursor=pointer]:
+          - /url: /technicians
+      - searchbox "Buscar scooters, servicios o técnicos" [ref=e19]
+      - generic [ref=e20]:
+        - link "Iniciar sesión" [ref=e21] [cursor=pointer]:
+          - /url: /login
+        - link "Reservar ahora" [ref=e22] [cursor=pointer]:
+          - /url: /booking
+  - main [ref=e24]:
+    - generic [ref=e27]:
+      - generic [ref=e28]: Reserva guiada
+      - heading "Reservá tu servicio." [level=1] [ref=e30]
+      - paragraph [ref=e31]: Elegí el scooter, el servicio, un técnico verificado y el horario. La seña online confirma el turno.
+    - generic [ref=e33]:
+      - navigation "Pasos de la reserva" [ref=e34]:
+        - list [ref=e36]:
+          - listitem [ref=e37]:
+            - generic [ref=e44]:
+              - paragraph [ref=e45]: Scooter
+              - paragraph [ref=e46]: Marca y modelo
+          - listitem [ref=e47]:
+            - generic [ref=e51]:
+              - paragraph [ref=e52]: Servicio
+              - paragraph [ref=e53]: Trabajo a realizar
+          - listitem [ref=e54]:
+            - generic [ref=e59]:
+              - paragraph [ref=e60]: Técnico
+              - paragraph [ref=e61]: Profesional verificado
+          - listitem [ref=e62]:
+            - generic [ref=e66]:
+              - paragraph [ref=e67]: Horario
+              - paragraph [ref=e68]: Día y horario
+          - listitem [ref=e69]:
+            - generic [ref=e75]:
+              - paragraph [ref=e76]: Confirmar
+              - paragraph [ref=e77]: Pago de reserva
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - paragraph [ref=e82]: 01 · Scooter
+          - heading "¿Cuál es tu scooter?" [level=2] [ref=e84]
+        - paragraph [ref=e85]: Primero elegí la marca y después seleccioná tu modelo.
+        - generic [ref=e87]:
+          - generic [ref=e89]:
+            - button [ref=e90] [cursor=pointer]:
+              - img "Logo de Atom" [ref=e92]
+              - generic [ref=e93]:
+                - paragraph [ref=e94]: Atom
+                - paragraph [ref=e95]: 4 modelos disponibles
+            - button [ref=e98] [cursor=pointer]:
+              - img "Logo de Joyor" [ref=e100]
+              - generic [ref=e101]:
+                - paragraph [ref=e102]: Joyor
+                - paragraph [ref=e103]: 6 modelos disponibles
+            - button [ref=e106] [cursor=pointer]:
+              - img "Logo de MiStyle" [ref=e108]
+              - generic [ref=e109]:
+                - paragraph [ref=e110]: MiStyle
+                - paragraph [ref=e111]: 5 modelos disponibles
+            - button [ref=e114] [cursor=pointer]:
+              - img "Logo de Navee" [ref=e116]
+              - generic [ref=e117]:
+                - paragraph [ref=e118]: Navee
+                - paragraph [ref=e119]: 2 modelos disponibles
+            - button [ref=e122] [cursor=pointer]:
+              - img "Logo de Xiaomi" [ref=e124]
+              - generic [ref=e125]:
+                - paragraph [ref=e126]: Xiaomi
+                - paragraph [ref=e127]: 12 modelos disponibles
+          - generic [ref=e131]:
+            - generic [ref=e132]:
+              - paragraph [ref=e133]: Marca
+              - paragraph [ref=e134]: Selecciona una marca
+            - button "Volver" [ref=e135] [cursor=pointer]
+      - generic [ref=e139]:
+        - button "Atrás" [disabled]
+        - button "Siguiente" [disabled]
+  - link "Tenés dudas? Escribinos!":
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - generic [ref=e141]:
+    - generic [ref=e142]:
+      - text: Usamos cookies esenciales para mantener tu sesion segura. Si aceptas analitica, tambien activamos medicion basica para entender altas, reservas y mejoras de producto. Podes leer mas en nuestra
+      - link "Politica de privacidad" [ref=e143] [cursor=pointer]:
+        - /url: /legal/privacy
+      - text: y la
+      - link "Politica de cookies" [ref=e144] [cursor=pointer]:
+        - /url: /legal/cookies
+      - text: .
+    - generic [ref=e145]:
+      - button "Solo esenciales" [ref=e146] [cursor=pointer]
+      - button "Aceptar analitica" [ref=e148] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e150]

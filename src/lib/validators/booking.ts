@@ -7,6 +7,13 @@ export const createBookingSchema = z.object({
   scheduledDate: z.string().datetime({ message: "Fecha inválida" }),
   notes: z.string().max(500).nullable().optional(),
   disclaimerAccepted: z.boolean().optional(),
+  guest: z
+    .object({
+      name: z.string().trim().min(2).max(100),
+      email: z.string().trim().email().max(254),
+      phone: z.string().trim().min(6).max(30),
+    })
+    .optional(),
 })
 
 export const cancelBookingSchema = z.object({

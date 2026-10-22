@@ -173,10 +173,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             }),
           ]
         : []),
-      ...(user?.email && service && technician && mpStatus === "approved"
+      ...((user?.email || booking.guestContact?.email) && service && technician && mpStatus === "approved"
         ? [
             sendBookingConfirmedEmail({
-              to: user.email,
+              to: user?.email ?? booking.guestContact!.email,
               bookingId: booking.id,
               serviceName: service.name,
               technicianName: technician.displayName,
@@ -184,13 +184,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             }),
           ]
         : []),
-      ...(user?.email &&
+      ...((user?.email || booking.guestContact?.email) &&
       service &&
       technician &&
       (mpStatus === "refunded" || mpStatus === "charged_back")
         ? [
             sendBookingCancelledEmail({
-              to: user.email,
+              to: user?.email ?? booking.guestContact!.email,
               bookingId: booking.id,
               serviceName: service.name,
               technicianName: technician.displayName,

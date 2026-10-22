@@ -1,0 +1,72 @@
+- generic [active] [ref=f3e1]:
+  - banner [ref=f3e2]:
+    - generic [ref=f3e4]:
+      - link "ScooterBooster" [ref=f3e5] [cursor=pointer]:
+        - /url: /
+      - button "Abrir menú" [ref=f3e8] [cursor=pointer]
+  - main [ref=f3e148]:
+    - generic [ref=f3e151]:
+      - generic [ref=f3e152]: Reserva guiada
+      - heading "Reservá tu servicio." [level=1] [ref=f3e154]
+      - paragraph [ref=f3e155]: Elegí el scooter, el servicio, un técnico verificado y el horario. La seña online confirma el turno.
+    - generic [ref=f3e157]:
+      - navigation "Pasos de la reserva" [ref=f3e158]:
+        - generic [ref=f3e159]:
+          - generic [ref=f3e160]:
+            - paragraph [ref=f3e161]: Paso 3 de 5
+            - paragraph [ref=f3e162]: Técnico
+          - generic [ref=f3e163]: 60%
+        - list [ref=f3e167]:
+          - listitem [ref=f3e168]:
+            - paragraph [ref=f3e176]: Scooter
+          - listitem [ref=f3e177]:
+            - paragraph [ref=f3e182]: Servicio
+          - listitem [ref=f3e183]:
+            - paragraph [ref=f3e189]: Técnico
+          - listitem [ref=f3e190]:
+            - paragraph [ref=f3e195]: Horario
+          - listitem [ref=f3e196]:
+            - paragraph [ref=f3e203]: Confirmar
+      - generic [ref=f3e341]:
+        - generic [ref=f3e342]:
+          - generic [ref=f3e343]:
+            - generic [ref=f3e344]:
+              - paragraph [ref=f3e345]: 03 · Técnico
+              - heading "Elegí tu técnico" [level=2] [ref=f3e347]
+              - paragraph [ref=f3e348]: Compará reputación, precio y cercanía antes de reservar.
+            - generic [ref=f3e349]:
+              - button "Lista" [ref=f3e350]
+              - button "Mapa" [ref=f3e352]
+          - generic [ref=f3e355]:
+            - generic [ref=f3e356]:
+              - generic [ref=f3e357]:
+                - paragraph [ref=f3e358]: Ordená por lo que más te importa
+                - paragraph [ref=f3e359]: Priorizá reputación, experiencia, precio o cercanía.
+              - button "Usar mi ubicación" [ref=f3e360] [cursor=pointer]
+            - generic [ref=f3e365]:
+              - button "Mejor valorados" [pressed] [ref=f3e366]
+              - button "Más reseñas" [ref=f3e369]
+              - button "Menor precio" [ref=f3e372]
+          - generic [ref=f3e375]: Solo un técnico disponible para este servicio. Lo dejamos preseleccionado para que avances mas rápido.
+        - button "Jonathan Denis Jonathan Denis 5.0 (3) Unión, Montevideo Total del servicio $ 3.000" [ref=f3e377] [cursor=pointer]:
+          - img "Jonathan Denis" [ref=f3e379]
+          - generic [ref=f3e380]:
+            - generic [ref=f3e381]:
+              - paragraph [ref=f3e382]: Jonathan Denis
+              - generic [ref=f3e383]:
+                - text: "5.0"
+                - generic [ref=f3e386]: (3)
+            - paragraph [ref=f3e387]: Unión, Montevideo
+            - paragraph [ref=f3e388]: Total del servicio $ 3.000
+      - generic [ref=f3e296]:
+        - generic [ref=f3e391]:
+          - generic [ref=f3e392]: Reserva online ($ 150)
+          - generic [ref=f3e393]: $ 150
+        - generic [ref=f3e297]:
+          - button "Atrás" [ref=f3e333] [cursor=pointer]
+          - button "Siguiente" [ref=f3e298] [cursor=pointer]
+  - link "Tenés dudas? Escribinos!":
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f3e143] [cursor=pointer]
+  - alert [ref=f3e147]: Nueva Reserva | ScooterBooster | ScooterBooster

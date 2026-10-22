@@ -1,0 +1,95 @@
+- generic [active] [ref=f3e1]:
+  - banner [ref=f3e2]:
+    - generic [ref=f3e4]:
+      - link "ScooterBooster" [ref=f3e5] [cursor=pointer]:
+        - /url: /
+      - button "Abrir menú" [ref=f3e8] [cursor=pointer]
+  - main [ref=f3e11]:
+    - navigation [ref=f3e12]:
+      - link "Catálogo de Scooters" [ref=f3e13] [cursor=pointer]:
+        - /url: /scooters
+    - generic [ref=f3e16]:
+      - paragraph [ref=f3e17]: Segway-Ninebot
+      - heading "Segway ZT3 Pro" [level=1] [ref=f3e18]
+      - paragraph [ref=f3e19]: Mantenimiento y deslimitación para tu Segway ZT3 Pro en Uruguay. Agendá atención para tu monopatín con suspensión y neumáticos todoterreno de 11 pulgadas.
+    - img "Foto del Segway ZT3 Pro" [ref=f3e22]
+    - generic [ref=f3e23]:
+      - heading "Especificaciones técnicas" [level=2] [ref=f3e24]
+      - paragraph [ref=f3e25]:
+        - text: Especificaciones de fábrica publicadas por
+        - link "Segway Uruguay" [ref=f3e26] [cursor=pointer]:
+          - /url: https://www.segway.com.uy/productos/zt3-pro
+        - text: . La autonomía indicada es máxima y varía según el uso. Estos valores no representan el resultado de la deslimitación.
+      - generic [ref=f3e27]:
+        - generic [ref=f3e28]:
+          - generic [ref=f3e31]: 40 km/h
+          - generic [ref=f3e32]: Vel. de fábrica
+        - generic [ref=f3e33]:
+          - generic [ref=f3e38]: 70 km
+          - generic [ref=f3e39]: Autonomía
+        - generic [ref=f3e40]:
+          - generic [ref=f3e43]: Consultar
+          - generic [ref=f3e44]: Batería
+        - generic [ref=f3e45]:
+          - generic [ref=f3e49]: 450 W
+          - generic [ref=f3e50]: Motor nominal
+        - generic [ref=f3e51]:
+          - generic [ref=f3e55]: 28.5 kg
+          - generic [ref=f3e56]: Peso
+    - generic [ref=f3e57]:
+      - heading "Servicios disponibles" [level=2] [ref=f3e58]
+      - generic [ref=f3e59]:
+        - generic [ref=f3e60]:
+          - generic [ref=f3e65]:
+            - heading "Mantenimiento General" [level=3] [ref=f3e66]
+            - paragraph [ref=f3e67]: Diagnóstico, ajustes y revisión de seguridad para tu Segway, con la misma tarifa de mantenimiento que Xiaomi. Repuestos a cotizar por separado.
+            - paragraph [ref=f3e68]: "Total: $1.950. Reservá por $150 y aboná $1.800 al técnico al realizar el servicio."
+          - generic [ref=f3e69]:
+            - generic [ref=f3e70]: ~90 min
+            - link "Reservar" [ref=f3e71] [cursor=pointer]:
+              - /url: /booking?serviceId=maintenance&modelId=segway-zt3-pro
+        - generic [ref=f3e72]:
+          - generic [ref=f3e78]:
+            - heading "Eliminación de Límite de Velocidad" [level=3] [ref=f3e79]
+            - paragraph [ref=f3e80]: Deslimitación de velocidad para tu Segway. La velocidad final depende de la versión y el estado del equipo.
+            - paragraph [ref=f3e81]: "Total: $3.000. Reservá por $150 y aboná $2.850 al técnico al realizar el servicio."
+            - generic [ref=f3e82]: Solo para uso en propiedad privada. Requiere aceptar aviso legal.
+          - generic [ref=f3e85]:
+            - generic [ref=f3e86]: ~45 min
+            - link "Reservar" [ref=f3e87] [cursor=pointer]:
+              - /url: /booking?serviceId=speed-limit&modelId=segway-zt3-pro
+    - generic [ref=f3e88]:
+      - generic [ref=f3e89]:
+        - heading "Técnicos que trabajan con Segway-Ninebot" [level=2] [ref=f3e90]
+        - link "Ver todos" [ref=f3e91] [cursor=pointer]:
+          - /url: /technicians?brandId=brand-segway
+      - link "Jonathan Denis Técnico verificado Jonathan Denis Unión, Montevideo 5.0 3 reseñas Tecnico de scooters con foco en reparaciones, mantenimientos, repuestos, reprogramaciones, electricidad y electronica vehicular. Atiende todos los modelos. Repro/deslimitacion y control crucero para Gen 4, Gen 5 y la mayoria de los modelos; en Xiaomi 6 todavia no ofrece repro. Servicios desde 1800 UYU Especialidades Control de crucero Firmware Mantenimiento +1 más Ver perfil completo" [ref=f3e93] [cursor=pointer]:
+        - generic [ref=f3e94]:
+          - generic [ref=f3e96]:
+            - generic [ref=f3e97]:
+              - img "Jonathan Denis" [ref=f3e99]
+              - generic [ref=f3e100]:
+                - paragraph [ref=f3e101]: Técnico verificado
+                - link "Jonathan Denis" [ref=f3e102]:
+                  - /url: /technicians/jonathan-denis
+                - generic [ref=f3e103]: Unión, Montevideo
+            - generic [ref=f3e109]:
+              - generic [ref=f3e110]: "5.0"
+              - paragraph [ref=f3e114]: 3 reseñas
+          - generic [ref=f3e115]:
+            - paragraph [ref=f3e117]: Tecnico de scooters con foco en reparaciones, mantenimientos, repuestos, reprogramaciones, electricidad y electronica vehicular. Atiende todos los modelos. Repro/deslimitacion y control crucero para Gen 4, Gen 5 y la mayoria de los modelos; en Xiaomi 6 todavia no ofrece repro.
+            - generic [ref=f3e118]: Servicios desde 1800 UYU
+            - generic [ref=f3e120]:
+              - generic [ref=f3e121]: Especialidades
+              - generic [ref=f3e124]:
+                - generic [ref=f3e125]: Control de crucero
+                - generic [ref=f3e126]: Firmware
+                - generic [ref=f3e127]: Mantenimiento
+                - generic [ref=f3e128]: +1 más
+            - link "Ver perfil completo" [ref=f3e130]:
+              - /url: /technicians/jonathan-denis
+  - link "Tenés dudas? Escribinos!" [ref=f3e133] [cursor=pointer]:
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f3e143] [cursor=pointer]
+  - alert [ref=f3e147]

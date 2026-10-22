@@ -81,6 +81,27 @@ describe("createPaymentLink", () => {
     expect(expiresAt).toBeLessThanOrEqual(after + 60 * 60 * 1000 + 1000)
   })
 
+  it("preserves the private guest token in all Mercado Pago return urls", async () => {
+    mocks.preferenceCreate.mockResolvedValue({ id: "pref-guest", init_point: "https://mp.test/pay/pref-guest" })
+
+    await createPaymentLink({
+      bookingId: "booking-guest",
+      serviceName: "Firmware",
+      scooterModelName: "Xiaomi 1S",
+      serviceFee: 100,
+      guestAccessToken: "private-token",
+    })
+
+    const createArg = mocks.preferenceCreate.mock.calls[0]?.[0] as {
+      body: { back_urls: Record<string, string> }
+    }
+    expect(createArg.body.back_urls).toEqual({
+      success: "https://scooterbooster.test/booking/booking-guest/success?guest_token=private-token",
+      failure: "https://scooterbooster.test/booking/booking-guest/failure?guest_token=private-token",
+      pending: "https://scooterbooster.test/booking/booking-guest/pending?guest_token=private-token",
+    })
+  })
+
   it("throws when the backend access token is missing", async () => {
     delete process.env.MERCADOPAGO_TEST_ACCESS_TOKEN
     delete process.env.MERCADOPAGO_ACCESS_TOKEN

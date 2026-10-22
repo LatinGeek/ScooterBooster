@@ -1,0 +1,119 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - generic [ref=f1e4]:
+      - link "ScooterBooster" [ref=f1e5] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=f1e8]:
+        - link "Scooters" [ref=f1e9] [cursor=pointer]:
+          - /url: /scooters
+        - link "Servicios" [ref=f1e10] [cursor=pointer]:
+          - /url: /services
+        - link "Técnicos" [ref=f1e11] [cursor=pointer]:
+          - /url: /technicians
+      - searchbox "Buscar scooters, servicios o técnicos" [ref=f1e19]
+      - generic [ref=f1e20]:
+        - link "Iniciar sesión" [ref=f1e21] [cursor=pointer]:
+          - /url: /login
+        - link "Reservar ahora" [ref=f1e22] [cursor=pointer]:
+          - /url: /booking
+  - main [ref=f1e24]:
+    - navigation [ref=f1e25]:
+      - link "Catálogo de Scooters" [ref=f1e26] [cursor=pointer]:
+        - /url: /scooters
+    - generic [ref=f1e29]:
+      - paragraph [ref=f1e30]: Segway-Ninebot
+      - heading "Segway E3 Pro" [level=1] [ref=f1e31]
+      - paragraph [ref=f1e32]: Mantenimiento y deslimitación para tu Segway E3 Pro en Uruguay. Reservá atención para tu monopatín de uso diario.
+    - img "Foto del Segway E3 Pro" [ref=f1e35]
+    - generic [ref=f1e36]:
+      - heading "Especificaciones técnicas" [level=2] [ref=f1e37]
+      - paragraph [ref=f1e38]:
+        - text: Especificaciones de fábrica publicadas por
+        - link "Segway Uruguay" [ref=f1e39] [cursor=pointer]:
+          - /url: https://www.segway.com.uy/productos/e3-pro
+        - text: . La autonomía indicada es máxima y varía según el uso. Estos valores no representan el resultado de la deslimitación.
+      - generic [ref=f1e40]:
+        - generic [ref=f1e41]:
+          - generic [ref=f1e44]: 25 km/h
+          - generic [ref=f1e45]: Vel. de fábrica
+        - generic [ref=f1e46]:
+          - generic [ref=f1e51]: 55 km
+          - generic [ref=f1e52]: Autonomía
+        - generic [ref=f1e53]:
+          - generic [ref=f1e56]: Consultar
+          - generic [ref=f1e57]: Batería
+        - generic [ref=f1e58]:
+          - generic [ref=f1e62]: 400 W
+          - generic [ref=f1e63]: Motor nominal
+        - generic [ref=f1e64]:
+          - generic [ref=f1e68]: 15 kg
+          - generic [ref=f1e69]: Peso
+    - generic [ref=f1e70]:
+      - heading "Servicios disponibles" [level=2] [ref=f1e71]
+      - generic [ref=f1e72]:
+        - generic [ref=f1e73]:
+          - generic [ref=f1e78]:
+            - heading "Mantenimiento General" [level=3] [ref=f1e79]
+            - paragraph [ref=f1e80]: Diagnóstico, ajustes y revisión de seguridad para tu Segway, con la misma tarifa de mantenimiento que Xiaomi. Repuestos a cotizar por separado.
+            - paragraph [ref=f1e81]: "Total: $1.950. Reservá por $150 y aboná $1.800 al técnico al realizar el servicio."
+          - generic [ref=f1e82]:
+            - generic [ref=f1e83]: ~90 min
+            - link "Reservar" [ref=f1e84] [cursor=pointer]:
+              - /url: /booking?serviceId=maintenance&modelId=segway-e3-pro
+        - generic [ref=f1e85]:
+          - generic [ref=f1e91]:
+            - heading "Eliminación de Límite de Velocidad" [level=3] [ref=f1e92]
+            - paragraph [ref=f1e93]: Deslimitación de velocidad para tu Segway. La velocidad final depende de la versión y el estado del equipo.
+            - paragraph [ref=f1e94]: "Total: $3.000. Reservá por $150 y aboná $2.850 al técnico al realizar el servicio."
+            - generic [ref=f1e95]: Solo para uso en propiedad privada. Requiere aceptar aviso legal.
+          - generic [ref=f1e98]:
+            - generic [ref=f1e99]: ~45 min
+            - link "Reservar" [ref=f1e100] [cursor=pointer]:
+              - /url: /booking?serviceId=speed-limit&modelId=segway-e3-pro
+    - generic [ref=f1e101]:
+      - generic [ref=f1e102]:
+        - heading "Técnicos que trabajan con Segway-Ninebot" [level=2] [ref=f1e103]
+        - link "Ver todos" [ref=f1e104] [cursor=pointer]:
+          - /url: /technicians?brandId=brand-segway
+      - link "JD Técnico verificado Jonathan Denis Unión, Montevideo 5.0 3 reseñas Tecnico de scooters con foco en reparaciones, mantenimientos, repuestos, reprogramaciones, electricidad y electronica vehicular. Atiende todos los modelos. Repro/deslimitacion y control crucero para Gen 4, Gen 5 y la mayoria de los modelos; en Xiaomi 6 todavia no ofrece repro. Servicios desde 1800 UYU Especialidades Control de crucero Firmware Mantenimiento +1 más Ver perfil completo" [ref=f1e106] [cursor=pointer]:
+        - generic [ref=f1e107]:
+          - generic [ref=f1e109]:
+            - generic [ref=f1e110]:
+              - generic [ref=f1e111]: JD
+              - generic [ref=f1e113]:
+                - paragraph [ref=f1e114]: Técnico verificado
+                - link "Jonathan Denis" [ref=f1e115]:
+                  - /url: /technicians/jonathan-denis
+                - generic [ref=f1e116]: Unión, Montevideo
+            - generic [ref=f1e122]:
+              - generic [ref=f1e123]: "5.0"
+              - paragraph [ref=f1e127]: 3 reseñas
+          - generic [ref=f1e128]:
+            - paragraph [ref=f1e130]: Tecnico de scooters con foco en reparaciones, mantenimientos, repuestos, reprogramaciones, electricidad y electronica vehicular. Atiende todos los modelos. Repro/deslimitacion y control crucero para Gen 4, Gen 5 y la mayoria de los modelos; en Xiaomi 6 todavia no ofrece repro.
+            - generic [ref=f1e131]: Servicios desde 1800 UYU
+            - generic [ref=f1e133]:
+              - generic [ref=f1e134]: Especialidades
+              - generic [ref=f1e137]:
+                - generic [ref=f1e138]: Control de crucero
+                - generic [ref=f1e139]: Firmware
+                - generic [ref=f1e140]: Mantenimiento
+                - generic [ref=f1e141]: +1 más
+            - link "Ver perfil completo" [ref=f1e143]:
+              - /url: /technicians/jonathan-denis
+  - link "Tenés dudas? Escribinos!" [ref=f1e146] [cursor=pointer]:
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - generic [ref=f1e152]:
+    - generic [ref=f1e153]:
+      - text: Usamos cookies esenciales para mantener tu sesion segura. Si aceptas analitica, tambien activamos medicion basica para entender altas, reservas y mejoras de producto. Podes leer mas en nuestra
+      - link "Politica de privacidad" [ref=f1e154] [cursor=pointer]:
+        - /url: /legal/privacy
+      - text: y la
+      - link "Politica de cookies" [ref=f1e155] [cursor=pointer]:
+        - /url: /legal/cookies
+      - text: .
+    - generic [ref=f1e156]:
+      - button "Solo esenciales" [ref=f1e157] [cursor=pointer]
+      - button "Aceptar analitica" [ref=f1e159] [cursor=pointer]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f1e166] [cursor=pointer]
+  - alert [ref=f1e170]

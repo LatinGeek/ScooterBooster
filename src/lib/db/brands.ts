@@ -14,6 +14,8 @@ const BRAND_LOGO_FALLBACKS: Record<string, string> = {
   "mi-style": "/assets/brand-logos/mistyle.png",
   mistyle: "/assets/brand-logos/mistyle.png",
   navee: "/assets/brand-logos/navee.png",
+  segway: "/assets/brand-logos/segway.png",
+  "segway-ninebot": "/assets/brand-logos/segway.png",
   xiaomi: "/assets/brand-logos/xiaomi.png",
 }
 

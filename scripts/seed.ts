@@ -13,6 +13,8 @@ import * as path from "path"
 import { deriveLegacyFieldsFromMatrix, normalizeMatrixInput } from "@/lib/technician-matrix"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
 import type { Technician } from "@/types"
+import { SEGWAY_CATALOG } from "@/lib/segway-catalog"
+import { XIAOMI_ESSENTIAL } from "@/lib/xiaomi-essential-catalog"
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") })
 
@@ -136,6 +138,7 @@ const SEED_MODEL_IDS_BY_BRAND: Record<string, string[]> = {
     "xiaomi-1s",
     "xiaomi-5-standard",
     "xiaomi-6-lite",
+    "xiaomi-6-essential",
     "xiaomi-6-standard",
     "xiaomi-6-pro",
   ],
@@ -143,7 +146,12 @@ const SEED_MODEL_IDS_BY_BRAND: Record<string, string[]> = {
   [BRAND_IDS.joyor]: ["joyor-s5", "joyor-s10-s"],
   [BRAND_IDS.mistyle]: ["mistyle-me500", "mistyle-me1000"],
   [BRAND_IDS.navee]: ["navee-st3-pro", "navee-gt3-pro"],
-  [BRAND_IDS.segway]: ["segway-f2", "segway-maxg2", "segway-gt2"],
+  [BRAND_IDS.segway]: [
+    "segway-f2",
+    "segway-maxg2",
+    "segway-gt2",
+    ...SEGWAY_CATALOG.map(({ model }) => model.id),
+  ],
   [BRAND_IDS.dualtron]: ["dualtron-mini", "dualtron-thunder2"],
   [BRAND_IDS.kaabo]: ["kaabo-mantis10", "kaabo-wolfwarrior"],
   [BRAND_IDS.vsett]: ["vsett-8", "vsett-10plus"],
@@ -294,7 +302,7 @@ async function seedBrands() {
       id: BRAND_IDS.segway,
       name: "Segway-Ninebot",
       slug: "segway-ninebot",
-      logoURL: null,
+      logoURL: "/assets/brand-logos/segway.png",
       isActive: true,
       createdAt: now,
     },
@@ -529,7 +537,8 @@ async function seedModels() {
       slug: "xiaomi-scooter-6-lite",
       imageURL: `${imageBasePath}/xiaomi-scooter-6-lite${imageSuffix}.png`,
       specs: { maxSpeed: 25, range: 40, battery: "360 Wh", motor: "350W", weight: 19.2 },
-      compatibleServices: SERVICES_EXCEPT_SPEED_LIMIT,
+      compatibleServices: ALL_SERVICES,
+      bookingFeeAmount: 500,
       isActive: true,
       createdAt: now,
     },
@@ -557,6 +566,7 @@ async function seedModels() {
       createdAt: now,
     },
     // Atom
+    { ...XIAOMI_ESSENTIAL, createdAt: now },
     {
       id: "atom-energy",
       brandId: BRAND_IDS.atom,
@@ -748,6 +758,7 @@ async function seedModels() {
       createdAt: now,
     },
     // Segway-Ninebot
+    ...SEGWAY_CATALOG.map(({ model }) => ({ ...model, createdAt: now })),
     {
       id: "segway-e2",
       brandId: BRAND_IDS.segway,
@@ -1044,7 +1055,7 @@ async function seedDemoTechnicians() {
         )
 
         const speedLimitPricing = pricingMatrix[SERVICE_IDS.speedLimit]!
-        for (const modelId of ["xiaomi-6-lite", "xiaomi-6-pro"]) {
+        for (const modelId of ["xiaomi-6-pro"]) {
           speedLimitPricing[modelId]!.isAvailable = false
         }
         speedLimitPricing["xiaomi-6-standard"] = {
@@ -1052,6 +1063,8 @@ async function seedDemoTechnicians() {
           currency: "UYU",
           isAvailable: true,
         }
+        speedLimitPricing["xiaomi-6-lite"] = { ...speedLimitPricing["xiaomi-6-standard"] }
+        speedLimitPricing["xiaomi-6-essential"] = { ...speedLimitPricing["xiaomi-6-standard"] }
 
         return pricingMatrix
       })(),

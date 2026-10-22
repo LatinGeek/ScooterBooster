@@ -14,19 +14,14 @@ function getLocationHeader(response: Response) {
 }
 
 describe("proxy", () => {
-  it("redirects unauthenticated booking starts to login with the full return URL", async () => {
+  it("allows unauthenticated visitors to start a guest booking", async () => {
     const request = new NextRequest(
       "http://localhost:3000/booking/new?service=service-1&model=model-2&step=3"
     )
 
     const response = await proxy(request)
-    const location = getLocationHeader(response)
-
-    expect(response.status).toBe(307)
-    expect(location.pathname).toBe("/login")
-    expect(location.searchParams.get("redirect")).toBe(
-      "/booking/new?service=service-1&model=model-2&step=3"
-    )
+    expect(response.headers.get("location")).toBeNull()
+    expect(response.status).toBe(200)
   })
 
   it("allows authenticated users through protected booking routes", async () => {

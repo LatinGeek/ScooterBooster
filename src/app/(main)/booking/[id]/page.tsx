@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation"
+import crypto from "crypto"
 import { getSession } from "@/lib/session"
 import { getBookingById } from "@/lib/db/bookings"
 import { getTechnicianById, getTechnicianByUserId } from "@/lib/db/technicians"
@@ -27,25 +28,30 @@ export default async function BookingDetailPage({
     status?: string
     payment_id?: string
     collection_id?: string
+    guest_token?: string
   }>
 }) {
-  const session = await getSession()
-  if (!session) redirect("/login?redirect=/booking")
-
   const { id } = await params
   const { return_status: paymentReturnStatus, status: mercadoPagoStatus, payment_id, collection_id } =
     await searchParams
+  const session = await getSession()
 
   const returnPaymentId = payment_id ?? collection_id
 
   let booking = await getBookingById(id)
   if (!booking) notFound()
 
-  const role = (session["role"] as string | undefined) ?? "user"
+  const role = (session?.["role"] as string | undefined) ?? "guest"
 
   // Access control
   let hasAccess = false
-  if (role === "admin") {
+  const guestToken = (await searchParams).guest_token
+  const guestTokenHash = guestToken ? crypto.createHash("sha256").update(guestToken).digest("hex") : null
+  if (!session && booking.guestAccessTokenHash && guestTokenHash && crypto.timingSafeEqual(Buffer.from(booking.guestAccessTokenHash), Buffer.from(guestTokenHash))) {
+    hasAccess = true
+  } else if (!session) {
+    redirect("/login?redirect=/booking")
+  } else if (role === "admin") {
     hasAccess = true
   } else if (role === "technician") {
     const techProfile = await getTechnicianByUserId(session.uid)
@@ -83,16 +89,17 @@ export default async function BookingDetailPage({
     getModelById(booking.scooterModelId),
     booking.status === "completed" ? getReviewByBooking(id) : Promise.resolve(null),
   ])
+  const { guestAccessTokenHash: _guestAccessTokenHash, ...bookingForClient } = booking
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
       <BookingDetailClient
-        booking={booking}
+        booking={bookingForClient}
         technician={technician}
         service={service}
         scooterModel={scooterModel}
         role={role}
-        userId={session.uid}
+        userId={session?.uid ?? ""}
         paymentReturnStatus={paymentReturnStatus}
         hasReview={!!existingReview}
       />

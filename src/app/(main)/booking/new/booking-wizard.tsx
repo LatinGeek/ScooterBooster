@@ -25,6 +25,7 @@ import { DisclaimerModal } from "@/components/disclaimer-modal"
 import { ScooterCard } from "@/components/scooter-card"
 import { TechnicianCard } from "@/components/technician-card"
 import { useGeolocation } from "@/hooks/use-geolocation"
+import { useAuth } from "@/hooks/use-auth"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
 import { calculatePricing } from "@/lib/pricing"
@@ -38,6 +39,7 @@ import {
 import { getDistanceToTechnician } from "@/lib/technician-location"
 import { getCoordinatesForLocation } from "@/lib/uruguay-locations"
 import { cn } from "@/lib/utils"
+import { getSegwayContent, getSegwayServiceDescription } from "@/lib/segway-catalog"
 import type { ScooterBrand, ScooterModel, Service, Technician } from "@/types"
 import { TechnicianSortBar, type TechnicianSortKey } from "./technician-sort-bar"
 
@@ -61,6 +63,9 @@ interface WizardState {
   notes: string
   disclaimerAccepted: boolean
   disclaimerAcceptedAt: string | null
+  guestName: string
+  guestEmail: string
+  guestPhone: string
 }
 
 type Step = 1 | 2 | 3 | 4 | 5
@@ -390,6 +395,7 @@ function StepService({
   selected: string
   onSelect: (id: string) => void
 }) {
+  const segwayContent = model ? getSegwayContent(model.id) : undefined
   const compatible = model
     ? services.filter((service) => model.compatibleServices.includes(service.id))
     : services
@@ -479,7 +485,7 @@ function StepService({
                     availabilityByServiceId[service.id] ? "text-[#6b7280]" : "text-[#cbd5e1]"
                   }`}
                 >
-                  {service.description}
+                  {(segwayContent && getSegwayServiceDescription(service.id)) || service.description}
                 </p>
                 <p
                   className={`mt-1 text-xs ${
@@ -1029,12 +1035,16 @@ function StepConfirm({
   service,
   technician,
   serviceFeeAmount,
+  isGuest,
+  onGuestChange,
 }: {
   wizardState: WizardState
   model: ScooterModel | undefined
   service: Service | undefined
   technician: Technician | undefined
   serviceFeeAmount: number
+  isGuest: boolean
+  onGuestChange: (patch: Pick<WizardState, "guestName" | "guestEmail" | "guestPhone">) => void
 }) {
   const bookingPrice =
     technician && service && model
@@ -1064,6 +1074,17 @@ function StepConfirm({
           Revisá tu reserva
         </h2>
       </div>
+      {isGuest && (
+        <div className="rounded-2xl border border-[#a7f3d0] bg-[#ecfdf5] p-4">
+          <p className="font-semibold text-[#065f46]">Reservar como invitado</p>
+          <p className="mt-1 text-sm text-[#047857]">No necesitás una cuenta de Google. Te enviaremos la confirmación a estos datos.</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <input aria-label="Nombre completo" value={wizardState.guestName} onChange={(event) => onGuestChange({ guestName: event.target.value, guestEmail: wizardState.guestEmail, guestPhone: wizardState.guestPhone })} placeholder="Nombre completo" className="rounded-xl border border-[#a7f3d0] bg-white px-3 py-2.5 text-sm sm:col-span-2" />
+            <input aria-label="Email" type="email" value={wizardState.guestEmail} onChange={(event) => onGuestChange({ guestName: wizardState.guestName, guestEmail: event.target.value, guestPhone: wizardState.guestPhone })} placeholder="Email" className="rounded-xl border border-[#a7f3d0] bg-white px-3 py-2.5 text-sm" />
+            <input aria-label="Teléfono" type="tel" value={wizardState.guestPhone} onChange={(event) => onGuestChange({ guestName: wizardState.guestName, guestEmail: wizardState.guestEmail, guestPhone: event.target.value })} placeholder="Teléfono" className="rounded-xl border border-[#a7f3d0] bg-white px-3 py-2.5 text-sm" />
+          </div>
+        </div>
+      )}
       <div className="divide-y divide-[#e5e7eb] overflow-hidden rounded-2xl border border-[#dbe4ea] bg-white shadow-sm">
         <Row label="Scooter" value={model?.name ?? "-"} />
         <Row label="Servicio" value={service?.name ?? "-"} />
@@ -1230,6 +1251,7 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
   const router = useRouter()
   const searchParams = useSearchParams()
   const shouldReduceMotion = useReducedMotion()
+  const { user, loading: authLoading } = useAuth()
 
   const [step, setStep] = useState<Step>(() => {
     const current = parseInt(searchParams.get("step") ?? "1")
@@ -1244,6 +1266,9 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
     notes: searchParams.get("notes") ?? "",
     disclaimerAccepted: false,
     disclaimerAcceptedAt: null,
+    guestName: "",
+    guestEmail: "",
+    guestPhone: "",
   })
 
   const [showDisclaimer, setShowDisclaimer] = useState(false)
@@ -1301,7 +1326,7 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
       case 4:
         return !!state.scheduledDate
       case 5:
-        return true
+        return !!user || (!authLoading && state.guestName.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(state.guestEmail) && state.guestPhone.trim().length >= 6)
     }
   }
 
@@ -1352,12 +1377,21 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
           scheduledDate: new Date(state.scheduledDate).toISOString(),
           notes: state.notes || null,
           disclaimerAccepted: state.disclaimerAccepted,
+          ...(!user
+            ? {
+                guest: {
+                  name: state.guestName.trim(),
+                  email: state.guestEmail.trim(),
+                  phone: state.guestPhone.trim(),
+                },
+              }
+            : {}),
         }),
       })
 
       const json = (await res.json()) as {
         success: boolean
-        data?: { booking: { id: string; serviceFee?: number }; paymentLinkUrl?: string | null }
+        data?: { booking: { id: string; serviceFee?: number }; paymentLinkUrl?: string | null; guestAccessToken?: string | null }
         error?: string
       }
 
@@ -1389,7 +1423,8 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
 
         window.location.href = paymentLinkUrl
       } else {
-        router.push(`/booking/${bookingId}`)
+        const guestToken = json.data?.guestAccessToken
+        router.push(`/booking/${bookingId}${guestToken ? `?guest_token=${encodeURIComponent(guestToken)}` : ""}`)
       }
     } catch {
       setError("Error de conexion. Revisa tu internet e intenta de nuevo.")
@@ -1479,6 +1514,8 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
                 service={service}
                 technician={technician}
                 serviceFeeAmount={serviceFeeAmount}
+                isGuest={!user && !authLoading}
+                onGuestChange={(patch) => update(patch)}
               />
             )}
           </AnimatedStep>

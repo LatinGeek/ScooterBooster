@@ -1,0 +1,107 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e4]:
+      - link "ScooterBooster" [ref=f2e5] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=f2e8]:
+        - link "Scooters" [ref=f2e9] [cursor=pointer]:
+          - /url: /scooters
+        - link "Servicios" [ref=f2e10] [cursor=pointer]:
+          - /url: /services
+        - link "Técnicos" [ref=f2e11] [cursor=pointer]:
+          - /url: /technicians
+      - searchbox "Buscar scooters, servicios o técnicos" [ref=f2e19]
+      - generic [ref=f2e20]:
+        - link "Iniciar sesión" [ref=f2e21] [cursor=pointer]:
+          - /url: /login
+        - link "Reservar ahora" [ref=f2e22] [cursor=pointer]:
+          - /url: /booking
+  - main [ref=f2e24]:
+    - navigation [ref=f2e25]:
+      - link "Catálogo de Scooters" [ref=f2e26] [cursor=pointer]:
+        - /url: /scooters
+    - generic [ref=f2e29]:
+      - paragraph [ref=f2e30]: Segway-Ninebot
+      - heading "Segway F3" [level=1] [ref=f2e31]
+      - paragraph [ref=f2e32]: Mantenimiento y deslimitación para tu Segway F3 en Uruguay. Coordiná la revisión de tu monopatín con doble suspensión, pensado para trayectos largos.
+    - img "Foto del Segway F3" [ref=f2e35]
+    - generic [ref=f2e36]:
+      - heading "Especificaciones técnicas" [level=2] [ref=f2e37]
+      - paragraph [ref=f2e38]:
+        - text: Especificaciones de fábrica publicadas por
+        - link "Segway Uruguay" [ref=f2e39] [cursor=pointer]:
+          - /url: https://www.segway.com.uy/productos/f3
+        - text: . La autonomía indicada es máxima y varía según el uso. Estos valores no representan el resultado de la deslimitación.
+      - generic [ref=f2e40]:
+        - generic [ref=f2e41]:
+          - generic [ref=f2e44]: 32 km/h
+          - generic [ref=f2e45]: Vel. de fábrica
+        - generic [ref=f2e46]:
+          - generic [ref=f2e51]: 70 km
+          - generic [ref=f2e52]: Autonomía
+        - generic [ref=f2e53]:
+          - generic [ref=f2e56]: Consultar
+          - generic [ref=f2e57]: Batería
+        - generic [ref=f2e58]:
+          - generic [ref=f2e62]: 450 W
+          - generic [ref=f2e63]: Motor nominal
+        - generic [ref=f2e64]:
+          - generic [ref=f2e68]: 17.5 kg
+          - generic [ref=f2e69]: Peso
+    - generic [ref=f2e70]:
+      - heading "Servicios disponibles" [level=2] [ref=f2e71]
+      - generic [ref=f2e72]:
+        - generic [ref=f2e73]:
+          - generic [ref=f2e78]:
+            - heading "Mantenimiento General" [level=3] [ref=f2e79]
+            - paragraph [ref=f2e80]: Diagnóstico, ajustes y revisión de seguridad para tu Segway, con la misma tarifa de mantenimiento que Xiaomi. Repuestos a cotizar por separado.
+            - paragraph [ref=f2e81]: "Total: $1.950. Reservá por $150 y aboná $1.800 al técnico al realizar el servicio."
+          - generic [ref=f2e82]:
+            - generic [ref=f2e83]: ~90 min
+            - link "Reservar" [ref=f2e84] [cursor=pointer]:
+              - /url: /booking?serviceId=maintenance&modelId=segway-f3
+        - generic [ref=f2e85]:
+          - generic [ref=f2e91]:
+            - heading "Eliminación de Límite de Velocidad" [level=3] [ref=f2e92]
+            - paragraph [ref=f2e93]: Deslimitación de velocidad para tu Segway. La velocidad final depende de la versión y el estado del equipo.
+            - paragraph [ref=f2e94]: "Total: $3.000. Reservá por $150 y aboná $2.850 al técnico al realizar el servicio."
+            - generic [ref=f2e95]: Solo para uso en propiedad privada. Requiere aceptar aviso legal.
+          - generic [ref=f2e98]:
+            - generic [ref=f2e99]: ~45 min
+            - link "Reservar" [ref=f2e100] [cursor=pointer]:
+              - /url: /booking?serviceId=speed-limit&modelId=segway-f3
+    - generic [ref=f2e101]:
+      - generic [ref=f2e102]:
+        - heading "Técnicos que trabajan con Segway-Ninebot" [level=2] [ref=f2e103]
+        - link "Ver todos" [ref=f2e104] [cursor=pointer]:
+          - /url: /technicians?brandId=brand-segway
+      - link "JD Técnico verificado Jonathan Denis Unión, Montevideo 5.0 3 reseñas Tecnico de scooters con foco en reparaciones, mantenimientos, repuestos, reprogramaciones, electricidad y electronica vehicular. Atiende todos los modelos. Repro/deslimitacion y control crucero para Gen 4, Gen 5 y la mayoria de los modelos; en Xiaomi 6 todavia no ofrece repro. Servicios desde 1800 UYU Especialidades Control de crucero Firmware Mantenimiento +1 más Ver perfil completo" [ref=f2e106] [cursor=pointer]:
+        - generic [ref=f2e107]:
+          - generic [ref=f2e109]:
+            - generic [ref=f2e110]:
+              - generic [ref=f2e111]: JD
+              - generic [ref=f2e113]:
+                - paragraph [ref=f2e114]: Técnico verificado
+                - link "Jonathan Denis" [ref=f2e115]:
+                  - /url: /technicians/jonathan-denis
+                - generic [ref=f2e116]: Unión, Montevideo
+            - generic [ref=f2e122]:
+              - generic [ref=f2e123]: "5.0"
+              - paragraph [ref=f2e127]: 3 reseñas
+          - generic [ref=f2e128]:
+            - paragraph [ref=f2e130]: Tecnico de scooters con foco en reparaciones, mantenimientos, repuestos, reprogramaciones, electricidad y electronica vehicular. Atiende todos los modelos. Repro/deslimitacion y control crucero para Gen 4, Gen 5 y la mayoria de los modelos; en Xiaomi 6 todavia no ofrece repro.
+            - generic [ref=f2e131]: Servicios desde 1800 UYU
+            - generic [ref=f2e133]:
+              - generic [ref=f2e134]: Especialidades
+              - generic [ref=f2e137]:
+                - generic [ref=f2e138]: Control de crucero
+                - generic [ref=f2e139]: Firmware
+                - generic [ref=f2e140]: Mantenimiento
+                - generic [ref=f2e141]: +1 más
+            - link "Ver perfil completo" [ref=f2e143]:
+              - /url: /technicians/jonathan-denis
+  - link "Tenés dudas? Escribinos!" [ref=f2e146] [cursor=pointer]:
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f2e156] [cursor=pointer]
+  - alert [ref=f2e160]

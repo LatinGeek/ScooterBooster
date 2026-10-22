@@ -59,6 +59,9 @@ test.describe("booking flow", () => {
     await page.getByRole("button", { name: "Siguiente" }).click()
 
     await expect(page.getByRole("heading", { name: "Revis\u00e1 tu reserva" })).toBeVisible()
+    await page.getByLabel("Nombre completo").fill("Ana Invitada")
+    await page.getByLabel("Email").fill("ana.invitada@example.com")
+    await page.getByLabel("Teléfono").fill("099 123 456")
     await page.getByRole("button", { name: "Confirmar reserva" }).click()
 
     await expect
@@ -71,6 +74,11 @@ test.describe("booking flow", () => {
       technicianId: "tech-demo-1",
       notes: "Reserva E2E generada desde Playwright",
       disclaimerAccepted: false,
+      guest: {
+        name: "Ana Invitada",
+        email: "ana.invitada@example.com",
+        phone: "099 123 456",
+      },
     })
     expect(typeof submittedBody?.scheduledDate).toBe("string")
   })

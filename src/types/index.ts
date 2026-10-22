@@ -125,6 +125,8 @@ export type PaymentStatus = "pending" | "paid" | "refunded"
 export interface Booking {
   id: string
   userId: string
+  guestContact?: GuestContact | null
+  guestAccessTokenHash?: string | null
   technicianId: string
   serviceId: string
   scooterModelId: string
@@ -145,6 +147,12 @@ export interface Booking {
   reminderSentAt?: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface GuestContact {
+  name: string
+  email: string
+  phone: string
 }
 
 export interface Review {

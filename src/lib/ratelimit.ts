@@ -6,7 +6,7 @@ import logger from "./logger"
 
 const RATE_LIMIT_ERROR_MESSAGE = "Demasiadas solicitudes. Espera un momento e intenta de nuevo."
 
-type PolicyName = "authIp" | "bookingUser" | "paymentUser" | "reviewUser"
+type PolicyName = "authIp" | "bookingUser" | "bookingGuest" | "paymentUser" | "reviewUser"
 
 type Policy = {
   limit: number
@@ -39,6 +39,12 @@ const policies: Record<PolicyName, Policy> = {
     windowMs: 60_000,
     windowLabel: "60 s",
     prefix: "scooterbooster:bookings",
+  },
+  bookingGuest: {
+    limit: 5,
+    windowMs: 60 * 60 * 1000,
+    windowLabel: "1 h",
+    prefix: "scooterbooster:guest-bookings",
   },
   paymentUser: {
     limit: 10,

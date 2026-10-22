@@ -20,6 +20,9 @@ import { getServicesByIds } from "@/lib/db/services"
 import { getActiveTechnicians } from "@/lib/db/technicians"
 import { TechnicianCard } from "@/components/technician-card"
 import type { Service } from "@/types"
+import { getSegwayContent, getSegwayServiceDescription } from "@/lib/segway-catalog"
+import { calculatePricing } from "@/lib/pricing"
+import { getTechnicianBookingPrice } from "@/lib/technician-matrix"
 
 export const dynamic = "force-dynamic"
 
@@ -40,7 +43,9 @@ export async function generateMetadata({
   if (!model) return { title: "Scooter no encontrado — ScooterBooster" }
   return {
     title: `${model.name} — ScooterBooster`,
-    description: `Servicios de modificación y mantenimiento para el ${model.name}. Encontrá técnicos verificados en Uruguay.`,
+    description:
+      getSegwayContent(model.id)?.description ??
+      `Servicios de modificación y mantenimiento para el ${model.name}. Encontrá técnicos verificados en Uruguay.`,
   }
 }
 
@@ -48,6 +53,8 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
   const { id } = await params
   const model = await getModelBySlug(id)
   if (!model) notFound()
+
+  const content = getSegwayContent(model.id)
 
   const [brand, compatibleServices, technicians] = await Promise.all([
     getBrandById(model.brandId),
@@ -64,7 +71,9 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
     },
     category: "Electric Scooter",
     image: model.imageURL ? [`https://scooterbooster.uy${model.imageURL}`] : undefined,
-    description: `Servicios de modificación, firmware y mantenimiento para ${model.name} en Uruguay.`,
+    description:
+      content?.description ??
+      `Servicios de modificación, firmware y mantenimiento para ${model.name} en Uruguay.`,
     additionalProperty: [
       { "@type": "PropertyValue", name: "Velocidad máxima", value: `${model.specs.maxSpeed} km/h` },
       { "@type": "PropertyValue", name: "Autonomía", value: `${model.specs.range} km` },
@@ -99,6 +108,7 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
           {brand?.name ?? ""}
         </p>
         <h1 className="mt-1 text-3xl font-extrabold text-[#111827] md:text-4xl">{model.name}</h1>
+        {content && <p className="mt-4 max-w-3xl text-[#6b7280]">{content.description}</p>}
       </div>
 
       {model.imageURL && (
@@ -119,16 +129,31 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
       {/* Specs grid */}
       <section className="mb-12 rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
         <h2 className="mb-5 text-lg font-semibold text-[#111827]">Especificaciones técnicas</h2>
+        {content && (
+          <p className="mb-5 text-sm text-[#6b7280]">
+            Especificaciones de fábrica publicadas por{" "}
+            <a
+              href={content.sourceURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#059669] underline"
+            >
+              Segway Uruguay
+            </a>
+            . La autonomía indicada es máxima y varía según el uso. Estos valores no representan el
+            resultado de la deslimitación.
+          </p>
+        )}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {[
             {
               icon: Zap,
-              label: "Vel. máx",
+              label: content ? "Vel. de fábrica" : "Vel. máx",
               value: `${model.specs.maxSpeed} km/h`,
             },
             { icon: Route, label: "Autonomía", value: `${model.specs.range} km` },
             { icon: Battery, label: "Batería", value: model.specs.battery },
-            { icon: Cpu, label: "Motor", value: model.specs.motor },
+            { icon: Cpu, label: content ? "Motor nominal" : "Motor", value: model.specs.motor },
             {
               icon: Weight,
               label: "Peso",
@@ -156,6 +181,15 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {compatibleServices.map((service: Service) => {
               const Icon = SERVICE_ICONS[service.category] ?? Wrench
+              const prices = content
+                ? technicians
+                    .map((tech) => getTechnicianBookingPrice(tech, service.id, model.id))
+                    .filter((price): price is number => price !== null)
+                : []
+              const pricing =
+                prices.length > 0 && model.bookingFeeAmount !== undefined
+                  ? calculatePricing(Math.min(...prices), model.bookingFeeAmount)
+                  : null
               return (
                 <div
                   key={service.id}
@@ -167,7 +201,18 @@ export default async function ScooterDetailPage({ params }: { params: Promise<{ 
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-[#111827]">{service.name}</h3>
-                      <p className="mt-1 text-sm text-[#6b7280]">{service.description}</p>
+                      <p className="mt-1 text-sm text-[#6b7280]">
+                        {(content && getSegwayServiceDescription(service.id)) ||
+                          service.description}
+                      </p>
+                      {pricing && (
+                        <p className="mt-3 text-sm font-medium text-[#111827]">
+                          Total: ${pricing.totalPrice.toLocaleString("es-UY")}. Reservá por $
+                          {pricing.serviceFee.toLocaleString("es-UY")} y aboná $
+                          {pricing.basePrice.toLocaleString("es-UY")} al técnico al realizar el
+                          servicio.
+                        </p>
+                      )}
                       {service.requiresDisclaimer && (
                         <div className="mt-3 flex items-start gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
                           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />

@@ -247,6 +247,36 @@ describe("/api/bookings", () => {
     expect(mocks.calculatePricing).toHaveBeenCalledWith(1800, 250)
   })
 
+  it("allows an unauthenticated guest to create a booking with contact details", async () => {
+    mocks.getSession.mockResolvedValue(null)
+    mocks.getTechnicianById.mockResolvedValue({
+      id: "tech-1", isApproved: true, isActive: true, services: ["service-1"],
+      pricingMatrix: { "service-1": { "model-1": { price: 1800, currency: "UYU", isAvailable: true } } },
+      pricing: { "service-1": { basePrice: 1800, currency: "UYU" } },
+    })
+    mocks.getServiceById.mockResolvedValue({ id: "service-1", name: "Firmware", isActive: true, requiresDisclaimer: false })
+    mocks.getModelById.mockResolvedValue({ id: "model-1", name: "Xiaomi 1S", isActive: true, compatibleServices: ["service-1"] })
+    mocks.createBooking.mockResolvedValue({ id: "booking-guest", serviceFee: 100, totalPrice: 1900 })
+    mocks.createPaymentLink.mockResolvedValue({ preferenceId: "pref-guest", initPoint: "https://mp.test/pay/guest" })
+
+    const response = await POST(createJsonRequest({
+      technicianId: "tech-1", serviceId: "service-1", scooterModelId: "model-1",
+      scheduledDate: "2026-04-20T15:00:00.000Z",
+      guest: { name: "Ana Pérez", email: "ana@example.com", phone: "099 123 456" },
+    }))
+    const json = (await response.json()) as { success: boolean; data: { guestAccessToken?: string } }
+
+    expect(response.status).toBe(201)
+    expect(json.success).toBe(true)
+    expect(json.data.guestAccessToken).toBeTruthy()
+    expect(mocks.createBooking).toHaveBeenCalledWith(expect.objectContaining({
+      userId: expect.stringMatching(/^guest:/),
+      guestContact: { name: "Ana Pérez", email: "ana@example.com", phone: "099 123 456" },
+      guestAccessTokenHash: expect.any(String),
+    }))
+    expect(mocks.createPaymentLink).toHaveBeenCalledWith(expect.objectContaining({ guestAccessToken: expect.any(String) }))
+  })
+
   it("blocks bookings that require a disclaimer until accepted", async () => {
     mocks.getTechnicianById.mockResolvedValue({
       id: "tech-1",

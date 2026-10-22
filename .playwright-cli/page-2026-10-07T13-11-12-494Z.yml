@@ -1,0 +1,57 @@
+- generic [active] [ref=f3e1]:
+  - banner [ref=f3e2]:
+    - generic [ref=f3e4]:
+      - link "ScooterBooster" [ref=f3e5] [cursor=pointer]:
+        - /url: /
+      - button "Abrir menú" [ref=f3e8] [cursor=pointer]
+  - main [ref=f3e148]:
+    - generic [ref=f3e151]:
+      - generic [ref=f3e152]: Reserva guiada
+      - heading "Reservá tu servicio." [level=1] [ref=f3e154]
+      - paragraph [ref=f3e155]: Elegí el scooter, el servicio, un técnico verificado y el horario. La seña online confirma el turno.
+    - generic [ref=f3e157]:
+      - navigation "Pasos de la reserva" [ref=f3e158]:
+        - generic [ref=f3e159]:
+          - generic [ref=f3e160]:
+            - paragraph [ref=f3e161]: Paso 2 de 5
+            - paragraph [ref=f3e162]: Servicio
+          - generic [ref=f3e163]: 40%
+        - list [ref=f3e167]:
+          - listitem [ref=f3e168]:
+            - paragraph [ref=f3e176]: Scooter
+          - listitem [ref=f3e177]:
+            - paragraph [ref=f3e182]: Servicio
+          - listitem [ref=f3e183]:
+            - paragraph [ref=f3e189]: Técnico
+          - listitem [ref=f3e190]:
+            - paragraph [ref=f3e195]: Horario
+          - listitem [ref=f3e196]:
+            - paragraph [ref=f3e203]: Confirmar
+      - generic [ref=f3e304]:
+        - generic [ref=f3e305]:
+          - paragraph [ref=f3e306]: 02 · Servicio
+          - heading "¿Qué servicio necesitás?" [level=2] [ref=f3e308]
+        - paragraph [ref=f3e309]:
+          - text: Servicios disponibles para
+          - strong [ref=f3e310]: Segway ZT3 Pro
+        - generic [ref=f3e311]:
+          - 'button "Eliminación de Límite de Velocidad Aviso legal Eliminamos el límite de velocidad de fábrica de tu scooter eléctrico mediante modificación de firmware. Tu scooter alcanzará su velocidad máxima real. Duracion estimada: 45 min" [ref=f3e313] [cursor=pointer]':
+            - generic [ref=f3e316]:
+              - generic [ref=f3e317]:
+                - paragraph [ref=f3e318]: Eliminación de Límite de Velocidad
+                - generic [ref=f3e319]: Aviso legal
+              - paragraph [ref=f3e320]: Eliminamos el límite de velocidad de fábrica de tu scooter eléctrico mediante modificación de firmware. Tu scooter alcanzará su velocidad máxima real.
+              - paragraph [ref=f3e321]: "Duracion estimada: 45 min"
+          - button [ref=f3e325] [cursor=pointer]:
+            - generic [ref=f3e328]:
+              - paragraph [ref=f3e330]: Mantenimiento General
+              - paragraph [ref=f3e331]: Servicio completo de mantenimiento para tu scooter eléctrico. Incluye diagnóstico, ajustes, cambio de piezas y revisión de seguridad.
+              - paragraph [ref=f3e332]: "Duracion estimada: 90 min"
+      - generic [ref=f3e297]:
+        - button "Atrás" [ref=f3e333] [cursor=pointer]
+        - button "Siguiente" [ref=f3e298] [cursor=pointer]
+  - link "Tenés dudas? Escribinos!":
+    - /url: https://wa.me/59899258620?text=Hola%2C%20tengo%20una%20duda%20sobre%20ScooterBooster.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f3e143] [cursor=pointer]
+  - alert [ref=f3e147]: Nueva Reserva | ScooterBooster | ScooterBooster

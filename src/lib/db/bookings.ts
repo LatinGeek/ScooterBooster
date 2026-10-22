@@ -3,7 +3,7 @@
  * Server-side only (uses Admin SDK)
  */
 import { adminDb } from "@/lib/firebase-admin"
-import type { Booking } from "@/types"
+import type { Booking, GuestContact } from "@/types"
 
 const COLLECTION = "bookings"
 
@@ -19,6 +19,8 @@ function docToBooking(id: string, data: FirebaseFirestore.DocumentData): Booking
   return {
     id,
     userId: data["userId"] as string,
+    guestContact: (data["guestContact"] as GuestContact | null) ?? null,
+    guestAccessTokenHash: (data["guestAccessTokenHash"] as string | null) ?? null,
     technicianId: data["technicianId"] as string,
     serviceId: data["serviceId"] as string,
     scooterModelId: data["scooterModelId"] as string,
@@ -76,6 +78,8 @@ export async function getBookingById(id: string): Promise<Booking | null> {
 
 export interface CreateBookingInput {
   userId: string
+  guestContact?: GuestContact | null
+  guestAccessTokenHash?: string | null
   technicianId: string
   serviceId: string
   scooterModelId: string
@@ -96,6 +100,8 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
 
   const data: Omit<Booking, "id"> = {
     userId: input.userId,
+    guestContact: input.guestContact ?? null,
+    guestAccessTokenHash: input.guestAccessTokenHash ?? null,
     technicianId: input.technicianId,
     serviceId: input.serviceId,
     scooterModelId: input.scooterModelId,
