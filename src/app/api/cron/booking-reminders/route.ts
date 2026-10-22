@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { BOOKING_TIME_ZONE } from "@/lib/booking-schedule"
 import { ok, fail, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { getConfirmedBookingsScheduledBetween, markBookingReminderSent } from "@/lib/db/bookings"
@@ -59,6 +60,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     const scheduledDateLabel = new Date(booking.scheduledDate).toLocaleString("es-UY", {
       dateStyle: "full",
       timeStyle: "short",
+      timeZone: BOOKING_TIME_ZONE,
     })
 
     await Promise.allSettled([

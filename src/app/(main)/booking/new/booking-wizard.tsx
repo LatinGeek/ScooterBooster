@@ -28,6 +28,15 @@ import { useGeolocation } from "@/hooks/use-geolocation"
 import { useAuth } from "@/hooks/use-auth"
 import { trackAnalyticsEvent } from "@/lib/analytics"
 import { requiresBookingDisclaimer } from "@/lib/booking-rules"
+import {
+  BOOKING_NOTICE_MESSAGE,
+  BOOKING_TIME_ZONE,
+  filterBookableSlots,
+  getEarliestBookingTime,
+  getUruguayDate,
+  hasBookingNotice,
+  parseUruguayBookingTime,
+} from "@/lib/booking-schedule"
 import { calculatePricing } from "@/lib/pricing"
 import { slugify } from "@/lib/slugs"
 import {
@@ -888,13 +897,16 @@ function StepDateTime({
   const selectedDate = scheduledDate.slice(0, 10)
   const selectedTime = scheduledDate.slice(11, 16)
 
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const minDate = tomorrow.toISOString().slice(0, 10)
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000)
+    return () => window.clearInterval(timer)
+  }, [])
+  const minDate = getUruguayDate(getEarliestBookingTime(now))
 
   const maxDate = new Date()
   maxDate.setMonth(maxDate.getMonth() + 3)
-  const maxDateStr = maxDate.toISOString().slice(0, 10)
+  const maxDateStr = getUruguayDate(maxDate)
 
   const availabilityEntries = technician
     ? Object.entries(technician.availability).filter(([, day]) => day.isAvailable)
@@ -904,8 +916,12 @@ function StepDateTime({
     technician && selectedDayKey ? technician.availability[selectedDayKey] : undefined
   const selectedDaySlots = useMemo(() => {
     if (!selectedDayAvailability?.isAvailable) return []
-    return buildHourSlots(selectedDayAvailability.start, selectedDayAvailability.end)
-  }, [selectedDayAvailability])
+    return filterBookableSlots(
+      selectedDate,
+      buildHourSlots(selectedDayAvailability.start, selectedDayAvailability.end),
+      now
+    )
+  }, [selectedDayAvailability, selectedDate, now])
 
   function handleDateSelection(dateValue: string) {
     if (!dateValue) {
@@ -916,7 +932,7 @@ function StepDateTime({
     const dayKey = getDayKey(dateValue)
     const availability = dayKey && technician ? technician.availability[dayKey] : undefined
     const slots = availability?.isAvailable
-      ? buildHourSlots(availability.start, availability.end)
+      ? filterBookableSlots(dateValue, buildHourSlots(availability.start, availability.end))
       : []
     const nextTime = slots.includes(selectedTime) ? selectedTime : ""
     onDateChange(nextTime ? `${dateValue}T${nextTime}` : `${dateValue}T`)
@@ -940,6 +956,7 @@ function StepDateTime({
         <h2 className="mt-2 text-2xl leading-tight font-black text-[#111827] sm:text-3xl">
           Elegí fecha y hora
         </h2>
+        <p className="mt-2 text-sm text-[#6b7280]">{BOOKING_NOTICE_MESSAGE}</p>
       </div>
 
       {technician && availabilityEntries.length > 0 && (
@@ -1060,7 +1077,8 @@ function StepConfirm({
     ? new Intl.DateTimeFormat("es-UY", {
         dateStyle: "full",
         timeStyle: "short",
-      }).format(new Date(wizardState.scheduledDate))
+        timeZone: BOOKING_TIME_ZONE,
+      }).format(parseUruguayBookingTime(wizardState.scheduledDate))
     : "-"
 
   return (
@@ -1179,13 +1197,15 @@ function SelectionSummary({
       : null
   const bookingFeeAmount = model?.bookingFeeAmount ?? serviceFeeAmount
   const pricing = bookingPrice !== null ? calculatePricing(bookingPrice, bookingFeeAmount) : null
-  const scheduled = state.scheduledDate
+  const scheduledInstant = parseUruguayBookingTime(state.scheduledDate)
+  const scheduled = Number.isFinite(scheduledInstant.getTime())
     ? new Intl.DateTimeFormat("es-UY", {
         day: "2-digit",
         month: "short",
         hour: "2-digit",
         minute: "2-digit",
-      }).format(new Date(state.scheduledDate))
+        timeZone: BOOKING_TIME_ZONE,
+      }).format(scheduledInstant)
     : "Sin horario"
 
   const items = [
@@ -1324,7 +1344,7 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
       case 3:
         return !!state.technicianId
       case 4:
-        return !!state.scheduledDate
+        return hasBookingNotice(parseUruguayBookingTime(state.scheduledDate))
       case 5:
         return !!user || (!authLoading && state.guestName.trim().length >= 2 && /^\S+@\S+\.\S+$/.test(state.guestEmail) && state.guestPhone.trim().length >= 6)
     }
@@ -1363,6 +1383,10 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
   }
 
   async function handleSubmit() {
+    if (!hasBookingNotice(parseUruguayBookingTime(state.scheduledDate))) {
+      setError(BOOKING_NOTICE_MESSAGE)
+      return
+    }
     setSubmitting(true)
     setError(null)
 
@@ -1374,7 +1398,7 @@ export function BookingWizard({ brands, models, services, technicians, serviceFe
           technicianId: state.technicianId,
           serviceId: state.serviceId,
           scooterModelId: state.scooterModelId,
-          scheduledDate: new Date(state.scheduledDate).toISOString(),
+          scheduledDate: parseUruguayBookingTime(state.scheduledDate).toISOString(),
           notes: state.notes || null,
           disclaimerAccepted: state.disclaimerAccepted,
           ...(!user

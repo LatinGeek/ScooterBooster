@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { BOOKING_TIME_ZONE } from "@/lib/booking-schedule"
 import { after } from "next/server"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { canTransitionBookingStatus, canUserCancelBooking } from "@/lib/booking-rules"
@@ -120,6 +121,7 @@ export const PATCH = withErrorHandling(async (req: NextRequest, { params }: Rout
       const scheduledDateLabel = new Date(updated.scheduledDate).toLocaleString("es-UY", {
         dateStyle: "full",
         timeStyle: "short",
+        timeZone: BOOKING_TIME_ZONE,
       })
 
       await Promise.allSettled([

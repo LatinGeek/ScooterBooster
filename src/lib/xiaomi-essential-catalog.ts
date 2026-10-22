@@ -7,7 +7,7 @@ export const XIAOMI_ESSENTIAL = {
   slug: "xiaomi-scooter-essential",
   imageURL: null,
   specs: { maxSpeed: 20, range: 20, battery: "187 Wh", motor: "250W", weight: 12 },
-  compatibleServices: ["speed-limit"],
+  compatibleServices: ["speed-limit", "maintenance", "firmware"],
   bookingFeeAmount: 500,
   isActive: true,
   searchTokens: [
@@ -19,5 +19,9 @@ export const XIAOMI_ESSENTIAL = {
     "de",
     "limite",
     "velocidad",
+    "mantenimiento",
+    "general",
+    "actualizacion",
+    "firmware",
   ],
 }

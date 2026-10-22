@@ -103,6 +103,7 @@ function createJsonRequest(body: unknown) {
 describe("/api/bookings", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-04-20T11:00:00.000Z"))
     process.env.MERCADOPAGO_ACCESS_TOKEN = "test-access-token"
 
     mocks.calculatePricing.mockReturnValue({
@@ -126,8 +127,22 @@ describe("/api/bookings", () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     delete process.env.MERCADOPAGO_ACCESS_TOKEN
   })
+
+  it.each(["2026-04-20T14:59:59.999Z", "2026-04-20T10:00:00.000Z"])(
+    "rejects bookings without four hours of notice: %s",
+    async (scheduledDate) => {
+      const response = await POST(createJsonRequest({
+        technicianId: "tech-1", serviceId: "service-1", scooterModelId: "model-1", scheduledDate,
+      }))
+      expect(response.status).toBe(400)
+      expect((await response.json()).error).toContain("4 horas")
+      expect(mocks.createBooking).not.toHaveBeenCalled()
+      expect(mocks.createPaymentLink).not.toHaveBeenCalled()
+    }
+  )
 
   it("returns the current user's bookings", async () => {
     const bookings = [{ id: "booking-1" }]

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { after } from "next/server"
 import crypto from "crypto"
+import { BOOKING_NOTICE_MESSAGE, BOOKING_TIME_ZONE, hasBookingNotice } from "@/lib/booking-schedule"
 import { ok, withErrorHandling } from "@/lib/api-response"
 import { getSession } from "@/lib/session"
 import { createBookingSchema } from "@/lib/validators/booking"
@@ -56,6 +57,9 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   }
   if (!session && !guest) {
     throw new AuthError("Iniciá sesión o completá tus datos para reservar como invitado")
+  }
+  if (!hasBookingNotice(new Date(scheduledDate))) {
+    throw new ValidationError(BOOKING_NOTICE_MESSAGE)
   }
   await enforceRateLimit(session ? "bookingUser" : "bookingGuest", session?.uid ?? getRequestIp(req))
   const guestAccessToken = guest ? crypto.randomBytes(32).toString("base64url") : null
@@ -213,6 +217,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
               scheduledDate: new Date(booking.scheduledDate).toLocaleString("es-UY", {
                 dateStyle: "full",
                 timeStyle: "short",
+                timeZone: BOOKING_TIME_ZONE,
               }),
               serviceFee: formatPrice(booking.serviceFee),
               technicianPrice: formatPrice(booking.basePrice),

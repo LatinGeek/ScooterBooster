@@ -20,6 +20,7 @@ import {
 import { BookingReviewDialog } from "@/components/booking-review-dialog"
 import { Button } from "@/components/ui/button"
 import { trackAnalyticsEventOncePerSession } from "@/lib/analytics"
+import { BOOKING_TIME_ZONE } from "@/lib/booking-schedule"
 import { buildWhatsAppUrl, WA_MESSAGES } from "@/lib/messages"
 import { canUserReviewBooking } from "@/lib/review-eligibility"
 import type { Booking, BookingStatus, Technician, Service, ScooterModel } from "@/types"
@@ -102,6 +103,7 @@ function formatDate(iso: string) {
   return new Intl.DateTimeFormat("es-UY", {
     dateStyle: "full",
     timeStyle: "short",
+    timeZone: BOOKING_TIME_ZONE,
   }).format(new Date(iso))
 }
 
