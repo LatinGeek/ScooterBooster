@@ -38,6 +38,16 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
+## Token Extractor (técnicos/admin)
+
+La sección de extracción de tokens/firmware de Xiaomi Cloud está integrada en:
+
+- `/admin/token-extractor` para administradores.
+- `/dashboard/technician/token-extractor` para técnicos.
+
+Requiere `TOKEN_EXTRACTOR_SESSION_SECRET` (o `CRON_SECRET` como respaldo).
+Ver [docs/token-extractor.md](docs/token-extractor.md).
+
 ## Project Structure
 
 ```

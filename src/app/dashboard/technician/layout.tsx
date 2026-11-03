@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   CalendarDays,
   Clock,
+  KeyRound,
   Wrench,
   DollarSign,
   Star,
@@ -30,6 +31,12 @@ const NAV_ITEMS = [
   { href: "/dashboard/technician/pricing", label: "Precios", icon: Wrench, exact: false },
   { href: "/dashboard/technician/earnings", label: "Ganancias", icon: DollarSign, exact: false },
   { href: "/dashboard/technician/reviews", label: "Reseñas", icon: Star, exact: false },
+  {
+    href: "/dashboard/technician/token-extractor",
+    label: "Token Extractor",
+    icon: KeyRound,
+    exact: false,
+  },
 ]
 
 export default function TechnicianDashboardLayout({ children }: { children: React.ReactNode }) {

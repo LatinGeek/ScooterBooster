@@ -8,6 +8,7 @@ import {
   BarChart3,
   Bike,
   CalendarDays,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Settings,
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { href: "/admin/reviews", label: "Reseñas", icon: Activity, exact: false },
   { href: "/admin/audit", label: "Auditoría", icon: Activity, exact: false },
   { href: "/admin/observability", label: "Observabilidad", icon: BarChart3, exact: false },
+  { href: "/admin/token-extractor", label: "Token Extractor", icon: KeyRound, exact: false },
   { href: "/admin/settings", label: "Configuración", icon: Settings, exact: false },
 ]
 
