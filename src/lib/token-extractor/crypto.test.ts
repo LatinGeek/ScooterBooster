@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it, vi } from "vitest"
 import {
   CookieJar,
   decryptJson,
@@ -80,5 +80,28 @@ describe("token extractor crypto", () => {
     await expect(client.downloadFirmware("https://evil.example/fw.bin")).rejects.toThrow(
       "no pertenece a Xiaomi"
     )
+  })
+
+  it("accepts a numeric userId when the QR login completes", async () => {
+    const json = (value: unknown) =>
+      new Response(JSON.stringify(value), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })
+    const responses = [
+      json({ qr: "https://example.mi.com/qr.png", lp: "https://example.mi.com/lp", loginUrl: "https://example.mi.com/login", timeout: 120 }),
+      new Response("qr", { status: 200, headers: { "content-type": "image/png" } }),
+      json({ userId: 123456789, ssecurity: "c2VjdXJpdHk=", location: "https://account.xiaomi.com/location" }),
+      new Response("ok", { status: 200, headers: { "set-cookie": "serviceToken=abc; Path=/" } }),
+    ]
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async () => responses.shift()!))
+    const client = new XiaomiCloudClient()
+    const started = await client.qrStart()
+    expect(started.status).toBe("challenge")
+    const completed = await client.qrPoll()
+    expect(completed.status).toBe("ok")
+    if (completed.status === "ok") {
+      expect(completed.session.userId).toBe("123456789")
+    }
   })
 })
