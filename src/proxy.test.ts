@@ -36,4 +36,33 @@ describe("proxy", () => {
     expect(response.headers.get("location")).toBeNull()
     expect(response.status).toBe(200)
   })
+
+  it("redirects an authenticated user away from plain /login", async () => {
+    const request = new NextRequest("http://localhost:3000/login", {
+      headers: { Cookie: "__session=session-cookie-value" },
+    })
+
+    const response = await proxy(request)
+    expect(getLocationHeader(response).pathname).toBe("/")
+  })
+
+  it("allows forced re-authentication even with a stale session cookie", async () => {
+    const request = new NextRequest("http://localhost:3000/login?reauth=1", {
+      headers: { Cookie: "__session=stale-session-cookie" },
+    })
+
+    const response = await proxy(request)
+    expect(response.headers.get("location")).toBeNull()
+    expect(response.status).toBe(200)
+  })
+
+  it("allows a page-guard redirect target to show login with a stale cookie", async () => {
+    const request = new NextRequest("http://localhost:3000/login?redirect=/admin/token-extractor", {
+      headers: { Cookie: "__session=stale-session-cookie" },
+    })
+
+    const response = await proxy(request)
+    expect(response.headers.get("location")).toBeNull()
+    expect(response.status).toBe(200)
+  })
 })

@@ -29,9 +29,14 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Redirect authenticated users away from /login to /
+  // Redirect authenticated users away from /login to /.
+  // A stale/invalid session cookie can survive on the client while Firebase
+  // rejects it server-side; allow explicit re-auth and page-guard redirects so
+  // the user can replace the expired session instead of bouncing to home.
   const isAuthOnly = AUTH_ONLY_ROUTES.some((route) => pathname === route)
-  if (isAuthOnly && isAuthenticated) {
+  const wantsReauth = req.nextUrl.searchParams.get("reauth") === "1"
+  const hasRedirectTarget = req.nextUrl.searchParams.has("redirect")
+  if (isAuthOnly && isAuthenticated && !wantsReauth && !hasRedirectTarget) {
     return NextResponse.redirect(new URL("/", req.nextUrl))
   }
 
