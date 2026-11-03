@@ -68,7 +68,9 @@ function toJson(text: string): JsonRecord {
 }
 
 function stringValue(value: unknown): string {
-  return typeof value === "string" ? value : ""
+  if (typeof value === "string") return value
+  if (typeof value === "number" && Number.isFinite(value)) return String(value)
+  return ""
 }
 
 function numberValue(value: unknown): number {

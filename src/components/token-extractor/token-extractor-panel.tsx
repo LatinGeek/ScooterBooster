@@ -180,7 +180,13 @@ export function TokenExtractorPanel() {
           setSession({ authenticated: true, userId: data.userId, role: "admin", servers: [...SERVERS] })
           toast.success("Sesión Xiaomi iniciada con QR")
         } else {
-          setQr(data)
+          // Keep the last QR image; pending polls only return status/type.
+          setQr((current) => ({
+            ...current,
+            ...data,
+            imageDataUrl: data.imageDataUrl ?? current?.imageDataUrl,
+            loginUrl: data.loginUrl ?? current?.loginUrl,
+          }))
         }
       } catch (error) {
         setQrPolling(false)
