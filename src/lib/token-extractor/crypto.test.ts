@@ -91,6 +91,7 @@ describe("token extractor crypto", () => {
     const responses = [
       json({ qr: "https://example.mi.com/qr.png", lp: "https://example.mi.com/lp", loginUrl: "https://example.mi.com/login", timeout: 120 }),
       new Response("qr", { status: 200, headers: { "content-type": "image/png" } }),
+      new Response(null, { status: 302, headers: { location: "https://example.mi.com/result" } }),
       json({ userId: 123456789, ssecurity: "c2VjdXJpdHk=", location: "https://account.xiaomi.com/location" }),
       new Response("ok", { status: 200, headers: { "set-cookie": "serviceToken=abc; Path=/" } }),
     ]

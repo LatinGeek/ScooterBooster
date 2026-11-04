@@ -170,6 +170,18 @@ export class XiaomiCloudClient {
     return response
   }
 
+  private async requestFollowing(url: string, init: RequestInit = {}): Promise<Response> {
+    let current = url
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const response = await this.request(current, { ...init, redirect: "manual" })
+      if (response.status < 300 || response.status >= 400) return response
+      const location = response.headers.get("location")
+      if (!location) return response
+      current = new URL(location, current).toString()
+    }
+    throw new Error("Demasiadas redirecciones en el login de Xiaomi")
+  }
+
   private async loginStep1(): Promise<boolean> {
     this.jar.set("sdkVersion", "accountsdk-18.8.15")
     this.jar.set("deviceId", this.deviceId)
@@ -268,7 +280,9 @@ export class XiaomiCloudClient {
 
   private async loginStep3(): Promise<boolean> {
     if (!this.location) return false
-    const response = await this.request(new URL(this.location, "https://account.xiaomi.com").toString())
+    const response = await this.requestFollowing(
+      new URL(this.location, "https://account.xiaomi.com").toString()
+    )
     if (!response.ok) return false
     this.serviceToken = this.jar.get("serviceToken") ?? this.serviceToken
     return Boolean(this.serviceToken)
@@ -388,13 +402,15 @@ export class XiaomiCloudClient {
       _locale: "en_GB",
       _dc: String(Date.now()),
     })
-    const response = await this.request(`https://account.xiaomi.com/longPolling/loginUrl?${params.toString()}`)
+    const response = await this.requestFollowing(
+      `https://account.xiaomi.com/longPolling/loginUrl?${params.toString()}`
+    )
     if (!response.ok) throw new Error("No se pudo iniciar el login QR")
     const data = toJson(await response.text())
     const qrUrl = stringValue(data.qr)
     const qrLp = stringValue(data.lp)
     if (!qrUrl || !qrLp) throw new Error("Xiaomi no devolvió una imagen QR")
-    const image = await this.request(qrUrl)
+    const image = await this.requestFollowing(qrUrl)
     if (!image.ok) throw new Error("No se pudo descargar la imagen QR")
     this.qrLp = qrLp
     const encoded = Buffer.from(await image.arrayBuffer()).toString("base64")
@@ -413,7 +429,7 @@ export class XiaomiCloudClient {
 
   async qrPoll(): Promise<ChallengeResult> {
     if (!this.qrLp) throw new Error("No hay un QR pendiente")
-    const response = await this.request(this.qrLp)
+    const response = await this.requestFollowing(this.qrLp)
     if (!response.ok) {
       return {
         status: "challenge",
