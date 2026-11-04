@@ -414,10 +414,29 @@ export class XiaomiCloudClient {
   async qrPoll(): Promise<ChallengeResult> {
     if (!this.qrLp) throw new Error("No hay un QR pendiente")
     const response = await this.request(this.qrLp)
-    if (!response.ok) return { status: "challenge", kind: "qr", data: {}, pending: this.toPending("qr") }
+    if (!response.ok) {
+      return {
+        status: "challenge",
+        kind: "qr",
+        data: { pending: true, httpStatus: response.status },
+        pending: this.toPending("qr"),
+      }
+    }
     const data = toJson(await response.text())
-    if (!stringValue(data.userId) || !stringValue(data.ssecurity)) {
-      return { status: "challenge", kind: "qr", data: {}, pending: this.toPending("qr") }
+    const hasUserId = Boolean(stringValue(data.userId))
+    const hasSsecurity = Boolean(stringValue(data.ssecurity))
+    if (!hasUserId || !hasSsecurity) {
+      return {
+        status: "challenge",
+        kind: "qr",
+        data: {
+          pending: true,
+          hasUserId,
+          hasSsecurity,
+          responseKeys: Object.keys(data).slice(0, 20),
+        },
+        pending: this.toPending("qr"),
+      }
     }
     this.userId = stringValue(data.userId)
     this.ssecurity = stringValue(data.ssecurity)

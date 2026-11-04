@@ -1,4 +1,5 @@
 import { fail, ok, withErrorHandling } from "@/lib/api-response"
+import logger from "@/lib/logger"
 import { requireToolUser, XiaomiOperationError } from "@/lib/token-extractor/api"
 import { XiaomiCloudClient } from "@/lib/token-extractor/client"
 import {
@@ -16,6 +17,15 @@ export const GET = withErrorHandling(async () => {
   const client = new XiaomiCloudClient({ pending })
   try {
     const result = await client.qrPoll()
+    logger.info(
+      {
+        scope: "token-extractor",
+        phase: "qr_poll",
+        status: result.status,
+        ...(result.status === "challenge" ? result.data : { hasUserId: Boolean(result.session.userId) }),
+      },
+      result.status === "ok" ? "QR login completed" : "QR still pending"
+    )
     return applyLoginResult(ok(challengePayload(result)), result)
   } catch (error) {
     throw new XiaomiOperationError(error instanceof Error ? error.message : "Error consultando el QR")
