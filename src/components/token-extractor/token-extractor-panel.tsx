@@ -676,7 +676,11 @@ export function TokenExtractorPanel() {
                             value={
                               device.ltmkStatus === "pin_required"
                                 ? "PIN requerido"
-                                : display(device.ltmk, showSecrets)
+                                : device.ltmkStatus === "decrypt_error"
+                                  ? "PIN incorrecto"
+                                  : device.ltmkEncrypted && !device.ltmk
+                                    ? "Cifrada; falta PIN"
+                                    : display(device.ltmk, showSecrets)
                             }
                             mono
                           />
@@ -703,6 +707,15 @@ export function TokenExtractorPanel() {
                           >
                             <Copy className="h-3.5 w-3.5" />
                             BLE key
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!device.ltmk}
+                            onClick={() => copyValue(device.ltmk ?? "", "LTMK")}
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                            LTMK
                           </Button>
                           <Button size="sm" onClick={() => openFirmware(device)}>
                             <Download className="h-3.5 w-3.5" />
