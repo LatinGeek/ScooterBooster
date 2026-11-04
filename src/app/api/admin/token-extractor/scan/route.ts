@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server"
 import { fail, ok, withErrorHandling } from "@/lib/api-response"
+import logger from "@/lib/logger"
 import { assertTrustedOrigin } from "@/lib/security"
 import { requireToolUser, XiaomiOperationError } from "@/lib/token-extractor/api"
 import { XiaomiCloudClient, XIAOMI_SERVERS, type XiaomiServer } from "@/lib/token-extractor/client"
@@ -20,7 +21,22 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const pin = typeof body.pin === "string" && body.pin ? body.pin.slice(0, 32) : undefined
   const client = new XiaomiCloudClient({ session })
   try {
-    return ok(await client.scan(servers, pin))
+    const result = await client.scan(servers, pin)
+    logger.info(
+      {
+        scope: "token-extractor",
+        phase: "scan",
+        servers: result.servers.map((entry) => ({
+          server: entry.server,
+          homeCount: entry.homeCount,
+          deviceCount: entry.devices.length,
+          errorCount: entry.errors.length,
+        })),
+        totalDevices: result.totalDevices,
+      },
+      "Xiaomi Cloud region scan completed"
+    )
+    return ok(result)
   } catch (error) {
     throw new XiaomiOperationError(error instanceof Error ? error.message : "Error escaneando regiones")
   }
