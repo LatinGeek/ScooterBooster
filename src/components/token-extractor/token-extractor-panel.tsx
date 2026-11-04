@@ -171,29 +171,42 @@ export function TokenExtractorPanel() {
 
   useEffect(() => {
     if (!qrPolling) return
-    const timer = window.setInterval(async () => {
+    let cancelled = false
+    let timer: number | undefined
+
+    // Sequential polling: Xiaomi's long-poll can block until the QR is scanned.
+    // Never start a second request while the previous one is still pending.
+    const poll = async () => {
       try {
         const data = await api<LoginResponse>("/login/qr/poll")
+        if (cancelled) return
         if (data.status === "ok") {
           setQrPolling(false)
           setQr(null)
           setSession({ authenticated: true, userId: data.userId, role: "admin", servers: [...SERVERS] })
           toast.success("Sesión Xiaomi iniciada con QR")
-        } else {
-          // Keep the last QR image; pending polls only return status/type.
-          setQr((current) => ({
-            ...current,
-            ...data,
-            imageDataUrl: data.imageDataUrl ?? current?.imageDataUrl,
-            loginUrl: data.loginUrl ?? current?.loginUrl,
-          }))
+          return
         }
+        // Keep the last QR image; pending polls only return status/type.
+        setQr((current) => ({
+          ...current,
+          ...data,
+          imageDataUrl: data.imageDataUrl ?? current?.imageDataUrl,
+          loginUrl: data.loginUrl ?? current?.loginUrl,
+        }))
+        timer = window.setTimeout(poll, 1800)
       } catch (error) {
+        if (cancelled) return
         setQrPolling(false)
         toast.error(error instanceof Error ? error.message : "QR expirado")
       }
-    }, 2200)
-    return () => window.clearInterval(timer)
+    }
+
+    timer = window.setTimeout(poll, 1200)
+    return () => {
+      cancelled = true
+      if (timer) window.clearTimeout(timer)
+    }
   }, [qrPolling])
 
   async function startQr() {
