@@ -84,6 +84,60 @@ describe("ratelimit fallback", () => {
     )
   })
 
+  it("blocks firmware patching after 10 requests per minute per user", async () => {
+    for (let index = 0; index < 10; index += 1) {
+      await expect(enforceRateLimit("firmwarePatch", "staff-1")).resolves.toMatchObject({
+        success: true,
+        limit: 10,
+      })
+    }
+
+    await expect(enforceRateLimit("firmwarePatch", "staff-1")).rejects.toThrow(
+      "Rate limit exceeded for firmwarePatch:staff-1"
+    )
+    // Another user is not affected.
+    await expect(enforceRateLimit("firmwarePatch", "staff-2")).resolves.toMatchObject({ success: true })
+  })
+
+  it("blocks firmware patching after 100 requests per day per user", async () => {
+    for (let index = 0; index < 100; index += 1) {
+      await expect(enforceRateLimit("firmwarePatchDaily", "staff-1")).resolves.toMatchObject({
+        success: true,
+        limit: 100,
+      })
+    }
+
+    await expect(enforceRateLimit("firmwarePatchDaily", "staff-1")).rejects.toThrow(
+      "Rate limit exceeded for firmwarePatchDaily:staff-1"
+    )
+  })
+
+  it("keeps the firmware minute and daily counters independent", async () => {
+    for (let index = 0; index < 10; index += 1) {
+      await enforceRateLimit("firmwarePatch", "staff-3")
+    }
+
+    await expect(enforceRateLimit("firmwarePatchDaily", "staff-3")).resolves.toMatchObject({
+      success: true,
+      remaining: 99,
+    })
+  })
+
+  it("falls back to the local limiter for firmware policies when the remote provider throws", async () => {
+    process.env.UPSTASH_REDIS_REST_URL = "https://upstash.example"
+    process.env.UPSTASH_REDIS_REST_TOKEN = "token"
+
+    globalThis.__sbRateLimitClients = globalThis.__sbRateLimitClients ?? {}
+    globalThis.__sbRateLimitClients.firmwarePatch = {
+      limit: vi.fn().mockRejectedValue(new Error("remote down")),
+    } as never
+
+    await expect(enforceRateLimit("firmwarePatch", "staff-remote")).resolves.toMatchObject({
+      success: true,
+      limit: 10,
+    })
+  })
+
   it("falls back to the local limiter when the remote provider throws", async () => {
     process.env.UPSTASH_REDIS_REST_URL = "https://upstash.example"
     process.env.UPSTASH_REDIS_REST_TOKEN = "token"

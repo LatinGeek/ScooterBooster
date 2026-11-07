@@ -6,7 +6,14 @@ import logger from "./logger"
 
 const RATE_LIMIT_ERROR_MESSAGE = "Demasiadas solicitudes. Espera un momento e intenta de nuevo."
 
-type PolicyName = "authIp" | "bookingUser" | "bookingGuest" | "paymentUser" | "reviewUser"
+type PolicyName =
+  | "authIp"
+  | "bookingUser"
+  | "bookingGuest"
+  | "paymentUser"
+  | "reviewUser"
+  | "firmwarePatch"
+  | "firmwarePatchDaily"
 
 type Policy = {
   limit: number
@@ -57,6 +64,18 @@ const policies: Record<PolicyName, Policy> = {
     windowMs: 86_400_000,
     windowLabel: "1 d",
     prefix: "scooterbooster:reviews",
+  },
+  firmwarePatch: {
+    limit: 10,
+    windowMs: 60_000,
+    windowLabel: "60 s",
+    prefix: "scooterbooster:firmware-patch",
+  },
+  firmwarePatchDaily: {
+    limit: 100,
+    windowMs: 86_400_000,
+    windowLabel: "1 d",
+    prefix: "scooterbooster:firmware-patch-daily",
   },
 }
 
