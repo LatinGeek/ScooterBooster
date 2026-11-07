@@ -4,26 +4,35 @@
     "overflow": {
       "initial": 0,
       "form": 0,
-      "result": 35
+      "result": 0
     },
-    "tabStops": [
-      "input[Archivo de firmware (.bin)]",
-      "a",
-      "a"
-    ],
-    "spinnerAnimation": "none",
-    "focusAfterDetect": "2. Modelo detectado",
-    "smallTargets": [
-      "a:Politica de privacidad h=35",
-      "a:Politica de cookies h=15",
-      "button:EsencialesSolo esenciales h=40",
-      "button:AceptarAceptar analitica h=40"
-    ],
-    "focusAfterPatch": "4. Firmware parcheado",
+    "panelOverflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "resultCard": {
+      "overflow": 0,
+      "descendantOverflowPx": 0
+    },
+    "downloadButton": {
+      "width": 293,
+      "right": 334,
+      "pageClientWidth": 375,
+      "overflowsPagePx": 0
+    },
     "tableScrollsLocally": {
       "client": 291,
       "scroll": 512
     },
+    "bodyOverflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "spinnerAnimation": "none (reduced motion)",
+    "focusAfterDetect": "2. Modelo detectado",
+    "focusAfterPatch": "4. Firmware parcheado",
     "pageErrors": []
   },
   {
@@ -33,22 +42,33 @@
       "form": 0,
       "result": 0
     },
-    "tabStops": [
-      "input[Archivo de firmware (.bin)]",
-      "a",
-      "a"
-    ],
-    "spinnerAnimation": "spin",
-    "focusAfterDetect": "2. Modelo detectado",
-    "smallTargets": [
-      "a:Politica de privacidad h=17",
-      "a:Politica de cookies h=17"
-    ],
-    "focusAfterPatch": "4. Firmware parcheado",
+    "panelOverflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "resultCard": {
+      "overflow": 0,
+      "descendantOverflowPx": 0
+    },
+    "downloadButton": {
+      "width": 369,
+      "right": 690,
+      "pageClientWidth": 768,
+      "overflowsPagePx": 0
+    },
     "tableScrollsLocally": {
       "client": 396,
       "scroll": 512
     },
+    "bodyOverflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "spinnerAnimation": "spin",
+    "focusAfterDetect": "2. Modelo detectado",
+    "focusAfterPatch": "4. Firmware parcheado",
     "pageErrors": []
   },
   {
@@ -58,24 +78,33 @@
       "form": 0,
       "result": 0
     },
-    "tabStops": [
-      "input[Archivo de firmware (.bin)]",
-      "a",
-      "a"
-    ],
-    "spinnerAnimation": "spin",
-    "focusAfterDetect": "2. Modelo detectado",
-    "smallTargets": [
-      "a:Politica de privacidad h=17",
-      "a:Politica de cookies h=17",
-      "button:EsencialesSolo esenciales h=40",
-      "button:AceptarAceptar analitica h=40"
-    ],
-    "focusAfterPatch": "4. Firmware parcheado",
+    "panelOverflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "resultCard": {
+      "overflow": 0,
+      "descendantOverflowPx": 0
+    },
+    "downloadButton": {
+      "width": 369,
+      "right": 762,
+      "pageClientWidth": 1280,
+      "overflowsPagePx": 0
+    },
     "tableScrollsLocally": {
       "client": 764,
       "scroll": 764
     },
+    "bodyOverflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "spinnerAnimation": "spin",
+    "focusAfterDetect": "2. Modelo detectado",
+    "focusAfterPatch": "4. Firmware parcheado",
     "pageErrors": []
   }
 ]
