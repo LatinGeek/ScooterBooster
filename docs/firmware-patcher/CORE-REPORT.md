@@ -4,7 +4,7 @@
 - **Workspace:** `C:/Users/germa/orca/workspaces/ScooterBooster/fp-core`
 - **Base commit:** `dec672512e1a91f5ec75dc6ddd576721f0a0a455`
 - **Upstream pin:** `scooterteam/bw-patcher` v1.1.6 @ `95a8f339787a1fb6486554d61b573b8e2b688c53`
-- **Final commit:** `<FINAL_SHA>` (filled after commit)
+- **Core commit:** `9487ca57c2b5d28c63617d2f7ea1416e261b5a21` (detection: `db99d66`)
 - **Status:** core complete; real-fixture parity green; nine models synthetic-only per SPEC G5.
 
 ## 1. What was delivered
