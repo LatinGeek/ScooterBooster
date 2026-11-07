@@ -1,0 +1,56 @@
+{
+  "_comment": "Genuine firmware images used as parity fixtures (SPEC G5). Binaries are NEVER committed; they live outside the repo (see FIXTURES_DIR in README.md). Models absent here are 'synthetic-only'.",
+  "fixturesRoot": "D:/Coding/Firmware disassembling/firmware",
+  "models": {
+    "mi6": {
+      "realFixtures": [
+        {
+          "id": "mi6-base-factory",
+          "path": "original/mi6-base/7e6e02cafdf7d70171d0e9ed01705a85_mcu_xiaomi.scooter.6 (1).bin",
+          "sha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+          "size": 148108
+        }
+      ]
+    },
+    "mi6lite": {
+      "realFixtures": [
+        {
+          "id": "mi6lite-factory",
+          "path": "original/mi6-lite/mcu_xiaomi.scooter.6lite_factory.bin",
+          "sha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+          "size": 81096
+        }
+      ]
+    }
+  },
+  "negativeFixtures": [
+    {
+      "id": "mi6-base-upd-package",
+      "path": "original/mi6-base/f94a863d5183d1d94c00f8e8ca1679ce_upd_xiaomi.scooter.6 (1).bin",
+      "sha256": "c0df252e66bfeeb3",
+      "note": "sha256 prefix only; detects as nothing (not an MCU image)"
+    }
+  ],
+  "mss0": {
+    "mi6": {
+      "intermediate": {
+        "path": "patched/patched_mi6_firmware_mss0_15-25-35_rampfix_upstream-95a8f33.bin",
+        "sha256": "a4807a8fcb2bdb3265ca215fc23538e6040ab15b5ff0676c1aa3d6ffbeab83cb"
+      },
+      "golden": {
+        "path": "patched/patched_mi6_firmware_mss0_15-25-35_coherent_latch_experimental.bin",
+        "sha256": "7a66169940c538eb3310136a5affa99d588c5a2c2d11b8e0ec5bedabc1c8d747"
+      }
+    },
+    "mi6lite": {
+      "intermediate": {
+        "path": "patched/patched_mi6lite_firmware.bin",
+        "sha256": "12b6951615c41adc6f9a0a4316c9dc31e66455a075c48fb54d427eb6427c3dcd"
+      },
+      "golden": {
+        "path": "patched/patched_mi6lite_firmware_mss0_15-25-35_coherent_latch_experimental.bin",
+        "sha256": "98f12702b11024472749f76d6305d32f99456babe740ea3cbf2fe1fecf0150db"
+      }
+    }
+  }
+}
