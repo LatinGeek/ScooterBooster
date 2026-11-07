@@ -1,0 +1,81 @@
+[
+  {
+    "viewport": "375",
+    "overflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 35
+    },
+    "tabStops": [
+      "input[Archivo de firmware (.bin)]",
+      "a",
+      "a"
+    ],
+    "spinnerAnimation": "none",
+    "focusAfterDetect": "2. Modelo detectado",
+    "smallTargets": [
+      "a:Politica de privacidad h=35",
+      "a:Politica de cookies h=15",
+      "button:EsencialesSolo esenciales h=40",
+      "button:AceptarAceptar analitica h=40"
+    ],
+    "focusAfterPatch": "4. Firmware parcheado",
+    "tableScrollsLocally": {
+      "client": 291,
+      "scroll": 512
+    },
+    "pageErrors": []
+  },
+  {
+    "viewport": "768",
+    "overflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "tabStops": [
+      "input[Archivo de firmware (.bin)]",
+      "a",
+      "a"
+    ],
+    "spinnerAnimation": "spin",
+    "focusAfterDetect": "2. Modelo detectado",
+    "smallTargets": [
+      "a:Politica de privacidad h=17",
+      "a:Politica de cookies h=17"
+    ],
+    "focusAfterPatch": "4. Firmware parcheado",
+    "tableScrollsLocally": {
+      "client": 396,
+      "scroll": 512
+    },
+    "pageErrors": []
+  },
+  {
+    "viewport": "1280",
+    "overflow": {
+      "initial": 0,
+      "form": 0,
+      "result": 0
+    },
+    "tabStops": [
+      "input[Archivo de firmware (.bin)]",
+      "a",
+      "a"
+    ],
+    "spinnerAnimation": "spin",
+    "focusAfterDetect": "2. Modelo detectado",
+    "smallTargets": [
+      "a:Politica de privacidad h=17",
+      "a:Politica de cookies h=17",
+      "button:EsencialesSolo esenciales h=40",
+      "button:AceptarAceptar analitica h=40"
+    ],
+    "focusAfterPatch": "4. Firmware parcheado",
+    "tableScrollsLocally": {
+      "client": 764,
+      "scroll": 764
+    },
+    "pageErrors": []
+  }
+]

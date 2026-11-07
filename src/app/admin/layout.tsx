@@ -8,6 +8,7 @@ import {
   BarChart3,
   Bike,
   CalendarDays,
+  Cpu,
   KeyRound,
   LayoutDashboard,
   LogOut,
@@ -17,6 +18,7 @@ import {
   Wrench,
 } from "lucide-react"
 import { AdminViewSwitcher } from "@/components/admin-view-switcher"
+import { isFirmwarePatcherNavEnabled } from "@/components/firmware-patcher/flags"
 import { Navbar } from "@/components/navbar"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -31,6 +33,9 @@ const NAV_ITEMS = [
   { href: "/admin/audit", label: "Auditoría", icon: Activity, exact: false },
   { href: "/admin/observability", label: "Observabilidad", icon: BarChart3, exact: false },
   { href: "/admin/token-extractor", label: "Token Extractor", icon: KeyRound, exact: false },
+  ...(isFirmwarePatcherNavEnabled()
+    ? [{ href: "/admin/firmware-patcher", label: "Parcheador", icon: Cpu, exact: false }]
+    : []),
   { href: "/admin/settings", label: "Configuración", icon: Settings, exact: false },
 ]
 

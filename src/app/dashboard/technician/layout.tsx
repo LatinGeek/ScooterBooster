@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   CalendarDays,
   Clock,
+  Cpu,
   KeyRound,
   Wrench,
   DollarSign,
@@ -17,6 +18,7 @@ import {
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 import { BrandLogo } from "@/components/brand-logo"
+import { isFirmwarePatcherNavEnabled } from "@/components/firmware-patcher/flags"
 
 const NAV_ITEMS = [
   { href: "/dashboard/technician", label: "Resumen", icon: LayoutDashboard, exact: true },
@@ -37,6 +39,16 @@ const NAV_ITEMS = [
     icon: KeyRound,
     exact: false,
   },
+  ...(isFirmwarePatcherNavEnabled()
+    ? [
+        {
+          href: "/dashboard/technician/firmware-patcher",
+          label: "Parcheador",
+          icon: Cpu,
+          exact: false,
+        },
+      ]
+    : []),
 ]
 
 export default function TechnicianDashboardLayout({ children }: { children: React.ReactNode }) {
