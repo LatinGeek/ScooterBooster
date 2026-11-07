@@ -1,4 +1,3 @@
-import type { NextRequest } from "next/server"
 import { withErrorHandling } from "@/lib/api-response"
 import { requireToolUser } from "@/lib/token-extractor/api"
 import { assertFirmwarePatcherEnabled, FIRMWARE_LIMITS, FIRMWARE_UPSTREAM_PIN } from "@/lib/firmware-patcher/server/config"
@@ -12,7 +11,7 @@ export const dynamic = "force-dynamic"
 export const maxDuration = 10
 
 export const GET = withNoStore(
-  withErrorHandling(async (_req: NextRequest) => {
+  withErrorHandling(async () => {
     assertFirmwarePatcherEnabled()
     await requireToolUser()
     const capabilities = firmwareEngine.capabilities()

@@ -9,14 +9,11 @@ vi.mock("@/lib/firmware-patcher/server/engine", async () => {
   return { firmwareEngine: support.fakeEngine }
 })
 
-import { NextRequest } from "next/server"
 import { GET, dynamic, maxDuration, runtime } from "@/app/api/admin/firmware-patcher/capabilities/route"
 import { enableFlags, readJson, resetFakeEngine } from "@/lib/firmware-patcher/server/test-support"
 
-const URL_PATH = "http://localhost:3000/api/admin/firmware-patcher/capabilities"
-
 function get() {
-  return GET(new NextRequest(URL_PATH))
+  return GET()
 }
 
 describe("GET /api/admin/firmware-patcher/capabilities", () => {

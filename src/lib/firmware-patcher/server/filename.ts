@@ -11,7 +11,6 @@ export function sanitizeFirmwareFilename(raw: unknown): string {
     .pop()
     ?.trim()
   const clean = (base ?? "")
-    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001f\u007f-\u009f]/g, "")
     .replace(/[^A-Za-z0-9._-]+/g, "_")
     .replace(/_{2,}/g, "_")
