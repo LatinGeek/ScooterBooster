@@ -1,6 +1,6 @@
-import { getCapabilities } from "@/lib/firmware-patcher/capabilities"
+import { CAPABILITIES_UPSTREAM, CAPABILITY_MATRIX } from "@/lib/firmware-patcher/capabilities"
 import { detectFirmware } from "@/lib/firmware-patcher/detect"
-import { applyFirmwarePatches } from "@/lib/firmware-patcher/engine"
+import { applyFirmwarePatches } from "@/lib/firmware-patcher"
 import {
   EngineFailure,
   type CapabilitiesView,
@@ -10,6 +10,7 @@ import {
   type PatchRule,
   type SelectedPatch,
 } from "./contract"
+import type { PatchSelectionEntry } from "@/lib/firmware-patcher"
 
 /**
  * The ONLY file that touches the W1/W2 modules. If their exported shapes differ from
@@ -33,15 +34,14 @@ function toFailure(error: unknown): EngineFailure {
 }
 
 function capabilities(): CapabilitiesView {
-  const raw = getCapabilities()
   return {
-    upstream: { version: raw.upstream.version, commit: raw.upstream.commit },
-    models: Object.entries(raw.models).map(([model, entry]) => ({
+    upstream: { version: CAPABILITIES_UPSTREAM.version, commit: CAPABILITIES_UPSTREAM.commit },
+    models: Object.entries(CAPABILITY_MATRIX).map(([model, entry]) => ({
       model,
       displayName: entry.displayName,
       family: entry.family,
       patches: Object.entries(entry.patches).map(([code, rule]): PatchRule => {
-        const view: PatchRule = { code, status: rule.status, kind: rule.kind }
+        const view: PatchRule = { code, status: rule.status, kind: rule.valueKind }
         if (rule.min !== undefined) view.min = rule.min
         if (rule.max !== undefined) view.max = rule.max
         if (rule.step !== undefined) view.step = rule.step
@@ -62,7 +62,7 @@ function detect(input: Uint8Array): DetectionView {
       family: raw.family,
       container: raw.container,
       score: raw.score,
-      hits: [...raw.hits],
+      hits: raw.hits.map((hit) => `${hit.model} (${hit.score}): ${hit.reasons.join(", ")}`),
       notes: [...raw.notes],
       supported: raw.supported,
     }
@@ -78,7 +78,12 @@ function patch(
   options: { allowExperimental: boolean; fullDump: boolean },
 ): PatchOutcome {
   try {
-    const result = applyFirmwarePatches(input, model, selection, options)
+    // The route has already validated these codes against the matrix; the engine re-checks them.
+    const entries: PatchSelectionEntry[] = selection.map((entry) => ({
+      code: entry.code as PatchSelectionEntry["code"],
+      value: entry.value,
+    }))
+    const result = applyFirmwarePatches(input, model, entries, options)
     return {
       data: result.data,
       model: result.model,

@@ -44,7 +44,8 @@ export interface DetectionView {
 
 export interface PatchLogEntry {
   name: string
-  offset: number
+  /** Upstream keeps the Python `hex()` form (e.g. `0x1a2c`) for JSON responses. */
+  offset: number | string
   before: string
   after: string
 }

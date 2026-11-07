@@ -176,8 +176,15 @@ describe("server-only engine", () => {
 
   it("contains no client directives or React/Next imports", () => {
     const root = join(process.cwd(), "src", "lib", "firmware-patcher")
+    // `server/` is the API-owned transport layer (route helpers) and is intentionally Next-coupled;
+    // the invariant below applies to the engine surface only.
+    const serverLayer = join(root, "server")
     const files = walk(root).filter(
-      (path) => path.endsWith(".ts") && !path.endsWith(".test.ts") && !path.includes("__fixtures__")
+      (path) =>
+        !path.startsWith(serverLayer) &&
+        path.endsWith(".ts") &&
+        !path.endsWith(".test.ts") &&
+        !path.includes("__fixtures__")
     )
     expect(files.length).toBeGreaterThan(20)
     for (const file of files) {
