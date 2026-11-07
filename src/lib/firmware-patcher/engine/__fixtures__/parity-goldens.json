@@ -1,0 +1,1067 @@
+{
+  "_comment": "Generated parity goldens. Never contains firmware bytes. Regenerate with scripts/firmware-parity.ts (or the pinned Python ref_runner).",
+  "reference": {
+    "commit": "95a8f339787a1fb6486554d61b573b8e2b688c53",
+    "python": "3.14.4",
+    "keystone": "0.9.2",
+    "capstone": "4.0.2",
+    "crcmod": "1.7"
+  },
+  "detections": [
+    {
+      "id": "mi6-detect",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "detection": {
+        "size": 148108,
+        "family": "leqi",
+        "container": "eu1",
+        "header": {
+          "tag": "EU1",
+          "body_size": "0xA800",
+          "family_u16": "0x0101",
+          "product_u16": "0x012E",
+          "product_tail": "012e804e4a02",
+          "prefix": "03000101050200010102",
+          "eu2": true
+        },
+        "best": "mi6",
+        "ok": true,
+        "hits": [
+          {
+            "model": "mi6",
+            "score": 135,
+            "reasons": [
+              "+50 product@0x1C=0x012E",
+              "+40 size@0x0E=0xA800",
+              "+30 family@0x02=0x0101",
+              "+15 EU2 tag in header"
+            ]
+          }
+        ],
+        "notes": [],
+        "bwpatcher": true
+      }
+    },
+    {
+      "id": "mi6lite-detect",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "detection": {
+        "size": 81096,
+        "family": "leqi",
+        "container": "eu1",
+        "header": {
+          "tag": "EU1",
+          "body_size": "0xB000",
+          "family_u16": "0x0201",
+          "product_u16": "0x008C",
+          "product_tail": "008c4879e900",
+          "prefix": "02000102080200010105",
+          "eu2": false
+        },
+        "best": "mi6lite",
+        "ok": true,
+        "hits": [
+          {
+            "model": "mi6lite",
+            "score": 120,
+            "reasons": [
+              "+50 product@0x1C=0x008C",
+              "+40 size@0x0E=0xB000",
+              "+30 family@0x02=0x0201"
+            ]
+          }
+        ],
+        "notes": [],
+        "bwpatcher": true
+      }
+    }
+  ],
+  "vectors": [
+    {
+      "id": "mi6-sls",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "ca7256d30f77c8fd8a91e362546ad829a4e5e125a27190762cc75714cd597607",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x2e8e",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x2e92",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2a7a",
+          "before": "9cf80500",
+          "after": "07f01abd"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xa4b2",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xa7fe",
+          "before": "5df3",
+          "after": "4be4"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6-sld",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "sld",
+          "value": 25
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "9d22c3aa9b7ebd41a288c8e316a552ed012fb5bdec2fc6de78c697d5d9d536be",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x2e8e",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x2e92",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2a7a",
+          "before": "9cf80500",
+          "after": "07f01abd"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xa4b2",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "9cf805009cf8023003f00303022b02d140f2fa0002e000eb80004000024a1080f8f7d9ba0000a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xa7fe",
+          "before": "5df3",
+          "after": "60b3"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6-slp",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "slp",
+          "value": 15
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "9dcbb321b0ff3d4117a6415af71a022d746387995028d4d799f83e741d997b03",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x2e8e",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x2e92",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2a7a",
+          "before": "9cf80500",
+          "after": "07f01abd"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xa4b2",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "9cf805009cf8023003f00303012b02d140f2960002e000eb80004000024a1080f8f7d9ba0000a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xa7fe",
+          "before": "5df3",
+          "after": "6ac4"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6-sls-sld",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        },
+        {
+          "code": "sld",
+          "value": 25
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "4ab11da2ba25aa8f68badf4ddacc7510da6f24b56341a1b530a975a4c496b6ff",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x2e8e",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x2e92",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2a7a",
+          "before": "9cf80500",
+          "after": "07f01abd"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xa4b2",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xa4b2",
+          "before": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a20100200000000000000000",
+          "after": "9cf805009cf8023003f00303022b02d140f2fa0007e0032b02d140f25e1002e000eb80004000014a1080f8f7d4baa2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xa7fe",
+          "before": "5df3",
+          "after": "11f1"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6-sls-sld-slp",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        },
+        {
+          "code": "sld",
+          "value": 25
+        },
+        {
+          "code": "slp",
+          "value": 15
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "84c0a2a216df5b04a7b0dcc0de18ab4c94ebfdabb8207ecf95a09cc09160af70",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x2e8e",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x2e92",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2a7a",
+          "before": "9cf80500",
+          "after": "07f01abd"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xa4b2",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xa4b2",
+          "before": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a20100200000000000000000",
+          "after": "9cf805009cf8023003f00303022b02d140f2fa0007e0032b02d140f25e1002e000eb80004000014a1080f8f7d4baa2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xa4b2",
+          "before": "9cf805009cf8023003f00303022b02d140f2fa0007e0032b02d140f25e1002e000eb80004000014a1080f8f7d4baa2010020000000000000000000000000",
+          "after": "9cf805009cf8023003f00303012b02d140f296000ce0022b02d140f2fa0007e0032b02d140f25e1002e000eb80004000024a1080f8f7cfba0000a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xa7fe",
+          "before": "5df3",
+          "after": "f5b4"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6-mss",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "mss",
+          "value": 5
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "a45d363b28194953578b82cde393264a34353ab48bdff4f589cd9ba9d0d32725",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "motor_start_speed_enable",
+          "offset": "0x18ec",
+          "before": "2d",
+          "after": "32"
+        },
+        {
+          "name": "motor_start_speed_ramp",
+          "offset": "0x1f30",
+          "before": "1e",
+          "after": "32"
+        },
+        {
+          "name": "motor_start_speed_ramp_sub",
+          "offset": "0x1d22",
+          "before": "1e",
+          "after": "32"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xa7fe",
+          "before": "5df3",
+          "after": "3de0"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6-sls-sld-slp-mss",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        },
+        {
+          "code": "sld",
+          "value": 25
+        },
+        {
+          "code": "slp",
+          "value": 15
+        },
+        {
+          "code": "mss",
+          "value": 5
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "f0c70c71cea87d979410273a5fbdad870f2fcc512f24048e47ada7dfabae520f",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x2e8e",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x2e92",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2a7a",
+          "before": "9cf80500",
+          "after": "07f01abd"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xa4b2",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xa4b2",
+          "before": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a20100200000000000000000",
+          "after": "9cf805009cf8023003f00303022b02d140f2fa0007e0032b02d140f25e1002e000eb80004000014a1080f8f7d4baa2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xa4b2",
+          "before": "9cf805009cf8023003f00303022b02d140f2fa0007e0032b02d140f25e1002e000eb80004000014a1080f8f7d4baa2010020000000000000000000000000",
+          "after": "9cf805009cf8023003f00303012b02d140f296000ce0022b02d140f2fa0007e0032b02d140f25e1002e000eb80004000024a1080f8f7cfba0000a2010020"
+        },
+        {
+          "name": "motor_start_speed_enable",
+          "offset": "0x18ec",
+          "before": "2d",
+          "after": "32"
+        },
+        {
+          "name": "motor_start_speed_ramp",
+          "offset": "0x1f30",
+          "before": "1e",
+          "after": "32"
+        },
+        {
+          "name": "motor_start_speed_ramp_sub",
+          "offset": "0x1d22",
+          "before": "1e",
+          "after": "32"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xa7fe",
+          "before": "5df3",
+          "after": "95a7"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6-sls-fulldump",
+      "model": "mi6",
+      "fixtureId": "mi6-base-factory",
+      "inputSha256": "31362a4863d3430fdd90812fe175a4b37e9f426207ce804afeeba0f6432e4a2b",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        }
+      ],
+      "fullDump": true,
+      "allowExperimental": true,
+      "outputSha256": "e527f590c37c3182185c258f0f2fd461f1e5164a6f79b5b9fd65b7681abb3cde",
+      "outputSize": 148108,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x2e8e",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x2e92",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2a7a",
+          "before": "9cf80500",
+          "after": "07f01abd"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xa4b2",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "9cf805009cf8023003f00303032b02d140f25e1002e000eb80004000024a1080f8f7d9ba0000a2010020"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-sls",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "a701c3e8a1f177ace821f19b86fa3203322feb0b774bbccdc6b3ee08153f281c",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x322c",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x3230",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2dba",
+          "before": "48795449",
+          "after": "07f043bf"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xac44",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xaffe",
+          "before": "0936",
+          "after": "6642"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-sld",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "sld",
+          "value": 25
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "2f438dc7dd21be73c12da1040074bee635df6a23d6302043be03c32b837f3eb2",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x322c",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x3230",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2dba",
+          "before": "48795449",
+          "after": "07f043bf"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xac44",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "48798a7802f00302022a02d140f2fa0002e000eb8000400001490880f8f7b1b8a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xaffe",
+          "before": "0936",
+          "after": "4ae7"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-slp",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "slp",
+          "value": 15
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "32b2af3fa0f10fa57af15e97836f69548484068d2f88b84175e85cb3cb4bb1c6",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x322c",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x3230",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2dba",
+          "before": "48795449",
+          "after": "07f043bf"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xac44",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "48798a7802f00302012a02d140f2960002e000eb8000400001490880f8f7b1b8a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xaffe",
+          "before": "0936",
+          "after": "80ff"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-sls-sld",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        },
+        {
+          "code": "sld",
+          "value": 25
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "d1a4286368367db60be846ecabaf2cf6f8f8a4e6d2786537a61bf2256c6fb8e6",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x322c",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x3230",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2dba",
+          "before": "48795449",
+          "after": "07f043bf"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xac44",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xac44",
+          "before": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020000000000000000000000000",
+          "after": "48798a7802f00302022a02d140f2fa0007e0032a02d140f25e1002e000eb8000400002490880f8f7acb80000a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xaffe",
+          "before": "0936",
+          "after": "584d"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-sls-sld-slp",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        },
+        {
+          "code": "sld",
+          "value": 25
+        },
+        {
+          "code": "slp",
+          "value": 15
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "12b6951615c41adc6f9a0a4316c9dc31e66455a075c48fb54d427eb6427c3dcd",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x322c",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x3230",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2dba",
+          "before": "48795449",
+          "after": "07f043bf"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xac44",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xac44",
+          "before": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020000000000000000000000000",
+          "after": "48798a7802f00302022a02d140f2fa0007e0032a02d140f25e1002e000eb8000400002490880f8f7acb80000a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xac44",
+          "before": "48798a7802f00302022a02d140f2fa0007e0032a02d140f25e1002e000eb8000400002490880f8f7acb80000a20100200000000000000000",
+          "after": "48798a7802f00302012a02d140f296000ce0022a02d140f2fa0007e0032a02d140f25e1002e000eb8000400001490880f8f7a7b8a2010020"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xaffe",
+          "before": "0936",
+          "after": "034d"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-mss",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "mss",
+          "value": 5
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "d7d7557e571d35a6017fd568ec26a6769e9be24f3bac5f87c339f5b951a5d23e",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "motor_start_speed_threshold",
+          "offset": "0x7dc6",
+          "before": "2d",
+          "after": "32"
+        },
+        {
+          "name": "motor_start_speed_acquire",
+          "offset": "0x7dce",
+          "before": "1e",
+          "after": "19"
+        },
+        {
+          "name": "motor_start_speed_primary",
+          "offset": "0x167e",
+          "before": "1e",
+          "after": "32"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xaffe",
+          "before": "0936",
+          "after": "b8b3"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-sls-sld-slp-mss",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        },
+        {
+          "code": "sld",
+          "value": 25
+        },
+        {
+          "code": "slp",
+          "value": 15
+        },
+        {
+          "code": "mss",
+          "value": 5
+        }
+      ],
+      "fullDump": false,
+      "allowExperimental": true,
+      "outputSha256": "f0f32416f3eb773b0fbece0b934516ad1902827e406a8d58c1b87aa8d397f2de",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x322c",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x3230",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2dba",
+          "before": "48795449",
+          "after": "07f043bf"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xac44",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xac44",
+          "before": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020000000000000000000000000",
+          "after": "48798a7802f00302022a02d140f2fa0007e0032a02d140f25e1002e000eb8000400002490880f8f7acb80000a2010020"
+        },
+        {
+          "name": "speed_constants_updated",
+          "offset": "0xac44",
+          "before": "48798a7802f00302022a02d140f2fa0007e0032a02d140f25e1002e000eb8000400002490880f8f7acb80000a20100200000000000000000",
+          "after": "48798a7802f00302012a02d140f296000ce0022a02d140f2fa0007e0032a02d140f25e1002e000eb8000400001490880f8f7a7b8a2010020"
+        },
+        {
+          "name": "motor_start_speed_threshold",
+          "offset": "0x7dc6",
+          "before": "2d",
+          "after": "32"
+        },
+        {
+          "name": "motor_start_speed_acquire",
+          "offset": "0x7dce",
+          "before": "1e",
+          "after": "19"
+        },
+        {
+          "name": "motor_start_speed_primary",
+          "offset": "0x167e",
+          "before": "1e",
+          "after": "32"
+        },
+        {
+          "name": "fix_checksum",
+          "offset": "0xaffe",
+          "before": "0936",
+          "after": "b2c8"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    },
+    {
+      "id": "mi6lite-sls-fulldump",
+      "model": "mi6lite",
+      "fixtureId": "mi6lite-factory",
+      "inputSha256": "83d3d3c05cce80be5d0f1e42046b9b792423beec2d5e6e96af873d8c5c3a4d7d",
+      "selection": [
+        {
+          "code": "sls",
+          "value": 35
+        }
+      ],
+      "fullDump": true,
+      "allowExperimental": true,
+      "outputSha256": "86f25860ae8dbc9c51d91f458e828f7527b784a4f91eed63598a676a5e2fff71",
+      "outputSize": 81096,
+      "log": [
+        {
+          "name": "region_limit_nop",
+          "offset": "0x322c",
+          "before": "01e0",
+          "after": "00bf"
+        },
+        {
+          "name": "region_limit_movw",
+          "offset": "0x3230",
+          "before": "13",
+          "after": "5e"
+        },
+        {
+          "name": "hijack_speed_calc",
+          "offset": "0x2dba",
+          "before": "48795449",
+          "after": "07f043bf"
+        },
+        {
+          "name": "speed_logic_block",
+          "offset": "0xac44",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "48798a7802f00302032a02d140f25e1002e000eb8000400001490880f8f7b1b8a2010020"
+        },
+        {
+          "name": "create_full_image",
+          "offset": "0x0",
+          "before": "N/A",
+          "after": "Image re-assembled"
+        }
+      ]
+    }
+  ]
+}
