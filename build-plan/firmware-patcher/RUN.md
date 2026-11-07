@@ -1,6 +1,6 @@
 # Firmware Patcher — Run Record
 
-> **Integrated into `master`:** fast-forwarded `master` from `dec6725` to `888b8d0` on 2026-11-07 (local only; no push at integration time).
+> **Integrated into `master`:** fast-forwarded `master` from `dec6725` to `888b8d0` on 2026-11-07, then added the spec/prompt/run docs (`99202d4`) and restored the lint baseline (`4edc8ee`). Local only; no push at integration time.
 
 **Date:** 2026-11-07
 **Run:** `run_92b2b3cfb0ad`
@@ -67,9 +67,10 @@ The replacements use Claude on the same worktrees. No Codex attempt produced an 
 - **Supervisor verdict:** **CONDITIONALLY VERIFIED** — all verified gates pass; E2E remains UNVERIFIED without Firebase credentials.
 - Type-check PASS; build PASS; Core 200/200; API 92/92; UI 42/42; full suite 580/582 with only the two pre-existing `uruguay-locations` failures.
 - Real-fixture parity: 32/32 vectors; standalone Python parity 18/18 PASS. MSS0 goldens match: Base `7a6616...`, Lite `98f127...`.
-- Lint: 14 errors/7 warnings vs baseline 14/5; the 2 new warnings are non-blocking.
+- Lint on the verified candidate: 14 errors/7 warnings vs baseline 14/5. Final master restored the baseline to 14 errors/5 warnings (`4edc8ee`).
 - API/security/UI checks pass: both roles, no disclaimer gate, `mss0exp` supersedes `mss`, no persistence, 375/768/1280 no horizontal overflow.
 - Open gates: E2E UNVERIFIED (Firebase dev creds + both flags true at build); both feature flags default false; 9 models synthetic-only/hidden; `mss0exp` not hardware validated.
+- **Final master:** `4edc8ee878c287f38a99bdb18f2cedf4cf721457` — verified candidate `888b8d0` plus docs (`99202d4`) and lint-baseline fix (`4edc8ee`). Re-verified on final master: type-check PASS, build PASS, targeted capabilities tests 10/10; full suite remains 580/582 with only the two pre-existing baseline failures.
 - **Release acceptance:** not granted; product owner decision remains.
 
 ## Evidence / next action
