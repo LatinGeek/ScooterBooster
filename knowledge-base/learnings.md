@@ -315,3 +315,11 @@
 
 - **MercadoPago MCP is safest here as a repo-local `mcp-remote` bridge that loads `.env.local`:** the remote server accepts auth headers, but editor MCP configs should not duplicate secrets. A small Node wrapper can load `MERCADOPAGO_ACCESS_TOKEN` from the project env file once and serve Codex, Cursor, and VS Code from the same entrypoint.
   - Affected files: `.mcp.json`, `.cursor/mcp.json`, `.vscode/mcp.json`, `scripts/mercadopago-mcp-proxy.mjs`
+
+## 2026-11-23
+
+- **Nested App Router layouts duplicated the technician panel shell:** `/dashboard/technician/*` inherited `src/app/dashboard/layout.tsx` (customer shell) on top of its own `technician/layout.tsx`, rendering two sidebars, two `<main>` landmarks, and two mobile tab bars. Moving the customer routes into a route group (`src/app/dashboard/(user)/…`) preserves the `/dashboard` URLs while giving the technician branch only its own layout, which now renders `<Navbar />` itself.
+  - Affected files: `src/app/dashboard/(user)/layout.tsx`, `src/app/dashboard/technician/layout.tsx`, `tests/e2e/authenticated-dashboards.spec.ts`
+
+- **A stale `.next` cache can make existing App Router API routes 404 in `next dev`:** after branch/worktree switches, `POST /api/auth/session` and the other `api/auth/*` handlers resolved to the app 404 page even though `app-paths-manifest.json` listed them. Deleting `.next` and restarting `next dev` restored the routes.
+  - Affected files: n/a (build cache only)

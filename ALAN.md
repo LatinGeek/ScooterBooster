@@ -79,8 +79,9 @@ We are currently in **active build phase**. Alan executes autonomously following
 │   │   ├── booking/page.tsx           # Booking flow
 │   │   └── booking/[id]/page.tsx      # Booking detail/confirmation
 │   ├── dashboard/
-│   │   ├── page.tsx                   # User dashboard
-│   │   └── technician/page.tsx        # Technician dashboard
+│   │   ├── (user)/                    # Customer shell (layout) — keeps /dashboard URLs
+│   │   │   └── page.tsx               # User dashboard
+│   │   └── technician/page.tsx        # Technician dashboard (own shell)
 │   ├── admin/page.tsx                 # Admin panel
 │   ├── api/
 │   │   ├── bookings/route.ts
