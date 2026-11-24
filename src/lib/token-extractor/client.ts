@@ -51,6 +51,16 @@ export type DeviceRecord = {
   ltmk: string | null
   ltmkEncrypted: string | null
   ltmkStatus: string | null
+  ltmkDiagnostic?: {
+    cloudCode: number | null
+    httpStatus: number | null
+    encryptType: number | null
+    keyBytes: number | null
+    keyEncoding: "hex" | "base64" | null
+    rawKeyCharacters: number | null
+    pinProvided: boolean
+    resultFields: string[]
+  }
 }
 
 type JsonRecord = Record<string, unknown>
@@ -80,6 +90,26 @@ function numberValue(value: unknown): number {
     return Number.isFinite(parsed) ? parsed : 0
   }
   return 0
+}
+
+function optionalNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return null
+}
+
+function decodeBluetoothKey(value: string): { bytes: Buffer | null; encoding: "hex" | "base64" | null } {
+  if (/^[0-9a-f]+$/i.test(value) && value.length % 2 === 0) {
+    return { bytes: Buffer.from(value, "hex"), encoding: "hex" }
+  }
+  if (value.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/.test(value)) {
+    const bytes = Buffer.from(value, "base64")
+    if (bytes.toString("base64") === value) return { bytes, encoding: "base64" }
+  }
+  return { bytes: null, encoding: null }
 }
 
 function generateAgent(): string {
@@ -634,13 +664,35 @@ export class XiaomiCloudClient {
       /* ignored */
     }
     try {
-      const blue = resultOf(await this.getBluetoothKey(server, did))
-      const rawKey = stringValue(blue.key)
-      if (!rawKey) return record
-      const encryptType = numberValue(blue.encrypt_type)
+      const response = await this.getBluetoothKey(server, did)
+      const blue = resultOf(response)
+      const rawKey = stringValue(blue.key).trim()
+      const cloudCode = optionalNumber(response.code)
+      const encryptType = optionalNumber(blue.encrypt_type)
+      const decoded = decodeBluetoothKey(rawKey)
+      record.ltmkDiagnostic = {
+        cloudCode, httpStatus: null, encryptType,
+        keyBytes: decoded.bytes?.length ?? null,
+        keyEncoding: decoded.encoding, rawKeyCharacters: rawKey.length, pinProvided: Boolean(pin),
+        resultFields: Object.keys(blue),
+      }
+      if (cloudCode !== null && cloudCode !== 0) {
+        record.ltmkStatus = "cloud_rejected"
+        return record
+      }
+      if (!rawKey) {
+        record.ltmkStatus = "not_returned"
+        return record
+      }
+      if (!decoded.bytes || decoded.bytes.length !== 32) {
+        record.ltmkStatus = "invalid_key_format"
+        return record
+      }
       if (encryptType === 0) {
-        record.ltmk = rawKey
+        record.ltmk = decoded.bytes.toString("hex")
         record.ltmkStatus = "plaintext"
+      } else if (encryptType !== 1) {
+        record.ltmkStatus = "unsupported_encryption"
       } else if (pin) {
         try {
           const decipher = crypto.createDecipheriv(
@@ -649,18 +701,24 @@ export class XiaomiCloudClient {
             Buffer.from("7aa4c68c590d4031b980d98b41023800", "hex")
           )
           decipher.setAutoPadding(false)
-          record.ltmk = Buffer.concat([decipher.update(Buffer.from(rawKey, "hex")), decipher.final()]).toString("hex")
+          record.ltmk = Buffer.concat([decipher.update(decoded.bytes), decipher.final()]).toString("hex")
           record.ltmkStatus = "decrypted"
         } catch {
-          record.ltmkEncrypted = rawKey
+          record.ltmkEncrypted = decoded.bytes.toString("hex")
           record.ltmkStatus = "decrypt_error"
         }
       } else {
-        record.ltmkEncrypted = rawKey
+        record.ltmkEncrypted = decoded.bytes.toString("hex")
         record.ltmkStatus = "pin_required"
       }
-    } catch {
-      /* ignored */
+    } catch (error) {
+      const status = error instanceof Error ? /\bHTTP (\d{3})\b/.exec(error.message) : null
+      record.ltmkStatus = "request_failed"
+      record.ltmkDiagnostic = {
+        cloudCode: null, httpStatus: status ? Number(status[1]) : null,
+        encryptType: null, keyBytes: null, keyEncoding: null, rawKeyCharacters: null,
+        pinProvided: Boolean(pin), resultFields: [],
+      }
     }
     return record
   }

@@ -65,6 +65,13 @@ type Device = {
   ltmk: string | null
   ltmkEncrypted: string | null
   ltmkStatus: string | null
+  ltmkDiagnostic?: {
+    cloudCode?: number | null
+    httpStatus?: number | null
+    encryptType?: number | null
+    keyBytes?: number | null
+    rawKeyCharacters?: number | null
+  }
 }
 
 type ScanResult = {
@@ -103,6 +110,27 @@ type FirmwareDialogState = {
 }
 
 const API = "/api/admin/token-extractor"
+
+function ltmkDisplay(device: Device, visible: boolean): string {
+  const info = device.ltmkDiagnostic
+  switch (device.ltmkStatus) {
+    case "pin_required": return info?.encryptType != null
+      ? `Clave cifrada por Xiaomi (tipo ${info.encryptType})` : "Clave cifrada por Xiaomi"
+    case "decrypt_error": return "No se pudo descifrar la clave"
+    case "cloud_rejected":
+      return info?.cloudCode != null ? `Xiaomi rechazó la consulta (código ${info.cloudCode})` : "Xiaomi rechazó la consulta"
+    case "not_returned": return "Xiaomi no devolvió una LTMK"
+    case "request_failed":
+      return info?.httpStatus != null ? `Consulta LTMK fallida (HTTP ${info.httpStatus})` : "Consulta LTMK fallida"
+    case "invalid_key_format": {
+      const length = info?.keyBytes != null ? `${info.keyBytes} bytes`
+        : info?.rawKeyCharacters != null ? `${info.rawKeyCharacters} caracteres` : "longitud desconocida"
+      return `Formato LTMK inesperado (${length}; cifrado ${info?.encryptType ?? "desconocido"})`
+    }
+    case "unsupported_encryption": return `Tipo de protección de clave no compatible (${info?.encryptType ?? "ausente"})`
+    default: return device.ltmkEncrypted && !device.ltmk ? "Clave cifrada por Xiaomi" : display(device.ltmk, visible)
+  }
+}
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API}${path}`, {
@@ -586,7 +614,7 @@ export function TokenExtractorPanel() {
               </div>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                 <div className="w-full max-w-xs space-y-2">
-                  <Label htmlFor="device-pin">PIN del dispositivo (opcional)</Label>
+                  <Label htmlFor="device-pin">PIN del scooter (opcional)</Label>
                   <Input
                     id="device-pin"
                     type="password"
@@ -595,6 +623,7 @@ export function TokenExtractorPanel() {
                     placeholder="PIN de Xiaomi Home"
                     autoComplete="off"
                   />
+                  <p className="text-xs text-[#6b7280]">Déjalo vacío si no configuraste un PIN para el scooter.</p>
                 </div>
                 <Button onClick={scanRegions} disabled={scanning}>
                   {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
@@ -673,15 +702,7 @@ export function TokenExtractorPanel() {
                           <Meta label="BLE key" value={display(device.bleKey, showSecrets)} mono />
                           <Meta
                             label="LTMK"
-                            value={
-                              device.ltmkStatus === "pin_required"
-                                ? "PIN requerido"
-                                : device.ltmkStatus === "decrypt_error"
-                                  ? "PIN incorrecto"
-                                  : device.ltmkEncrypted && !device.ltmk
-                                    ? "Cifrada; falta PIN"
-                                    : display(device.ltmk, showSecrets)
-                            }
+                            value={ltmkDisplay(device, showSecrets)}
                             mono
                           />
                         </div>
