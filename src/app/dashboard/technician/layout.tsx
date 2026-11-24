@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 import { BrandLogo } from "@/components/brand-logo"
+import { Navbar } from "@/components/navbar"
 import { isFirmwarePatcherNavEnabled } from "@/components/firmware-patcher/flags"
 
 const NAV_ITEMS = [
@@ -68,6 +69,8 @@ export default function TechnicianDashboardLayout({ children }: { children: Reac
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
+      <Navbar />
+
       <div className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
         {/* Sidebar */}
         <aside className="hidden w-60 shrink-0 md:block">

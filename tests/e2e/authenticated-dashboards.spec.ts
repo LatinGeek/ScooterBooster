@@ -3,6 +3,7 @@ import { signInAs, signOut } from "./support/auth"
 import {
   createTechnicianBookingFixture,
   deleteFixture,
+  upsertApprovedTechnicianFixture,
   upsertUserNotificationFixture,
 } from "./support/fixtures"
 
@@ -139,6 +140,42 @@ test.describe("authenticated dashboards", () => {
 
     await expect(page).toHaveURL(/\/dashboard\/technician$/)
     await expect(page.getByRole("heading", { name: /Hola, Carlos/i })).toBeVisible()
+  })
+
+  test("technician dashboard uses one shell", async ({ page }) => {
+    const technicianUid = `e2e-tech-shell-${Date.now()}`
+
+    await upsertApprovedTechnicianFixture({
+      technicianId: technicianUid,
+      userId: technicianUid,
+      displayName: "Técnico Shell",
+      email: `${technicianUid}@example.com`,
+    })
+
+    try {
+      await signInAs(page, {
+        uid: technicianUid,
+        role: "technician",
+        email: `${technicianUid}@example.com`,
+        displayName: "Técnico Shell",
+      })
+
+      await page.goto("/dashboard/technician")
+      await expect(page.getByRole("heading", { name: /Hola, Técnico/i })).toBeVisible()
+      await expect(page.locator("main")).toHaveCount(1)
+      await expect(page.locator("aside")).toHaveCount(1)
+      await expect(page.getByText("Centro de actividad")).toHaveCount(0)
+      await expect(page.getByRole("link", { name: "Mis reservas", exact: true })).toHaveCount(0)
+      await expect(page.getByRole("link", { name: "Token Extractor" })).toBeVisible()
+
+      await page.goto("/dashboard/technician/token-extractor")
+      await expect(page.getByRole("heading", { name: "Token Extractor" })).toBeVisible()
+      await expect(page.locator("main")).toHaveCount(1)
+      await expect(page.locator("aside")).toHaveCount(1)
+    } finally {
+      await deleteFixture("technicians", technicianUid).catch(() => {})
+      await deleteFixture("users", technicianUid).catch(() => {})
+    }
   })
 
   test("signed-in technicians can open earnings with completed bookings present", async ({
