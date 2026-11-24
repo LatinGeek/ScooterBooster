@@ -625,7 +625,8 @@ export class XiaomiCloudClient {
       ltmkEncrypted: null,
       ltmkStatus: null,
     }
-    if (!did.includes("blt")) return record
+    // Some Xiaomi scooters have numeric DIDs while still using MiService BLE.
+    if (!did.includes("blt") && !record.model.startsWith("xiaomi.scooter.")) return record
     try {
       const beacon = resultOf(await this.getBeaconKey(server, did))
       if (typeof beacon.beaconkey === "string") record.bleKey = beacon.beaconkey
@@ -647,6 +648,7 @@ export class XiaomiCloudClient {
             crypto.createHash("md5").update(pin, "utf8").digest(),
             Buffer.from("7aa4c68c590d4031b980d98b41023800", "hex")
           )
+          decipher.setAutoPadding(false)
           record.ltmk = Buffer.concat([decipher.update(Buffer.from(rawKey, "hex")), decipher.final()]).toString("hex")
           record.ltmkStatus = "decrypted"
         } catch {
